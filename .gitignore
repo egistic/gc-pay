@@ -1,0 +1,6 @@
+.cursor/
+.vscode/
+cursor-memory-bank/
+frontend/node_modules/
+gc-spends-backend/.venv/
+gc-spends-backend/backend.log
