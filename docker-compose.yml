@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gc_spends_frontend
+    networks:
+      - merykey_internal
+      - traefik
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`gcpay.openlayers.kz`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.docker.network=traefik"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./gc-spends-backend
+      dockerfile: Dockerfile
+    container_name: gc_spends_backend
+    environment:
+      - DATABASE_URL=postgresql+psycopg://kads_user:kads_password@fast_api_backend_postgres_1:5432/grainchain
+      - APP_ENV=production
+      - API_PREFIX=/api/v1
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production}
+      - JWT_EXPIRE_MINUTES=43200
+      - CORS_ORIGINS=["https://gcpay.openlayers.kz", "https://www.gcpay.openlayers.kz"]
+      - FILE_STORAGE=local
+      - FILE_UPLOAD_DIR=./storage
+      - LOG_LEVEL=INFO
+    volumes:
+      - backend_storage:/app/storage
+    networks:
+      - merykey_internal
+      - traefik
+    # depends_on: postgres (external container)
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`gcback.openlayers.kz`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL is external - using existing container: fast_api_backend_postgres_1
+  # No need to define it here as it's already running
+
+volumes:
+  postgres_data:
+    external: true
+  backend_storage:
+
+networks:
+  merykey_internal:
+    driver: bridge
+    internal: true
+  traefik:
+    external:
+      name: "traefik"

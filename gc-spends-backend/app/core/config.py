@@ -17,6 +17,13 @@ class Settings(BaseSettings):
 
     # cors (можно CSV или JSON-массив)
     cors_origins: List[str] | str = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"]
+    
+    # Production CORS configuration
+    cors_origins_prod: List[str] = [
+        "https://yourdomain.com",
+        "https://www.yourdomain.com",
+        "https://api.yourdomain.com"
+    ]
 
     # files
     file_storage: str = "local"
@@ -36,6 +43,13 @@ class Settings(BaseSettings):
                 return json.loads(s)
             return [item.strip() for item in s.split(",") if item.strip()]
         return []
+    
+    @property
+    def allowed_origins(self) -> List[str]:
+        """Return appropriate origins based on environment"""
+        if self.app_env == "production":
+            return self.cors_origins_prod
+        return self.cors_origins
 
     model_config = {
         "env_file": ".env",
