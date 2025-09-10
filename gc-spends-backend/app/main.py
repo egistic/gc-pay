@@ -75,7 +75,7 @@ api.add_middleware(
 if settings.app_env == "production":
     app.add_middleware(
         TrustedHostMiddleware, 
-        allowed_hosts=["yourdomain.com", "*.yourdomain.com", "localhost"]
+        allowed_hosts=["gcback.openlayers.kz", "*.openlayers.kz", "localhost"]
     )
 
 # Add GZip compression middleware

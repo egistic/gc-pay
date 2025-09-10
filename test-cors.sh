@@ -10,6 +10,7 @@ curl -v -X OPTIONS \
      -H "Origin: https://gcpay.openlayers.kz" \
      -H "Access-Control-Request-Method: GET" \
      -H "Access-Control-Request-Headers: Content-Type,Authorization" \
+     -H "Host: gcback.openlayers.kz" \
      https://gcback.openlayers.kz/api/v1/users
 
 echo ""
@@ -18,11 +19,12 @@ curl -v -X OPTIONS \
      -H "Origin: https://gcpay.openlayers.kz" \
      -H "Access-Control-Request-Method: GET" \
      -H "Access-Control-Request-Headers: Content-Type,Authorization" \
+     -H "Host: gcback.openlayers.kz" \
      https://gcback.openlayers.kz/api/v1/requests/list?role=executor
 
 echo ""
 echo "Testing GET /api/v1/health..."
-curl -v https://gcback.openlayers.kz/health
+curl -v -H "Host: gcback.openlayers.kz" https://gcback.openlayers.kz/health
 
 echo ""
 echo "CORS tests completed. Review the output for 'Access-Control-Allow-Origin' and '200 OK' status."
