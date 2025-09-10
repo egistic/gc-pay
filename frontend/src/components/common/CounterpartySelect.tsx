@@ -118,8 +118,6 @@ export function CounterpartySelect({ value, onValueChange, onCounterpartyAdd, fi
               <SelectItem value="Поставщик Услуг">Поставщик Услуг</SelectItem>
               <SelectItem value="Покупатель">Покупатель</SelectItem>
               <SelectItem value="Партнер/БВУ">Партнер/БВУ</SelectItem>
-              <SelectItem value="Bulk">Bulk</SelectItem>
-              <SelectItem value="Test">Test</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -83,6 +83,7 @@ class RequestOut(BaseModel):
     files: List[dict] = []  # List of uploaded files
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    responsible_registrar_id: uuid.UUID | None = None
     lines: List[RequestLineOut] = []
     # Additional fields for frontend
     paying_company: str | None = None
@@ -106,6 +107,7 @@ class RequestListOut(BaseModel):
     expense_article_text: str | None = None  # Text field for expense article
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    responsible_registrar_id: uuid.UUID | None = None
     # Additional fields for frontend
     paying_company: str | None = None
     counterparty_category: str | None = None

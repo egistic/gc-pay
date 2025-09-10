@@ -46,27 +46,33 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
   const [exchangeRate, setExchangeRate] = useState(1);
   const [paymentOrderFile, setPaymentOrderFile] = useState<File | null>(null);
 
+  // Get dictionary data
+  const { items: counterparties } = useDictionaries('counterparties');
+  const { items: expenseItems } = useDictionaries('expense-articles');
+  const { items: priorities } = useDictionaries('priorities');
+  const { items: contracts } = useDictionaries('contracts');
+
   // Get related data
-  const counterparty = mockCounterparties.find(cp => cp.id === request.counterpartyId);
+  const counterparty = counterparties.find(cp => cp.id === request.counterpartyId);
   const expenseSplits = request.expenseSplits || [];
   const paymentAllocations = request.paymentAllocations || [];
 
   const getExpenseItemName = (id: string) => {
-    const item = mockExpenseItems.find(item => item.id === id);
+    const item = expenseItems.find(item => item.id === id);
     return item ? `${item.code} - ${item.name}` : 'Неизвестно';
   };
 
   const getPriorityInfo = (id: string) => {
-    return mockPriorities.find(p => p.id === id);
+    return priorities.find(p => p.id === id);
   };
 
   const getCounterpartyName = (id: string) => {
-    return mockCounterparties.find(cp => cp.id === id)?.name || 'Неизвестен';
+    return counterparties.find(cp => cp.id === id)?.name || 'Неизвестен';
   };
 
   const getContractInfo = (id: string) => {
     if (id === 'outside-deals') return { code: 'Вне сделок', id: 'outside-deals' };
-    return mockContracts.find(c => c.id === id);
+    return contracts.find(c => c.id === id);
   };
 
   const handleAction = () => {

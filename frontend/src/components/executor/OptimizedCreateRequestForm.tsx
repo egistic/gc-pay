@@ -136,7 +136,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       docType: formData.docType as DocumentType,
       counterpartyId: formData.counterpartyId,
       counterpartyCategory: formData.counterpartyCategory as CounterpartyCategory,
-      amount: formData.amount ? Number(formData.amount.replace(/\s/g, '').replace(',', '.')) : 0,
+      amount: formData.amount ? Number(formData.amount.replace(',', '.')) : 0,
       currency: formData.currency as Currency,
       vatRate: formData.vatRate as VATRate,
       dueDate: formData.dueDate?.toISOString().split('T')[0] || '',
@@ -189,7 +189,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       docType: formData.docType as DocumentType || '',
       counterpartyId: formData.counterpartyId,
       counterpartyCategory: formData.counterpartyCategory as CounterpartyCategory,
-      amount: formData.amount ? Number(formData.amount.replace(/\s/g, '').replace(',', '.')) : 0,
+      amount: formData.amount ? Number(formData.amount.replace(',', '.')) : 0,
       currency: formData.currency || '',
       vatRate: formData.vatRate || 'Неизвестно',
       dueDate: formData.dueDate?.toISOString().split('T')[0] || '',
@@ -353,28 +353,11 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
     window.open(fileUrl, '_blank');
   };
 
-  // Format number with spaces for thousands separator
-  const formatNumber = (value: string) => {
-    // Remove all non-numeric characters except comma and dot
-    const cleanValue = value.replace(/[^\d.,]/g, '');
-    if (cleanValue === '') return '';
-    
-    // Replace comma with dot for parsing
-    const normalizedValue = cleanValue.replace(',', '.');
-    const number = parseFloat(normalizedValue);
-    
-    if (isNaN(number)) return cleanValue;
-    
-    return number.toLocaleString('ru-RU', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  };
-
-  // Handle amount input with formatting
+  // Handle amount input - simplified without formatting to prevent cursor jumping
   const handleAmountChange = (value: string) => {
-    const formattedValue = formatNumber(value);
-    setFormData(prev => ({ ...prev, amount: formattedValue }));
+    // Allow only numbers, comma, and dot
+    const cleanValue = value.replace(/[^\d.,]/g, '');
+    setFormData(prev => ({ ...prev, amount: cleanValue }));
   };
 
 
@@ -406,7 +389,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
     }
 
     // Payment section validation
-    if (!formData.amount || isNaN(Number(formData.amount.replace(/\s/g, '').replace(',', '.'))) || Number(formData.amount.replace(/\s/g, '').replace(',', '.')) <= 0) {
+    if (!formData.amount || isNaN(Number(formData.amount.replace(',', '.'))) || Number(formData.amount.replace(',', '.')) <= 0) {
       newErrors.amount = 'Введите корректную сумму';
     }
     if (!formData.currency || formData.currency.trim() === '') {

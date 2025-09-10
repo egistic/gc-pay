@@ -34,6 +34,11 @@ Type: Intermediate Feature Implementation
 - [x] Backend API modifications
 - [x] Frontend component updates
 - [x] Role-based access control implementation
+- [x] Mock data identification complete
+- [x] Remove mock data from registrar/sub-registrar dashboards
+- [x] Backend API integration for responsible registrar filtering
+- [x] Frontend API integration for SubRegistrarDashboard
+- [x] Frontend API integration for Dashboard component
 - [ ] Closing documents functionality
 - [ ] Testing and validation
 

@@ -59,7 +59,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
       } catch (err) {
         console.error('Dashboard: Error loading payment requests:', err);
         setError('Ошибка загрузки данных заявок');
-        // No fallback to mock data - show error instead
+        // Show empty state instead of mock data
         setApiPaymentRequests([]);
       } finally {
         setIsLoading(false);
@@ -112,22 +112,12 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
         }
       });
       
-      const actualTotal = allRegistrarRequests.length;
-      const actualNewRequests = newRequests.length;
-      const actualRegistered = registered.length;
-      const actualOverdue = overdueRequests.length;
-      
-      const finalTotal = actualTotal > 0 ? actualTotal : 5;
-      const finalNewRequests = actualNewRequests > 0 ? actualNewRequests : 3;
-      const finalRegistered = actualRegistered > 0 ? actualRegistered : 2;
-      const finalOverdue = actualOverdue > 0 ? actualOverdue : 3;
-      
       return {
-        total: finalTotal,
-        newRequests: finalNewRequests,
-        inProgress: finalNewRequests,
-        registered: finalRegistered,
-        overdueCount: finalOverdue,
+        total: allRegistrarRequests.length,
+        newRequests: newRequests.length,
+        inProgress: newRequests.length,
+        registered: registered.length,
+        overdueCount: overdueRequests.length,
         returnedForRevision: returned.length,
         declinedStats: declined.length
       };
@@ -255,57 +245,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
     const allRequests = allPaymentRequests;
     let requests = [...allRequests];
     
-    // Add mock requests for registrar if needed
-    if (currentRole === 'registrar' && allRequests.length < 5) {
-      const additionalMockRequests = [
-        {
-          id: 'mock-1',
-          requestNumber: '041224КЭ999',
-          createdAt: '2024-12-04T10:00:00Z',
-          dueDate: '2024-12-15',
-          counterpartyId: '1',
-          amount: 145000,
-          currency: 'KZT' as const,
-          status: 'submitted' as const,
-          createdBy: '1',
-          description: 'Техническое обслуживание оборудования',
-          docNumber: 'SRV-2024-999',
-          docDate: '2024-12-04',
-          history: []
-        },
-        {
-          id: 'mock-2', 
-          requestNumber: '041224КЖД888',
-          createdAt: '2024-12-04T11:30:00Z',
-          dueDate: '2024-12-12',
-          counterpartyId: '3',
-          amount: 89000,
-          currency: 'KZT' as const,
-          status: 'submitted' as const,
-          createdBy: '1',
-          description: 'Железнодорожная перевозка груза',
-          docNumber: 'RW-2024-888',
-          docDate: '2024-12-04',
-          history: []
-        },
-        {
-          id: 'mock-3',
-          requestNumber: '031224КТ777',
-          createdAt: '2024-12-03T14:00:00Z',
-          dueDate: '2024-12-10',
-          counterpartyId: '4',
-          amount: 67000,
-          currency: 'KZT' as const,
-          status: 'submitted' as const,
-          createdBy: '1',
-          description: 'Лабораторные анализы качества',
-          docNumber: 'LAB-2024-777',
-          docDate: '2024-12-03',
-          history: []
-        }
-      ];
-      requests = [...requests, ...additionalMockRequests];
-    }
+    // No mock data - use only real API data
     
     if (currentRole === 'registrar') {
       requests = requests.filter(r => ['submitted', 'classified', 'returned', 'declined'].includes(r.status));

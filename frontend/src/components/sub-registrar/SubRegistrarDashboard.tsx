@@ -69,57 +69,42 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
     const loadAssignedRequests = async () => {
       try {
         setIsLoading(true);
-        // TODO: Implement actual API call to get requests assigned to this sub-registrar
-        // For testing purposes, using mock data
-        const mockRequests: PaymentRequest[] = [
-          {
-            id: '1',
-            requestNumber: 'REQ-001',
-            createdAt: '2024-01-15T10:00:00Z',
-            dueDate: '2024-01-20T18:00:00Z',
-            counterpartyId: '101c496f-ba9d-4c44-bacb-e1db78f1923f', // ООО "Элеватор 1"
-            amount: 150000,
-            currency: 'KZT',
-            description: 'Оплата услуг элеватора за хранение зерна',
-            status: 'classified',
-            responsibleRegistrarId: currentUserId,
-            files: [
-              {
-                id: 'file1',
-                name: 'contract_elevator.pdf',
-                url: '/documents/contract_elevator.pdf',
-                originalName: 'Договор_элеватор_2024.pdf'
-              }
-            ],
-            docType: 'Договор',
-            docNumber: 'Д-ЭЛ-2024-001',
-            docDate: '2024-01-15',
-            payingCompany: 'KD',
-            vatRate: '12%'
-          },
-          {
-            id: '2',
-            requestNumber: 'REQ-002',
-            createdAt: '2024-01-16T14:30:00Z',
-            dueDate: '2024-01-22T18:00:00Z',
-            counterpartyId: 'cp2',
-            amount: 75000,
-            currency: 'KZT',
-            description: 'Логистические услуги по транспортировке',
-            status: 'classified',
-            responsibleRegistrarId: currentUserId,
-            files: [],
-            docType: 'АВР',
-            docNumber: 'АВР-2024-001',
-            docDate: '2024-01-16',
-            payingCompany: 'SD',
-            vatRate: '12%'
-          }
-        ];
-        setRequests(mockRequests);
-        setFilteredRequests(mockRequests);
+        
+        // Get requests assigned to this sub-registrar
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/requests/list?responsible_registrar_id=${currentUserId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load assigned requests: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Transform backend data to frontend format
+        const transformedRequests: PaymentRequest[] = data.map((req: any) => ({
+          id: req.id,
+          requestNumber: req.number,
+          createdAt: req.created_at,
+          dueDate: req.due_date,
+          counterpartyId: req.counterparty_id,
+          amount: req.amount_total,
+          currency: req.currency_code,
+          description: req.title,
+          status: req.status,
+          responsibleRegistrarId: req.responsible_registrar_id,
+          files: req.files || [],
+          docType: req.doc_type,
+          docNumber: req.doc_number,
+          docDate: req.doc_date,
+          payingCompany: req.paying_company,
+          vatRate: req.vat_rate
+        }));
+        
+        setRequests(transformedRequests);
+        setFilteredRequests(transformedRequests);
       } catch (error) {
         console.error('Error loading assigned requests:', error);
+        setRequests([]);
+        setFilteredRequests([]);
       } finally {
         setIsLoading(false);
       }

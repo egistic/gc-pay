@@ -241,6 +241,7 @@ def get_requests(
     role: Optional[str] = Query(None, description="User role"),
     user_id: Optional[uuid.UUID] = Query(None, description="User ID"),
     status: Optional[str] = Query(None, description="Request status"),
+    responsible_registrar_id: Optional[uuid.UUID] = Query(None, description="Responsible registrar ID"),
     db: Session = Depends(get_db)
 ):
     """Get list of payment requests with optional filtering"""
@@ -267,6 +268,10 @@ def get_requests(
     # Apply status filter
     if status:
         query = query.filter(PaymentRequest.status == status)
+    
+    # Apply responsible registrar filter
+    if responsible_registrar_id:
+        query = query.filter(PaymentRequest.responsible_registrar_id == responsible_registrar_id)
     
     # Order by creation date (newest first)
     requests = query.order_by(PaymentRequest.created_at.desc()).all()
@@ -297,6 +302,7 @@ def get_requests(
             'doc_number': req.doc_number,
             'doc_date': req.doc_date,
             'doc_type': req.doc_type,
+            'responsible_registrar_id': req.responsible_registrar_id,
             'files': []  # Files are handled separately
         }
         result.append(schemas.RequestListOut.model_validate(req_dict))
