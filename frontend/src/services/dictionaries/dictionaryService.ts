@@ -29,7 +29,7 @@ export class DictionaryService {
     this.validator = new ValidationManager();
     
     // Use real API for production
-    const apiClient = new DictionaryApiClient('http://localhost:8000/api/v1');
+    const apiClient = new DictionaryApiClient(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1`);
     this.api = new DictionaryApiEndpoints(apiClient);
     
     this.initializeHandlers();
