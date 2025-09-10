@@ -14,6 +14,7 @@ import {
   CommandItem,
   CommandList
 } from '../../ui/command';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import {
   Popover,
   PopoverContent,
@@ -27,10 +28,11 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { cn } from '../../ui/utils';
-import { ExpenseItem, PaymentRequest, ExpenseSplit } from '../../../types';
+import { ExpenseItem, PaymentRequest, ExpenseSplit, User } from '../../../types';
 import { useExpenseSplits } from '../../../hooks/useExpenseSplits';
-import { ValidationAlert } from './ValidationAlert';
-import { formatCurrency, formatNumber } from '../../../utils/formatting';
+import { formatCurrency } from '../../../utils/formatting';
+import { DistributionService } from '../../../services/distributionService';
+import { toast } from 'sonner';
 
 interface ExpenseSplitFormProps {
   request: PaymentRequest;
@@ -41,14 +43,14 @@ interface ExpenseSplitFormProps {
   className?: string;
 }
 
-export function ExpenseSplitForm({
+export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = ({
   request,
   expenseItems,
   onSplitsChange,
   initialSplits,
   showValidation = true,
   className = ''
-}: ExpenseSplitFormProps) {
+}) => {
   const {
     splits,
     totalSplit,
@@ -60,11 +62,33 @@ export function ExpenseSplitForm({
   } = useExpenseSplits({ request, initialSplits });
 
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
+  
+  // Sub-registrars state
+  const [subRegistrars, setSubRegistrars] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   // Notify parent of changes
   useEffect(() => {
     onSplitsChange(splits);
-  }, [splits, onSplitsChange]);
+  }, [splits]); // Removed onSplitsChange from dependencies to prevent infinite loop
+
+  // Load sub-registrars on component mount
+  useEffect(() => {
+    loadSubRegistrars();
+  }, []);
+
+  const loadSubRegistrars = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const subRegistrarsData = await DistributionService.getSubRegistrars();
+      setSubRegistrars(subRegistrarsData);
+    } catch (error) {
+      console.error('Error loading sub-registrars:', error);
+      toast.error('Ошибка загрузки суб-регистраторов');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
 
   const getExpenseItemName = (id: string): string => {
     const item = expenseItems.find(item => item.id === id);
@@ -108,8 +132,8 @@ export function ExpenseSplitForm({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2 space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label>Статья расходов *</Label>
                   <Popover open={openPopoverIndex === index} onOpenChange={(open) => {
                     setOpenPopoverIndex(open ? index : null);
@@ -166,15 +190,37 @@ export function ExpenseSplitForm({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Комментарий</Label>
-                <Textarea
-                  value={split.comment || ''}
-                  onChange={(e) => updateSplit(index, 'comment', e.target.value)}
-                  placeholder="Дополнительная информация по данной статье"
-                  rows={2}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Суб-регистратор *</Label>
+                  <Select
+                    value={split.subRegistrarId || ''}
+                    onValueChange={(value) => updateSplit(index, 'subRegistrarId', value)}
+                    disabled={isLoadingUsers}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите суб-регистратора" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subRegistrars.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name} ({user.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Комментарий</Label>
+                  <Input
+                    value={split.comment || ''}
+                    onChange={(e) => updateSplit(index, 'comment', e.target.value)}
+                    placeholder="Дополнительная информация"
+                  />
+                </div>
               </div>
+
             </div>
           ))}
 
@@ -185,9 +231,7 @@ export function ExpenseSplitForm({
         </CardContent>
       </Card>
 
-      {showValidation && validationErrors.length > 0 && (
-        <ValidationAlert errors={validationErrors} />
-      )}
+
     </div>
   );
-}
+};

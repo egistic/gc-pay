@@ -11,6 +11,7 @@ import { PaymentRequestService } from '../../services/api';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { toast } from 'sonner';
 import { OptimizedCreateRequestForm } from './OptimizedCreateRequestForm';
+import { ExpenseSplitForm } from '../registrar/shared/ExpenseSplitForm';
 import { formatCurrency, formatNumber } from '../../utils/formatting';
 import { formatDateSafe } from '../../features/payment-requests/lib/formatDateSafe';
 import { buildDocumentFileName } from '../../features/payment-requests/lib/buildDocumentFileName';
@@ -280,6 +281,18 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Distribution Form for Registrar */}
+      {request.status === 'approved' && (
+        <ExpenseSplitForm
+          request={request}
+          expenseItems={expenseitems}
+          onSplitsChange={(splits) => {
+            // Handle splits change if needed
+          }}
+          showValidation={true}
+        />
       )}
 
       {/* Payment Allocations */}

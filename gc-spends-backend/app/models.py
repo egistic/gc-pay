@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime  # <-- use Python type for annotations
-from sqlalchemy import String, Boolean, Date as SA_Date, DateTime as SA_DateTime, ForeignKey, Numeric, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Date as SA_Date, DateTime as SA_DateTime, ForeignKey, Numeric, text, JSON
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
 
 # Users / Org / RBAC
@@ -15,6 +15,9 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    
+    # Relationships
+    user_roles: Mapped[list["UserRole"]] = relationship("UserRole", back_populates="user")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -44,6 +47,10 @@ class UserRole(Base):
     valid_from: Mapped[date] = mapped_column(SA_Date)           # <-- Python date in annotation
     valid_to: Mapped[date | None] = mapped_column(SA_Date, nullable=True)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+    
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="user_roles")
+    role: Mapped["Role"] = relationship("Role")
 
 class UserPosition(Base):
     __tablename__ = "user_positions"
@@ -138,6 +145,7 @@ class PaymentRequest(Base):
     price_rate: Mapped[str | None] = mapped_column(String(128), nullable=True)
     period: Mapped[str | None] = mapped_column(String(128), nullable=True)
     responsible_registrar_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    distribution_status: Mapped[str] = mapped_column(String(32), server_default=text("'PENDING'"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
@@ -219,3 +227,54 @@ class Contract(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+
+# New Workflow Models for REGISTRAR/SUB_REGISTRAR/DISTRIBUTOR
+
+class SubRegistrarAssignment(Base):
+    __tablename__ = "sub_registrar_assignments"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
+    sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    assigned_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    status: Mapped[str] = mapped_column(String(32), server_default=text("'ASSIGNED'"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+class DistributorRequest(Base):
+    __tablename__ = "distributor_requests"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    original_request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
+    expense_article_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("expense_articles.id"))
+    amount: Mapped[float] = mapped_column(Numeric(18, 2))
+    distributor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(32), server_default=text("'PENDING'"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+class SubRegistrarReport(Base):
+    __tablename__ = "sub_registrar_reports"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
+    sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    document_status: Mapped[str] = mapped_column(String(50))  # Не получены/Получены в полном объёме/Частично получены
+    report_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), server_default=text("'DRAFT'"))
+    published_at: Mapped[datetime | None] = mapped_column(SA_DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+class ExportContract(Base):
+    __tablename__ = "export_contracts"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    contract_number: Mapped[str] = mapped_column(String(128))
+    contract_date: Mapped[date] = mapped_column(SA_Date)
+    counterparty_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("counterparties.id"), nullable=True)
+    amount: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    currency_code: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+class DistributorExportLink(Base):
+    __tablename__ = "distributor_export_links"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    distributor_request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("distributor_requests.id"))
+    export_contract_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("export_contracts.id"))
+    linked_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    linked_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))

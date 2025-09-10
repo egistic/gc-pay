@@ -5,6 +5,13 @@ export { PaymentRegisterService } from './paymentRegisterService';
 export { UserService } from './userService';
 export { FileService } from './fileService';
 export { DistributorService } from './distributorService';
+export { DistributionService } from './distributionService';
+export { SubRegistrarService } from './subRegistrarService';
+export { DistributorWorkflowService } from './distributorWorkflowService';
+export { ExportContractsService } from './exportContractsService';
+export { WorkflowStateService } from './workflowStateService';
+export { NotificationService } from './notificationService';
+export { WorkflowProgressService } from './workflowProgressService';
 export { httpClient, API_CONFIG } from './httpClient';
 
 // Re-export existing services

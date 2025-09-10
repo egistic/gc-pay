@@ -57,4 +57,16 @@ export class UserService {
     const endpoint = API_CONFIG.endpoints.deleteUser.replace(':id', id);
     return httpClient.delete<void>(endpoint);
   }
+  
+  static async getUsersByRole(role: UserRole): Promise<User[]> {
+    try {
+      const users = await this.getUsers();
+      // Filter users by role - this is a simplified implementation
+      // In a real app, you'd have proper role filtering on the backend
+      return users.filter(user => user.currentRole === role);
+    } catch (error) {
+      console.error('Error getting users by role:', error);
+      return [];
+    }
+  }
 }

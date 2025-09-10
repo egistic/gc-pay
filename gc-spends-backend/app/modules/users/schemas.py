@@ -15,13 +15,6 @@ class UserUpdate(BaseModel):
     phone: str | None = None
     is_active: bool | None = None
 
-class UserOut(BaseModel):
-    id: uuid.UUID
-    full_name: str
-    email: EmailStr
-    phone: str | None = None
-    is_active: bool
-
 class RoleCreate(BaseModel):
     code: str
     name: str
@@ -30,6 +23,22 @@ class RoleOut(BaseModel):
     id: uuid.UUID
     code: str
     name: str
+
+class UserRoleOut(BaseModel):
+    id: uuid.UUID
+    role_id: uuid.UUID
+    valid_from: date
+    valid_to: date | None = None
+    is_primary: bool
+    role: RoleOut
+
+class UserOut(BaseModel):
+    id: uuid.UUID
+    full_name: str
+    email: EmailStr
+    phone: str | None = None
+    is_active: bool
+    user_roles: List[UserRoleOut] = []
 
 class UserRoleAssign(BaseModel):
     role_id: uuid.UUID

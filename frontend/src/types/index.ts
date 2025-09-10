@@ -15,7 +15,16 @@ export type PaymentRequestStatus =
   | 'paid-partial' 
   | 'declined'
   | 'rejected'
-  | 'cancelled';
+  | 'cancelled'
+  | 'distributed'
+  | 'report_published'
+  | 'export_linked';
+
+export type DistributionStatus = 'pending' | 'distributed' | 'report_published' | 'export_linked';
+
+export type DocumentStatus = 'Не получены' | 'Получены в полном объёме' | 'Частично получены';
+
+export type ReportStatus = 'draft' | 'published';
 
 export type Currency = 'KZT' | 'USD' | 'EUR' | 'RUB' | 'CNY';
 
@@ -78,6 +87,7 @@ export interface ExpenseSplit {
   comment?: string;
   contractId?: string;
   priority?: string;
+  subRegistrarId?: string;
 }
 
 export interface ExpenseItem {
@@ -231,6 +241,7 @@ export interface ExpenseSplitCreate {
   comment?: string;
   contractId?: string;
   priority?: string;
+  subRegistrarId?: string;
 }
 
 export interface DistributionOut {
@@ -249,6 +260,7 @@ export interface ExpenseSplitOut {
   comment?: string;
   contractId?: string;
   priority?: string;
+  subRegistrarId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -262,4 +274,99 @@ export interface ReturnRequestOut {
   requestId: string;
   comment: string;
   returnedAt: string;
+}
+
+// New Workflow Types for REGISTRAR/SUB_REGISTRAR/DISTRIBUTOR
+
+export interface SubRegistrarAssignment {
+  id: string;
+  requestId: string;
+  subRegistrarId: string;
+  assignedAt: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface SubRegistrarReport {
+  id: string;
+  requestId: string;
+  subRegistrarId: string;
+  documentStatus: DocumentStatus;
+  reportData?: Record<string, any>;
+  status: ReportStatus;
+  publishedAt?: string;
+  createdAt: string;
+}
+
+export interface DistributorRequest {
+  id: string;
+  originalRequestId: string;
+  expenseArticleId: string;
+  amount: number;
+  distributorId: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface ExportContract {
+  id: string;
+  contractNumber: string;
+  contractDate: string;
+  counterpartyId?: string;
+  amount?: number;
+  currencyCode?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface DistributorExportLink {
+  id: string;
+  distributorRequestId: string;
+  exportContractId: string;
+  linkedAt: string;
+  linkedBy: string;
+}
+
+export interface ParallelDistributionCreate {
+  requestId: string;
+  subRegistrarId: string;
+  distributorId: string;
+  expenseSplits: ExpenseSplitCreate[];
+  comment?: string;
+}
+
+export interface ParallelDistributionOut {
+  requestId: string;
+  subRegistrarAssignmentId: string;
+  distributorRequestIds: string[];
+  totalAmount: number;
+  status: string;
+}
+
+export interface PendingRequest {
+  id: string;
+  number: string;
+  title: string;
+  amountTotal: number;
+  currencyCode: string;
+  counterpartyId: string;
+  status: string;
+  distributionStatus: DistributionStatus;
+  createdAt: string;
+}
+
+export interface SubRegistrarReportCreate {
+  requestId: string;
+  documentStatus: DocumentStatus;
+  reportData?: Record<string, any>;
+}
+
+export interface SubRegistrarReportUpdate {
+  documentStatus?: DocumentStatus;
+  reportData?: Record<string, any>;
+  status?: ReportStatus;
+}
+
+export interface ExportContractLink {
+  exportContractId: string;
 }

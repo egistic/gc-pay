@@ -95,11 +95,11 @@ export class PaymentRequestService {
     const expense_splits = splits.map(split => ({
       article_id: split.expenseItemId,
       amount: split.amount,
-      comment: split.comment
+      comment: split.comment || null
     }));
     
     const backendResponse = await httpClient.post<BackendRequestOut>(endpoint, { 
-      comment,
+      comment: comment || null,
       expense_splits
     });
     return toFrontendRequest(backendResponse);
@@ -151,11 +151,11 @@ export class PaymentRequestService {
     const expense_splits = splits.map(split => ({
       article_id: split.expenseItemId,
       amount: split.amount,
-      comment: split.comment
+      comment: split.comment || null
     }));
     
     const backendResponse = await httpClient.post<BackendRequestOut>(endpoint, { 
-      comment,
+      comment: comment || null,
       expense_splits
     });
     return toFrontendRequest(backendResponse);

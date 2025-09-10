@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from app.core.db import get_db
-from app.models import PaymentRequest, ExpenseSplit, Contract, Counterparty, ExpenseArticle, User, UserRole, Role
+from app.models import PaymentRequest, ExpenseSplit, Contract, Counterparty, ExpenseArticle, User, UserRole, Role, SubRegistrarAssignment, DistributorRequest
 from app.common.enums import RequestStatus, RoleCode
 from app.modules.users.schemas import UserOut
+from app.core.security import get_current_user
 from . import schemas
 import uuid
 from datetime import date, datetime
@@ -80,10 +81,13 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]:
+    print(f"DEBUG: Request {request.id} has status: {request.status}")
+    print(f"DEBUG: Allowed statuses: {[RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]}")
+    
+    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]:
         raise HTTPException(
             status_code=400, 
-            detail="Request must be approved or registered to be classified"
+            detail=f"Request must be approved, registered, or submitted to be classified. Current status: {request.status}"
         )
     
     # Validate responsible registrar exists and has correct role
@@ -91,13 +95,13 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
     if not registrar:
         raise HTTPException(status_code=404, detail="Responsible registrar not found")
     
-    # Check if user has SUB_REGISTRAR role
-    sub_registrar_role = db.query(Role).filter(Role.code == RoleCode.SUB_REGISTRAR.value).first()
-    if sub_registrar_role:
+    # Check if user has REGISTRAR role
+    registrar_role = db.query(Role).filter(Role.code == RoleCode.REGISTRAR.value).first()
+    if registrar_role:
         user_role = db.query(UserRole).filter(
             and_(
                 UserRole.user_id == payload.responsible_registrar_id,
-                UserRole.role_id == sub_registrar_role.id,
+                UserRole.role_id == registrar_role.id,
                 UserRole.valid_from <= date.today(),
                 UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
             )
@@ -105,12 +109,12 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
         if not user_role:
             raise HTTPException(
                 status_code=400, 
-                detail="User does not have SUB_REGISTRAR role"
+                detail="User does not have REGISTRAR role"
             )
     
     # Validate expense splits
     total_amount = sum(split.amount for split in payload.expense_splits)
-    if abs(total_amount - request.amount_total) > 0.01:
+    if abs(total_amount - float(request.amount_total)) > 0.01:
         raise HTTPException(
             status_code=400,
             detail=f"Total split amount ({total_amount}) must equal request amount ({request.amount_total})"
@@ -163,7 +167,11 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
     return schemas.DistributionOut(
         request_id=request.id,
         responsible_registrar_id=request.responsible_registrar_id,
-        expense_splits=[schemas.ExpenseSplitOut.model_validate(split.__dict__) for split in expense_splits],
+        expense_splits=[schemas.ExpenseSplitOut.model_validate({
+            **split.__dict__,
+            'created_at': split.created_at.isoformat() if split.created_at else None,
+            'updated_at': split.updated_at.isoformat() if split.updated_at else None
+        }) for split in expense_splits],
         comment=payload.comment,
         total_amount=total_amount
     )
@@ -210,5 +218,149 @@ def get_expense_splits(request_id: uuid.UUID, db: Session = Depends(get_db)):
     """Get expense splits for a request"""
     
     expense_splits = db.query(ExpenseSplit).filter(ExpenseSplit.request_id == request_id).all()
-    return [schemas.ExpenseSplitOut.model_validate(split.__dict__) for split in expense_splits]
+    return [schemas.ExpenseSplitOut.model_validate({
+        **split.__dict__,
+        'created_at': split.created_at.isoformat() if split.created_at else None,
+        'updated_at': split.updated_at.isoformat() if split.updated_at else None
+    }) for split in expense_splits]
+
+# New Parallel Distribution Endpoints
+
+@router.get("/pending-requests", response_model=List[schemas.PendingRequestOut])
+def get_pending_requests(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Get requests pending distribution"""
+    # Verify user has REGISTRAR role
+    if not any(role.role.code == "REGISTRAR" for role in current_user.user_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. REGISTRAR role required."
+        )
+    
+    # Get requests that are approved/registered and pending distribution
+    requests = db.query(PaymentRequest).filter(
+        and_(
+            PaymentRequest.status.in_([RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]),
+            PaymentRequest.distribution_status == "PENDING"
+        )
+    ).offset(skip).limit(limit).all()
+    
+    return requests
+
+@router.post("/send-requests", response_model=schemas.ParallelDistributionOut)
+def send_requests_parallel(
+    payload: schemas.ParallelDistributionCreate,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Send requests to both SUB_REGISTRAR and DISTRIBUTOR in parallel"""
+    # Verify user has REGISTRAR role
+    if not any(role.role.code == "REGISTRAR" for role in current_user.user_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. REGISTRAR role required."
+        )
+    
+    # Validate request exists and is in correct status
+    request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Request must be approved or registered to be distributed"
+        )
+    
+    # Validate sub-registrar exists and has correct role
+    sub_registrar = db.query(User).filter(User.id == payload.sub_registrar_id).first()
+    if not sub_registrar:
+        raise HTTPException(status_code=404, detail="Sub-registrar not found")
+    
+    # Validate distributor exists and has correct role
+    distributor = db.query(User).filter(User.id == payload.distributor_id).first()
+    if not distributor:
+        raise HTTPException(status_code=404, detail="Distributor not found")
+    
+    # Validate expense splits
+    total_amount = sum(split.amount for split in payload.expense_splits)
+    if abs(total_amount - float(request.amount_total)) > 0.01:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Total split amount ({total_amount}) must equal request amount ({request.amount_total})"
+        )
+    
+    # Validate expense items exist
+    expense_item_ids = [split.expense_item_id for split in payload.expense_splits]
+    existing_items = db.query(ExpenseArticle).filter(ExpenseArticle.id.in_(expense_item_ids)).all()
+    if len(existing_items) != len(expense_item_ids):
+        raise HTTPException(status_code=400, detail="One or more expense items not found")
+    
+    try:
+        # Create sub-registrar assignment
+        sub_registrar_assignment = SubRegistrarAssignment(
+            request_id=payload.request_id,
+            sub_registrar_id=payload.sub_registrar_id,
+            status="ASSIGNED"
+        )
+        db.add(sub_registrar_assignment)
+        
+        # Create distributor requests (one per expense article)
+        distributor_request_ids = []
+        for split_data in payload.expense_splits:
+            distributor_request = DistributorRequest(
+                original_request_id=payload.request_id,
+                expense_article_id=split_data.expense_item_id,
+                amount=split_data.amount,
+                distributor_id=payload.distributor_id,
+                status="PENDING"
+            )
+            db.add(distributor_request)
+            distributor_request_ids.append(distributor_request.id)
+        
+        # Update request status
+        request.distribution_status = "DISTRIBUTED"
+        request.status = RequestStatus.IN_REGISTRY.value
+        
+        # Create request event
+        from app.models import RequestEvent
+        event = RequestEvent(
+            request_id=payload.request_id,
+            event_type="DISTRIBUTED",
+            actor_user_id=current_user.id,
+            payload=f"Request distributed to sub-registrar and distributor. Total amount: {total_amount}"
+        )
+        db.add(event)
+        
+        db.commit()
+        db.refresh(sub_registrar_assignment)
+        
+        return schemas.ParallelDistributionOut(
+            request_id=request.id,
+            sub_registrar_assignment_id=sub_registrar_assignment.id,
+            distributor_request_ids=distributor_request_ids,
+            total_amount=total_amount,
+            status="DISTRIBUTED"
+        )
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to distribute request: {str(e)}"
+        )
+
+@router.post("/split-request", response_model=schemas.ParallelDistributionOut)
+def split_request_by_articles(
+    payload: schemas.ParallelDistributionCreate,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Split request by expense articles for distributor"""
+    # This is the same as send_requests_parallel but with a different name for clarity
+    return send_requests_parallel(payload, db, current_user)
 

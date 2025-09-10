@@ -56,3 +56,32 @@ class ReturnRequestOut(BaseModel):
     request_id: uuid.UUID
     comment: str
     returned_at: str
+
+# Parallel Distribution Schemas
+class ParallelDistributionCreate(BaseModel):
+    request_id: uuid.UUID
+    sub_registrar_id: uuid.UUID
+    distributor_id: uuid.UUID
+    expense_splits: List[ExpenseSplitCreate]
+    comment: Optional[str] = None
+
+class ParallelDistributionOut(BaseModel):
+    request_id: uuid.UUID
+    sub_registrar_assignment_id: uuid.UUID
+    distributor_request_ids: List[uuid.UUID]
+    total_amount: float
+    status: str
+
+class PendingRequestOut(BaseModel):
+    id: uuid.UUID
+    number: str
+    title: str
+    amount_total: float
+    currency_code: str
+    counterparty_id: uuid.UUID
+    status: str
+    distribution_status: str
+    created_at: str
+    
+    class Config:
+        from_attributes = True

@@ -13,6 +13,9 @@ from app.modules.auth.router import router as auth_router
 from app.modules.dictionaries.router import router as dictionaries_router
 from app.modules.registry.router import router as registry_router
 from app.modules.distribution.router import router as distribution_router
+from app.modules.sub_registrar.router import router as sub_registrar_router
+from app.modules.distributor.router import router as distributor_router
+from app.modules.export_contracts.router import router as export_contracts_router
 
 app = FastAPI(title="GC Spends API", version="0.1.0")
 
@@ -150,6 +153,9 @@ api.include_router(files_router)
 api.include_router(dictionaries_router)
 api.include_router(registry_router)
 api.include_router(distribution_router)
+api.include_router(sub_registrar_router)
+api.include_router(distributor_router)
+api.include_router(export_contracts_router)
 
 @app.options("/{path:path}")
 async def app_options_handler(path: str):

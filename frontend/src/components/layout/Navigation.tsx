@@ -49,6 +49,24 @@ export const navItems: NavItem[] = [
     badge: '5'
   },
   {
+    id: 'sub-registrar-assignments',
+    label: 'Мои назначения',
+    icon: <FileText className="h-4 w-4" />,
+    roles: ['sub_registrar']
+  },
+  {
+    id: 'distributor-workflow',
+    label: 'Заявки для обработки',
+    icon: <FileText className="h-4 w-4" />,
+    roles: ['distributor']
+  },
+  {
+    id: 'export-contracts',
+    label: 'Экспортные контракты',
+    icon: <Database className="h-4 w-4" />,
+    roles: ['distributor']
+  },
+  {
     id: 'registers', 
     label: 'Реестры',
     icon: <Database className="h-4 w-4" />,

@@ -11,9 +11,13 @@ import { ExecutorRequestsList } from '../executor/ExecutorRequestsList';
 import { ClassificationForm } from '../registrar/ClassificationForm';
 import { ItemClassificationForm } from '../registrar/ItemClassificationForm';
 import { SubRegistrarDashboard } from '../sub-registrar/SubRegistrarDashboard';
+import { SubRegistrarAssignmentsList } from '../sub-registrar/SubRegistrarAssignmentsList';
 import { RegistrarAssignments } from '../admin/RegistrarAssignments';
 import { DistributorRequestsList } from '../distributor/DistributorRequestsList';
+import { DistributorWorkflowRequestsList } from '../distributor/DistributorWorkflowRequestsList';
+import { ExportContractSelector } from '../distributor/ExportContractSelector';
 import { EnhancedApprovalForm } from '../distributor/EnhancedApprovalForm';
+import { WorkflowDashboard } from '../common/WorkflowDashboard';
 import { DistributorRouting } from '../treasurer/DistributorRouting';
 import { UnallocatedExpensesRegister } from '../distributor/UnallocatedExpensesRegister';
 import { PaymentRegister } from '../treasurer/PaymentRegister';
@@ -205,12 +209,28 @@ export function AppRouter() {
               />
             );
           }
+          // Если это один из workflow ролей, показываем WorkflowDashboard
+          if (['registrar', 'sub_registrar', 'distributor'].includes(state.currentRole)) {
+            return (
+              <WorkflowDashboard
+                currentRole={state.currentRole}
+                paymentRequests={state.paymentRequests}
+                onViewRequest={handleViewRequest}
+                onNavigate={(page) => dispatch(appActions.setCurrentPage(page))}
+              />
+            );
+          }
           return (
             <Dashboard 
               currentRole={state.currentRole} 
               onFilterChange={(filter) => {
                 dispatch(appActions.setDashboardFilter(filter));
-                // Only redirect to requests page for non-executor roles
+                // For registrar and distributor roles, only filter the dashboard, don't redirect
+                if (state.currentRole === 'registrar' || state.currentRole === 'distributor') {
+                  // Just filter the dashboard, no redirect
+                  return;
+                }
+                // Only redirect to requests page for other non-executor roles
                 if (filter && state.currentRole !== 'executor') {
                   dispatch(appActions.setCurrentPage('requests'));
                 }
@@ -330,6 +350,36 @@ export function AppRouter() {
         case 'integration-test':
           return (
             <IntegrationTest onBack={() => dispatch(appActions.setCurrentPage('dashboard'))} />
+          );
+        
+        // New Workflow Routes
+        case 'sub-registrar-assignments':
+          return (
+            <SubRegistrarAssignmentsList
+              onReportUpdate={() => {
+                // Reload data or show notification
+                toast.success('Отчёт обновлён');
+              }}
+            />
+          );
+        
+        case 'distributor-workflow':
+          return (
+            <DistributorWorkflowRequestsList
+              onRequestUpdate={() => {
+                // Reload data or show notification
+                toast.success('Заявка обновлена');
+              }}
+            />
+          );
+        
+        case 'export-contracts':
+          return (
+            <ExportContractSelector
+              onContractSelect={(contract) => {
+                toast.success(`Выбран контракт: ${contract.contractNumber}`);
+              }}
+            />
           );
         
         default:

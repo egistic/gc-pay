@@ -1,0 +1,17 @@
+nohup: ignoring input
+
+> GrainChain Spends@0.1.0 dev
+> vite
+
+Port 3000 is in use, trying another one...
+
+  VITE v6.3.5  ready in 140 ms
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose
+11:00:33 PM [vite] (client) hmr update /src/components/common/UserSwitcher.tsx
+11:00:56 PM [vite] (client) hmr update /src/components/layout/Navigation.tsx
+11:00:56 PM [vite] (client) hmr invalidate /src/components/layout/Navigation.tsx Could not Fast Refresh ("navItems" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react-swc#consistent-components-exports
+11:00:56 PM [vite] (client) hmr update /src/components/App/App.tsx
+11:00:57 PM [vite] (client) hmr update /src/components/common/UserSwitcher.tsx
+11:00:57 PM [vite] (client) page reload src/components/common/UserSwitcher.tsx

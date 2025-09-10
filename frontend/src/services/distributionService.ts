@@ -1,32 +1,29 @@
-import { ContractStatus, DistributionCreate, DistributionOut, ReturnRequestCreate, ReturnRequestOut, User } from '../types';
-
-const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1`;
+import { 
+  ContractStatus, 
+  DistributionCreate, 
+  DistributionOut, 
+  ReturnRequestCreate, 
+  ReturnRequestOut, 
+  User,
+  ParallelDistributionCreate,
+  ParallelDistributionOut,
+  PendingRequest
+} from '../types';
+import { httpClient } from './httpClient';
 
 export class DistributionService {
   /**
    * Check contract status for a counterparty
    */
   static async getContractStatus(counterpartyId: string): Promise<ContractStatus> {
-    const response = await fetch(`${API_BASE_URL}/distribution/contract-status/${counterpartyId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get contract status: ${response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.get(`/api/v1/distribution/contract-status/${counterpartyId}`);
   }
 
   /**
    * Get all users with SUB_REGISTRAR role
    */
   static async getSubRegistrars(): Promise<User[]> {
-    const response = await fetch(`${API_BASE_URL}/distribution/sub-registrars`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get sub-registrars: ${response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.get('/api/v1/distribution/sub-registrars');
   }
 
   /**
@@ -97,6 +94,75 @@ export class DistributionService {
     
     if (!response.ok) {
       throw new Error(`Failed to get expense splits: ${response.statusText}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Get requests pending distribution
+   */
+  static async getPendingRequests(skip = 0, limit = 100): Promise<PendingRequest[]> {
+    const response = await fetch(`${API_BASE_URL}/distribution/pending-requests?skip=${skip}&limit=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get pending requests: ${response.statusText}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Send requests to both SUB_REGISTRAR and DISTRIBUTOR in parallel
+   */
+  static async sendRequestsParallel(data: ParallelDistributionCreate): Promise<ParallelDistributionOut> {
+    return await httpClient.post('/api/v1/distribution/send-requests', {
+      request_id: data.requestId,
+      sub_registrar_id: data.subRegistrarId,
+      distributor_id: data.distributorId,
+      expense_splits: data.expenseSplits.map(split => ({
+        expense_item_id: split.expenseItemId,
+        amount: split.amount,
+        comment: split.comment,
+        contract_id: split.contractId,
+        priority: split.priority
+      })),
+      comment: data.comment
+    });
+  }
+
+  /**
+   * Split request by expense articles for distributor
+   */
+  static async splitRequestByArticles(data: ParallelDistributionCreate): Promise<ParallelDistributionOut> {
+    const response = await fetch(`${API_BASE_URL}/distribution/split-request`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        request_id: data.requestId,
+        sub_registrar_id: data.subRegistrarId,
+        distributor_id: data.distributorId,
+        expense_splits: data.expenseSplits.map(split => ({
+          expense_item_id: split.expenseItemId,
+          amount: split.amount,
+          comment: split.comment,
+          contract_id: split.contractId,
+          priority: split.priority
+        })),
+        comment: data.comment
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to split request: ${response.statusText}`);
     }
     
     return response.json();

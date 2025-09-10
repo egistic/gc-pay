@@ -12,7 +12,7 @@ import {
   X 
 } from 'lucide-react';
 import { PaymentRequest } from '../../types';
-import { formatCurrency, formatNumber } from '../../utils/formatting';
+import { formatCurrency } from '../../utils/formatting';
 
 interface StatsCardData {
   id: string;

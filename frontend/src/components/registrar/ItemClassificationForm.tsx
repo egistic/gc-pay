@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
@@ -10,15 +10,16 @@ import { toast } from 'sonner';
 import { 
   Save, 
   ArrowLeft,
-  Plus,
-  Trash2,
   AlertTriangle
 } from 'lucide-react';
-import { PaymentRequest, ExpenseSplit, ExpenseItem, ContractStatus, User, DistributionCreate, ExpenseSplitCreate } from '../../types';
+import { PaymentRequest, ExpenseSplit, ExpenseItem, ContractStatus, User, ExpenseSplitCreate, ParallelDistributionCreate } from '../../types';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { RequestInformationCard } from '../common/RequestInformationCard';
-import { formatCurrency, formatNumber } from '../../utils/formatting';
+import { ExpenseSplitForm } from './shared/ExpenseSplitForm';
+import { formatCurrency } from '../../utils/formatting';
+import { PaymentRequestService } from '../../services/paymentRequestService';
 import { DistributionService } from '../../services/distributionService';
+import { NotificationService } from '../../services/notificationService';
 
 interface ExpenseSplitData {
   id: string;
@@ -26,6 +27,7 @@ interface ExpenseSplitData {
   expenseItemId: string;
   amount: number;
   comment?: string;
+  subRegistrarId?: string;
 }
 
 interface ItemClassificationFormProps {
@@ -41,13 +43,10 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
   const { items: counterparties, state: counterpartiesState } = useDictionaries('counterparties');
   
   const [expenseSplits, setExpenseSplits] = useState<ExpenseSplitData[]>([]);
-  const [comment, setComment] = useState('');
   const [returnComment, setReturnComment] = useState('');
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [contractStatus, setContractStatus] = useState<ContractStatus | null>(null);
-  const [subRegistrars, setSubRegistrars] = useState<User[]>([]);
-  const [responsibleRegistrarId, setResponsibleRegistrarId] = useState<string>('');
 
   // Initialize with single expense split if none exist
   useEffect(() => {
@@ -63,24 +62,18 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
     }
   }, [request]);
 
-  // Load contract status and sub-registrars
+  // Load contract status
   useEffect(() => {
-    const loadData = async () => {
+    const loadContractStatus = async () => {
       try {
-        // Load contract status
         const contractStatusData = await DistributionService.getContractStatus(request.counterpartyId);
         setContractStatus(contractStatusData);
-
-        // Load sub-registrars
-        const subRegistrarsData = await DistributionService.getSubRegistrars();
-        setSubRegistrars(subRegistrarsData);
       } catch (error) {
-        console.error('Error loading data:', error);
-        toast.error('Ошибка загрузки данных');
+        console.error('Error loading contract status:', error);
       }
     };
 
-    loadData();
+    loadContractStatus();
   }, [request.counterpartyId]);
 
 
@@ -90,31 +83,70 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
       return;
     }
 
-    if (!responsibleRegistrarId) {
-      toast.error('Выберите ответственного регистратора');
+    // Check if all splits have sub-registrars assigned
+    const unassignedSplits = expenseSplits.filter(split => !split.subRegistrarId);
+    if (unassignedSplits.length > 0) {
+      toast.error('Выберите суб-регистратора для всех позиций');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Convert to ExpenseSplitCreate format for API
-      const expenseSplitsForApi: ExpenseSplitCreate[] = expenseSplits.map(split => ({
+      // First, classify the request
+      const expenseSplitsForApi: ExpenseSplit[] = expenseSplits.map(split => ({
+        id: split.id,
+        requestId: split.requestId,
         expenseItemId: split.expenseItemId,
         amount: split.amount,
         comment: split.comment,
         contractId: 'outside-contract', // Default value
-        priority: 'medium' // Default value
+        priority: 'medium', // Default value
+        subRegistrarId: split.subRegistrarId
       }));
 
-      const distributionData: DistributionCreate = {
+      console.log('DEBUG: Sending classification request:', {
         requestId: request.id,
-        responsibleRegistrarId: responsibleRegistrarId,
-        expenseSplits: expenseSplitsForApi,
-        comment: comment
-      };
+        requestStatus: request.status,
+        expenseSplits: expenseSplitsForApi
+      });
 
-      await DistributionService.classifyRequest(distributionData);
-      toast.success('Заявка успешно классифицирована');
+      await PaymentRequestService.classify(request.id, expenseSplitsForApi, '');
+      
+      // Then, distribute the request
+      const uniqueSubRegistrars = [...new Set(expenseSplits.map(split => split.subRegistrarId).filter(Boolean))] as string[];
+      
+      // Create distribution data for each sub-registrar
+      const distributionPromises = uniqueSubRegistrars.map(subRegistrarId => {
+        const subRegistrarSplits = expenseSplits.filter(split => split.subRegistrarId === subRegistrarId);
+        
+        const parallelDistributionData: ParallelDistributionCreate = {
+          requestId: request.id,
+          subRegistrarId: subRegistrarId,
+          distributorId: '10756640-8f37-4cd2-84da-f9d1e3c16c70', // Hardcoded distributor ID
+          expenseSplits: subRegistrarSplits.map(split => ({
+            expenseItemId: split.expenseItemId,
+            amount: split.amount,
+            comment: split.comment,
+            contractId: 'outside-contract',
+            priority: 'medium',
+            subRegistrarId: split.subRegistrarId
+          })),
+          comment: ''
+        };
+
+        return DistributionService.sendRequestsParallel(parallelDistributionData);
+      });
+
+      await Promise.all(distributionPromises);
+      
+      // Send notifications
+      NotificationService.notifyRequestDistributed(request.id, request.requestNumber || 'Без номера');
+      uniqueSubRegistrars.forEach(subRegistrarId => {
+        NotificationService.notifySubRegistrarAssigned(request.id, request.requestNumber || 'Без номера');
+      });
+      NotificationService.notifyDistributorRequestCreated(request.id, request.requestNumber || 'Без номера');
+      
+      toast.success('Заявка успешно классифицирована и распределена');
       
       // Convert to ExpenseSplit format for parent component
       const expenseSplitsForParent: ExpenseSplit[] = expenseSplits.map(split => ({
@@ -124,10 +156,11 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         amount: split.amount,
         comment: split.comment,
         contractId: 'outside-contract',
-        priority: 'medium'
+        priority: 'medium',
+        subRegistrarId: split.subRegistrarId
       }));
       
-      onSubmit(expenseSplitsForParent, comment);
+      onSubmit(expenseSplitsForParent);
     } catch (error) {
       console.error('Error classifying request:', error);
       toast.error('Ошибка при классификации заявки');
@@ -168,19 +201,17 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
     return item ? item.name : '';
   };
 
-  const getTotalSplitsAmount = () => {
-    return expenseSplits.reduce((sum, split) => sum + (split.amount || 0), 0);
-  };
 
   const isFormValid = () => {
-    // Check if responsible registrar is selected
-    if (!responsibleRegistrarId) {
-      return false;
-    }
-
     // Check if all splits have expense items assigned
     const unassignedSplits = expenseSplits.filter(split => !split.expenseItemId);
     if (unassignedSplits.length > 0) {
+      return false;
+    }
+
+    // Check if all splits have sub-registrars assigned
+    const unassignedSubRegistrars = expenseSplits.filter(split => !split.subRegistrarId);
+    if (unassignedSubRegistrars.length > 0) {
       return false;
     }
 
@@ -196,15 +227,16 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
   const getValidationWarnings = () => {
     const warnings: string[] = [];
     
-    // Check if responsible registrar is selected
-    if (!responsibleRegistrarId) {
-      warnings.push('Необходимо выбрать ответственного регистратора');
-    }
-
     // Check if all splits have expense items assigned
     const unassignedSplits = expenseSplits.filter(split => !split.expenseItemId);
     if (unassignedSplits.length > 0) {
       warnings.push(`Необходимо выбрать статью расходов для ${unassignedSplits.length} позиций`);
+    }
+
+    // Check if all splits have sub-registrars assigned
+    const unassignedSubRegistrars = expenseSplits.filter(split => !split.subRegistrarId);
+    if (unassignedSubRegistrars.length > 0) {
+      warnings.push(`Необходимо выбрать суб-регистратора для ${unassignedSubRegistrars.length} позиций`);
     }
 
     // Check if total amount matches request amount
@@ -216,28 +248,6 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
     return warnings;
   };
 
-  const addExpenseSplit = () => {
-    const newSplit: ExpenseSplitData = {
-      id: `split-${Date.now()}`,
-      requestId: request.id,
-      expenseItemId: '',
-      amount: 0,
-      comment: ''
-    };
-    setExpenseSplits([...expenseSplits, newSplit]);
-  };
-
-  const removeExpenseSplit = (id: string) => {
-    if (expenseSplits.length > 1) {
-      setExpenseSplits(expenseSplits.filter(split => split.id !== id));
-    }
-  };
-
-  const updateExpenseSplit = (id: string, field: keyof ExpenseSplitData, value: any) => {
-    setExpenseSplits(expenseSplits.map(split => 
-      split.id === id ? { ...split, [field]: value } : split
-    ));
-  };
 
   // Show loading state while dictionaries are loading
   if (expenseItemsState.isLoading || counterpartiesState.isLoading) {
@@ -341,109 +351,19 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
 
 
       {/* Expense Splits Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Распределение по статьям расходов</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Responsible Registrar Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
-            <div>
-              <Label htmlFor="responsible-registrar" className="mb-2 block">Ответственный регистратор *</Label>
-              <Select
-                value={responsibleRegistrarId}
-                onValueChange={setResponsibleRegistrarId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите ответственного регистратора" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subRegistrars.map((registrar) => (
-                    <SelectItem key={registrar.id} value={registrar.id}>
-                      {registrar.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="comment" className="mb-2 block">Комментарий к распределению</Label>
-              <Input
-                id="comment"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Дополнительная информация"
-              />
-            </div>
-          </div>
-          {expenseSplits.map((split, index) => (
-            <div key={split.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg">
-              <div className="md:col-span-2">
-                <Label htmlFor={`expense-item-${split.id}`} className="mb-2 block">Статья расходов *</Label>
-                <Select
-                  value={split.expenseItemId}
-                  onValueChange={(value) => updateExpenseSplit(split.id, 'expenseItemId', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите статью расходов" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {expenseItems.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor={`amount-${split.id}`} className="mb-2 block">Сумма *</Label>
-                <Input
-                  id={`amount-${split.id}`}
-                  type="number"
-                  value={split.amount || ''}
-                  onChange={(e) => updateExpenseSplit(split.id, 'amount', parseFloat(e.target.value) || 0)}
-                  placeholder="0"
-                />
-              </div>
-              
-              <div className="flex items-end gap-2">
-                {expenseSplits.length > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeExpenseSplit(split.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-              
-              <div className="md:col-span-4">
-                <Label htmlFor={`comment-${split.id}`} className="mb-2 block">Комментарий</Label>
-                <Input
-                  id={`comment-${split.id}`}
-                  value={split.comment || ''}
-                  onChange={(e) => updateExpenseSplit(split.id, 'comment', e.target.value)}
-                  placeholder="Дополнительная информация"
-                />
-              </div>
-            </div>
-          ))}
-          
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addExpenseSplit}
-            className="w-full"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Добавить статью расходов
-          </Button>
-        </CardContent>
-      </Card>
+      <ExpenseSplitForm
+        request={request}
+        expenseItems={expenseItems}
+        onSplitsChange={(splits) => {
+          const expenseSplitsData = splits.map(split => ({
+            id: `split-${Date.now()}-${Math.random()}`,
+            requestId: request.id,
+            ...split
+          }));
+          setExpenseSplits(expenseSplitsData);
+        }}
+        showValidation={true}
+      />
 
       {/* Validation Warnings */}
       {!isFormValid() && (
@@ -507,7 +427,7 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
           className="flex-1"
         >
           <Save className="w-4 h-4 mr-2" />
-          Классифицировать и отправить Распорядителю
+          Классифицировать
         </Button>
       </div>
     </div>

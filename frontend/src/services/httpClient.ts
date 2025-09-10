@@ -70,7 +70,7 @@ export const API_CONFIG: ApiConfig = {
     createPaymentRequest: '/api/v1/requests/create',
     updatePaymentRequest: '/api/v1/requests/update',
     deletePaymentRequest: '/api/v1/requests/delete',
-    getPaymentRequest: '/api/v1/requests/get',
+    getPaymentRequest: '/api/v1/requests/:id',
     
     // Statistics
     getRequestStatistics: '/api/v1/requests/statistics',
@@ -78,7 +78,7 @@ export const API_CONFIG: ApiConfig = {
     
     // Workflow Actions
     submitRequest: '/api/v1/requests/submit',
-    classifyRequest: '/api/v1/requests/classify',
+    classifyRequest: '/api/v1/requests/:id/classify',
     approveRequest: '/api/v1/requests/approve',
     rejectRequest: '/api/v1/requests/reject',
     addToRegistry: '/api/v1/requests/add-to-registry',
