@@ -9,7 +9,7 @@ from app.modules.users.router import router as users_router
 from app.modules.users.roles_router import router as roles_router
 from app.modules.requests.router import router as requests_router
 from app.modules.files.router import router as files_router
-# from app.modules.auth.router import router as auth_router
+from app.modules.auth.router import router as auth_router
 from app.modules.dictionaries.router import router as dictionaries_router
 from app.modules.registry.router import router as registry_router
 from app.modules.distribution.router import router as distribution_router
@@ -142,7 +142,7 @@ async def options_handler(path: str):
 app.mount(settings.api_prefix, api)
 
 # Include all routers
-# api.include_router(auth_router)  # Temporarily disabled for Phase 1
+api.include_router(auth_router)
 api.include_router(users_router)
 api.include_router(roles_router)
 api.include_router(requests_router)

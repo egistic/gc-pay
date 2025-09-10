@@ -14,9 +14,7 @@ interface HeaderProps {
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
   userName: string;
-  apiMode?: 'mock' | 'api';
-  onToggleApiMode?: (useMockData: boolean) => void;
-  onNavigate?: (page: string) => void;
+  onLogout?: () => void;
 }
 
 const roleLabels: Record<UserRole, string> = {
@@ -40,10 +38,8 @@ const roleColors: Record<UserRole, string> = {
 export function Header({ 
   currentRole, 
   onRoleChange, 
-  userName, 
-  apiMode = 'mock',
-  onToggleApiMode,
-  onNavigate
+  userName,
+  onLogout
 }: HeaderProps) {
   const [notificationCount] = useState(3);
 
@@ -81,53 +77,6 @@ export function Header({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* API Mode Toggle */}
-          {onToggleApiMode && (
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground hidden md:inline">Режим:</span>
-              <button
-                onClick={() => onToggleApiMode(apiMode === 'api')}
-                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                  apiMode === 'mock' 
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                }`}
-                title={apiMode === 'mock' ? 'Используются mock данные' : 'Используется реальное API'}
-              >
-                {apiMode === 'mock' ? 'MOCK' : 'API'}
-              </button>
-            </div>
-          )}
-
-          {/* Test API Button */}
-            {onNavigate && (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => onNavigate('test-api')}
-                  className="text-xs"
-                >
-                  🔗 Test API
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => onNavigate('test-dictionary-api')}
-                  className="text-xs"
-                >
-                  📚 Test Dictionary API
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => onNavigate('integration-test')}
-                  className="text-xs"
-                >
-                  🧪 Integration Test
-                </Button>
-              </>
-            )}
 
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">
@@ -153,7 +102,7 @@ export function Header({
                 <Settings className="h-4 w-4 mr-2" />
                 Настройки
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={onLogout}>
                 Выйти
               </DropdownMenuItem>
             </DropdownMenuContent>

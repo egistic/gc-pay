@@ -30,44 +30,35 @@ export interface ApiConfig {
     getCurrencies: string;
     getVatRates: string;
     getExpenseArticles: string;
-    getPriorities: string;
-    
-    // Payment Registry
-    getPaymentRegistry: string;
-    createRegistryEntry: string;
-    updateRegistryEntry: string;
-    deleteRegistryEntry: string;
-    getRegistryStatistics: string;
+    getPayingCompanies: string;
+    getDocumentTypes: string;
+    getCounterpartyCategories: string;
     
     // Users
     getUsers: string;
     getCurrentUser: string;
-    createUser: string;
-    updateUser: string;
-    deleteUser: string;
-    getUser: string;
     
-    // Roles
-    getRoles: string;
-    createRole: string;
-    updateRole: string;
-    deleteRole: string;
-    assignUserRole: string;
-    
-    // File upload
+    // Files
     uploadFile: string;
     downloadFile: string;
+    deleteFile: string;
     
-    // Reports
-    exportRegisterExcel: string;
-    exportRegisterPdf: string;
-    downloadDocuments: string;
+    // Distribution
+    getUnallocatedRequests: string;
+    getDistributionLines: string;
+    createDistributionLine: string;
+    updateDistributionLine: string;
+    deleteDistributionLine: string;
+    getLineContracts: string;
+    createLineContract: string;
+    updateLineContract: string;
+    deleteLineContract: string;
     
-    // Distributor routing
-    getDistributorBindings: string;
-    createDistributorBinding: string;
-    updateDistributorBinding: string;
-    deleteDistributorBinding: string;
+    // Registry
+    getRegistryEntries: string;
+    createRegistryEntry: string;
+    updateRegistryEntry: string;
+    deleteRegistryEntry: string;
   };
 }
 
@@ -76,166 +67,148 @@ export const API_CONFIG: ApiConfig = {
   endpoints: {
     // Payment Requests
     getPaymentRequests: '/api/v1/requests/list',
-    createPaymentRequest: '/api/v1/requests',
-    updatePaymentRequest: '/api/v1/requests/:id',
-    deletePaymentRequest: '/api/v1/requests/:id',
-    getPaymentRequest: '/api/v1/requests/:id',
+    createPaymentRequest: '/api/v1/requests/create',
+    updatePaymentRequest: '/api/v1/requests/update',
+    deletePaymentRequest: '/api/v1/requests/delete',
+    getPaymentRequest: '/api/v1/requests/get',
     
     // Statistics
     getRequestStatistics: '/api/v1/requests/statistics',
-    getDashboardMetrics: '/api/v1/requests/metrics/dashboard',
+    getDashboardMetrics: '/api/v1/requests/dashboard-metrics',
     
     // Workflow Actions
-    submitRequest: '/api/v1/requests/:id/submit',
-    classifyRequest: '/api/v1/requests/:id/classify',
-    approveRequest: '/api/v1/requests/:id/approve',
-    rejectRequest: '/api/v1/requests/:id/reject',
-    addToRegistry: '/api/v1/requests/:id/add-to-registry',
-    sendToDistributor: '/api/v1/requests/:id/send-to-distributor',
-    distributorAction: '/api/v1/requests/:id/distributor-action',
-    getRequestEvents: '/api/v1/requests/:id/events',
+    submitRequest: '/api/v1/requests/submit',
+    classifyRequest: '/api/v1/requests/classify',
+    approveRequest: '/api/v1/requests/approve',
+    rejectRequest: '/api/v1/requests/reject',
+    addToRegistry: '/api/v1/requests/add-to-registry',
+    sendToDistributor: '/api/v1/requests/send-to-distributor',
+    distributorAction: '/api/v1/requests/distributor-action',
+    getRequestEvents: '/api/v1/requests/events',
     
     // Dictionaries
     getCounterparties: '/api/v1/dictionaries/counterparties',
     getCurrencies: '/api/v1/dictionaries/currencies',
     getVatRates: '/api/v1/dictionaries/vat-rates',
     getExpenseArticles: '/api/v1/dictionaries/expense-articles',
-    getPriorities: '/api/v1/dictionaries/priorities',
-    
-    // Payment Registry
-    getPaymentRegistry: '/api/v1/registry',
-    createRegistryEntry: '/api/v1/registry',
-    updateRegistryEntry: '/api/v1/registry/:id',
-    deleteRegistryEntry: '/api/v1/registry/:id',
-    getRegistryStatistics: '/api/v1/registry/statistics',
+    getPayingCompanies: '/api/v1/dictionaries/paying-companies',
+    getDocumentTypes: '/api/v1/dictionaries/document-types',
+    getCounterpartyCategories: '/api/v1/dictionaries/counterparty-categories',
     
     // Users
-    getUsers: '/api/v1/users',
-    getCurrentUser: '/api/v1/users/current',
-    createUser: '/api/v1/users',
-    updateUser: '/api/v1/users/:id',
-    deleteUser: '/api/v1/users/:id',
-    getUser: '/api/v1/users/:id',
+    getUsers: '/api/v1/users/list',
+    getCurrentUser: '/api/v1/auth/me',
     
-    // Roles
-    getRoles: '/api/v1/roles',
-    createRole: '/api/v1/roles',
-    updateRole: '/api/v1/roles/:id',
-    deleteRole: '/api/v1/roles/:id',
-    assignUserRole: '/api/v1/users/:id/roles',
-    
-    // File upload
+    // Files
     uploadFile: '/api/v1/files/upload',
-    downloadFile: '/api/v1/files/:id',
+    downloadFile: '/api/v1/files/download',
+    deleteFile: '/api/v1/files/delete',
     
-    // Reports
-    exportRegisterExcel: '/api/v1/payment-registers/:id/export/excel',
-    exportRegisterPdf: '/api/v1/payment-registers/:id/export/pdf',
-    downloadDocuments: '/api/v1/payment-registers/:id/documents',
+    // Distribution
+    getUnallocatedRequests: '/api/v1/distribution/unallocated-requests',
+    getDistributionLines: '/api/v1/distribution/lines',
+    createDistributionLine: '/api/v1/distribution/lines/create',
+    updateDistributionLine: '/api/v1/distribution/lines/update',
+    deleteDistributionLine: '/api/v1/distribution/lines/delete',
+    getLineContracts: '/api/v1/distribution/line-contracts',
+    createLineContract: '/api/v1/distribution/line-contracts/create',
+    updateLineContract: '/api/v1/distribution/line-contracts/update',
+    deleteLineContract: '/api/v1/distribution/line-contracts/delete',
     
-    // Distributor routing
-    getDistributorBindings: '/api/v1/distributor-bindings',
-    createDistributorBinding: '/api/v1/distributor-bindings',
-    updateDistributorBinding: '/api/v1/distributor-bindings/:id',
-    deleteDistributorBinding: '/api/v1/distributor-bindings/:id'
-  }
+    // Registry
+    getRegistryEntries: '/api/v1/registry/entries',
+    createRegistryEntry: '/api/v1/registry/entries/create',
+    updateRegistryEntry: '/api/v1/registry/entries/update',
+    deleteRegistryEntry: '/api/v1/registry/entries/delete',
+  },
 };
 
-export class HttpClient {
-  private baseURL: string;
-  
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
+class HttpClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
   }
-  
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const response = await fetch(url, {
+
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('test_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  async get(url: string, options: RequestInit = {}): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`,
+        ...this.getAuthHeaders(),
         ...options.headers,
       },
-      ...options,
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return response.json();
   }
-  
-  private getAuthToken(): string {
-    return localStorage.getItem('auth_token') || '';
-  }
-  
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint);
-  }
-  
-  async post<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, {
+
+  async post(url: string, data: any, options: RequestInit = {}): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
       method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-  
-  async put<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-  
-  async patch<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  }
-  
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'DELETE',
-    });
-  }
-  
-  async upload<T>(endpoint: string, formData: FormData): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
       headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+        ...options.headers,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async put(url: string, data: any, options: RequestInit = {}): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+        ...options.headers,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async delete(url: string, options: RequestInit = {}): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+        ...options.headers,
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return response.json();
-  }
-  
-  async download(endpoint: string): Promise<Blob> {
-    const url = `${this.baseURL}${endpoint}`;
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.status}`);
-    }
-    
-    return response.blob();
   }
 }
 
-// Create singleton HTTP client instance
+// Create singleton instance
 export const httpClient = new HttpClient(API_CONFIG.baseUrl);

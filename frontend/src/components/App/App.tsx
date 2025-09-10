@@ -13,12 +13,14 @@ import { toast } from 'sonner@2.0.3';
 import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 import { navItems } from '../layout/Navigation';
+import { useAuth } from '../../context/TestAuthContext';
 
 // Main App Content Component
 function AppContent() {
   const { state, dispatch } = useAppState();
   const { loadInitialData } = useApiOperations();
   const { handleToggleApiMode } = useApiMode();
+  const { logout } = useAuth();
 
   // Initialize browser polyfills and error handling
   useEffect(() => {
@@ -64,9 +66,7 @@ function AppContent() {
           currentRole={state.currentRole}
           onRoleChange={(role) => dispatch(appActions.setCurrentRole(role))}
           userName={state.currentUser?.full_name || 'Пользователь'}
-          apiMode={ENHANCED_API_CONFIG.USE_MOCK_DATA ? 'mock' : 'api'}
-          onToggleApiMode={handleToggleApiMode}
-          onNavigate={(page) => dispatch(appActions.setCurrentPage(page))}
+          onLogout={logout}
         />
         
         <div className="flex-1 flex overflow-hidden">
