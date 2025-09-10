@@ -7,11 +7,15 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
+
+# Set production environment variables for build
+ENV NODE_ENV=production
+ENV VITE_API_BASE_URL=https://gcback.openlayers.kz
 
 # Build the application
 RUN npm run build
@@ -25,8 +29,8 @@ RUN npm install -g serve
 # Copy built assets from builder stage
 COPY --from=builder /app/build /app/build
 
-# Copy serve configuration
-COPY serve.json /app/serve.json
+# Copy serve configuration from builder stage
+COPY --from=builder /app/serve.json /app/serve.json
 
 # Set working directory
 WORKDIR /app

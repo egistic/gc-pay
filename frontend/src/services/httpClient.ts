@@ -1,4 +1,6 @@
 // HTTP Client Configuration and Base Client
+import { ENV_CONFIG } from '../config/environment';
+
 export interface ApiConfig {
   baseUrl: string;
   endpoints: {
@@ -70,7 +72,7 @@ export interface ApiConfig {
 }
 
 export const API_CONFIG: ApiConfig = {
-  baseUrl: 'http://localhost:8000',
+  baseUrl: ENV_CONFIG.apiBaseUrl,
   endpoints: {
     // Payment Requests
     getPaymentRequests: '/api/v1/requests/list',

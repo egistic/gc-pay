@@ -4,3 +4,6 @@ cursor-memory-bank/
 frontend/node_modules/
 gc-spends-backend/.venv/
 gc-spends-backend/backend.log
+frontend/Dockerfile
+gc-spends-backend/Dockerfile
+docker-compose.yml

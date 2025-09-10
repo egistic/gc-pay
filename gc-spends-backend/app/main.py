@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -32,7 +32,10 @@ app.add_middleware(
         "Authorization",
         "X-Requested-With",
         "X-CSRFToken",
-        "X-API-Key"
+        "X-API-Key",
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers"
     ],
     expose_headers=[
         "X-Process-Time",
@@ -55,7 +58,10 @@ api.add_middleware(
         "Authorization",
         "X-Requested-With",
         "X-CSRFToken",
-        "X-API-Key"
+        "X-API-Key",
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers"
     ],
     expose_headers=[
         "X-Process-Time",
@@ -118,6 +124,21 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
+# Add explicit OPTIONS handler for API
+@api.options("/{path:path}")
+async def options_handler(path: str):
+    """Handle OPTIONS requests for CORS preflight"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": ", ".join(settings.allowed_origins),
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, X-CSRFToken, X-API-Key, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
+
 app.mount(settings.api_prefix, api)
 
 # Include all routers
@@ -129,6 +150,20 @@ api.include_router(files_router)
 api.include_router(dictionaries_router)
 api.include_router(registry_router)
 api.include_router(distribution_router)
+
+@app.options("/{path:path}")
+async def app_options_handler(path: str):
+    """Handle OPTIONS requests for CORS preflight on main app"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": ", ".join(settings.allowed_origins),
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "Accept, Accept-Language, Content-Language, Content-Type, Authorization, X-Requested-With, X-CSRFToken, X-API-Key, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
 
 @app.get("/health")
 def health():

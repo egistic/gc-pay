@@ -5,6 +5,12 @@
 
   export default defineConfig({
     plugins: [react()],
+    define: {
+      // Make environment variables available to the app
+      'import.meta.env.PROD': JSON.stringify(process.env.NODE_ENV === 'production'),
+      'import.meta.env.DEV': JSON.stringify(process.env.NODE_ENV === 'development'),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'http://localhost:8000'),
+    },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {

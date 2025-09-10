@@ -7,14 +7,14 @@ services:
       dockerfile: Dockerfile
     container_name: gc_spends_frontend
     networks:
-      - merykey_internal
+      - fast_api_backend_merykey_internal
       - traefik
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`gcpay.openlayers.kz`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.gc-pay.rule=Host(`gcpay.openlayers.kz`)"
+      - "traefik.http.routers.gc-pay.tls=true"
+      - "traefik.http.routers.gc-pay.tls.certresolver=lets-encrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.docker.network=traefik"
     healthcheck:
@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     container_name: gc_spends_backend
     environment:
-      - DATABASE_URL=postgresql+psycopg://kads_user:kads_password@fast_api_backend_postgres_1:5432/grainchain
+      - "DATABASE_URL=postgresql+psycopg://marykay_admin:56~>qd/V6A-QuU.sR{@fast_api_backend_postgres_1:5432/grainchain"
       - APP_ENV=production
       - API_PREFIX=/api/v1
       - JWT_SECRET=${JWT_SECRET:-change_me_in_production}
@@ -42,16 +42,16 @@ services:
     volumes:
       - backend_storage:/app/storage
     networks:
-      - merykey_internal
+      - fast_api_backend_merykey_internal
       - traefik
     # depends_on: postgres (external container)
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`gcback.openlayers.kz`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.gc-pay-api.rule=Host(`gcback.openlayers.kz`)"
+      - "traefik.http.routers.gc-pay-api.tls=true"
+      - "traefik.http.routers.gc-pay-api.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.gc-pay-api.loadbalancer.server.port=8000"
       - "traefik.docker.network=traefik"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -64,14 +64,11 @@ services:
   # No need to define it here as it's already running
 
 volumes:
-  postgres_data:
-    external: true
   backend_storage:
 
 networks:
-  merykey_internal:
-    driver: bridge
-    internal: true
+  fast_api_backend_merykey_internal:
+    external: true
   traefik:
     external:
       name: "traefik"
