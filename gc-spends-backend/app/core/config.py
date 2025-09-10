@@ -20,9 +20,8 @@ class Settings(BaseSettings):
     
     # Production CORS configuration
     cors_origins_prod: List[str] = [
-        "https://yourdomain.com",
-        "https://www.yourdomain.com",
-        "https://api.yourdomain.com"
+        "https://gcpay.openlayers.kz",
+        "https://www.gcpay.openlayers.kz"
     ]
 
     # files
