@@ -21,6 +21,7 @@ interface NavigationProps {
   currentPage: string;
   onPageChange: (page: string) => void;
   currentRole: UserRole;
+  currentUser?: any;
   isCreatingRequest?: boolean;
   paymentRequests?: any[];
   onFilterChange?: (filter: string) => void;
@@ -39,77 +40,79 @@ export const navItems: NavItem[] = [
     id: 'dashboard',
     label: 'Dashboard', 
     icon: <LayoutDashboard className="h-4 w-4" />,
-    roles: ['executor', 'registrar', 'distributor', 'treasurer', 'admin']
+    roles: ['EXECUTOR', 'REGISTRAR', 'SUB_REGISTRAR', 'DISTRIBUTOR', 'TREASURER', 'ADMIN']
   },
   {
     id: 'requests',
     label: 'Заявки',
     icon: <FileText className="h-4 w-4" />,
-    roles: ['executor', 'registrar', 'distributor', 'treasurer'],
+    roles: ['EXECUTOR', 'REGISTRAR', 'SUB_REGISTRAR', 'DISTRIBUTOR', 'TREASURER'],
     badge: '5'
   },
   {
     id: 'sub-registrar-assignments',
     label: 'Мои назначения',
     icon: <FileText className="h-4 w-4" />,
-    roles: ['sub_registrar']
+    roles: ['SUB_REGISTRAR']
   },
   {
     id: 'distributor-workflow',
     label: 'Заявки для обработки',
     icon: <FileText className="h-4 w-4" />,
-    roles: ['distributor']
+    roles: ['DISTRIBUTOR']
   },
   {
     id: 'export-contracts',
     label: 'Экспортные контракты',
     icon: <Database className="h-4 w-4" />,
-    roles: ['distributor']
+    roles: ['DISTRIBUTOR']
   },
   {
     id: 'registers', 
     label: 'Реестры',
     icon: <Database className="h-4 w-4" />,
-    roles: ['treasurer']
+    roles: ['TREASURER']
   },
   {
     id: 'unallocated',
     label: 'Реестр нераспределенных расходов',
     icon: <FolderX className="h-4 w-4" />,
-    roles: ['distributor']
+    roles: ['DISTRIBUTOR']
   },
   // Административные функции - только для админа
   {
     id: 'dictionaries',
     label: 'Справочники',
     icon: <BookOpen className="h-4 w-4" />,
-    roles: ['admin']
+    roles: ['ADMIN']
   },
   {
     id: 'registrar-assignments',
     label: 'Назначения регистраторов',
     icon: <Users className="h-4 w-4" />,
-    roles: ['admin']
+    roles: ['ADMIN']
   },
   {
     id: 'distributor-routing',
     label: 'Маршрутизация распорядителей',
     icon: <Users className="h-4 w-4" />,
-    roles: ['admin']
+    roles: ['ADMIN']
   },
   {
     id: 'admin',
     label: 'Админка',
     icon: <Settings className="h-4 w-4" />,
-    roles: ['admin']
+    roles: ['ADMIN']
   }
 ];
 
-export function Navigation({ currentPage, onPageChange, currentRole, isCreatingRequest = false, paymentRequests = [], onFilterChange }: NavigationProps) {
+export function Navigation({ currentPage, onPageChange, currentRole, currentUser, isCreatingRequest = false, paymentRequests = [], onFilterChange }: NavigationProps) {
   // Use the new statistics hook with caching and auto-refresh
-  const { statistics, loading, error, refresh } = useRoleStatistics(currentRole, '3394830b-1b62-4db4-a6e4-fdf76b5033f5', {
+  // Skip statistics for EXECUTOR role as it's loaded in ExecutorDashboard
+  const shouldLoadStatistics = currentRole !== 'EXECUTOR';
+  const { statistics, loading, error, refresh } = useRoleStatistics(currentRole, currentUser?.id, {
     enableCache: true,
-    autoRefresh: true,
+    autoRefresh: shouldLoadStatistics,
     refreshInterval: 30000 // Refresh every 30 seconds
   });
 
@@ -125,13 +128,13 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
     let badge = item.badge;
     
     if (item.id === 'requests' && statistics) {
-      if (currentRole === 'executor') {
+      if (currentRole === 'EXECUTOR') {
         badge = (statistics.draftCount + statistics.submittedCount + statistics.classifiedCount + statistics.approvedCount + statistics.inRegistryCount).toString();
-      } else if (currentRole === 'registrar') {
+      } else if (currentRole === 'REGISTRAR') {
         badge = (statistics.submittedCount + statistics.classifiedCount).toString();
-      } else if (currentRole === 'distributor') {
+      } else if (currentRole === 'DISTRIBUTOR') {
         badge = statistics.approvedCount.toString();
-      } else if (currentRole === 'treasurer') {
+      } else if (currentRole === 'TREASURER') {
         badge = statistics.inRegistryCount.toString();
       }
     }
@@ -163,7 +166,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
     // console.log('Navigation getRoleStats: statistics:', statistics);
     // console.log('Navigation getRoleStats: currentRole:', currentRole);
     
-    if (currentRole === 'executor') {
+    if (currentRole === 'EXECUTOR') {
       return {
         draft: statistics.draftCount || 0,
         underReview: (statistics.submittedCount || 0) + (statistics.classifiedCount || 0) + (statistics.approvedCount || 0) + (statistics.inRegistryCount || 0),
@@ -173,7 +176,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
       };
     }
 
-    if (currentRole === 'registrar') {
+    if (currentRole === 'REGISTRAR') {
       return {
         inWork: statistics.submittedCount || 0,
         registered: statistics.classifiedCount || 0,
@@ -183,7 +186,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
       };
     }
 
-    if (currentRole === 'distributor') {
+    if (currentRole === 'DISTRIBUTOR') {
       return {
         pendingApproval: statistics.approvedCount || 0,
         approved: statistics.approvedCount || 0,
@@ -191,7 +194,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
       };
     }
 
-    if (currentRole === 'treasurer') {
+    if (currentRole === 'TREASURER') {
       return {
         inRegistry: statistics.inRegistryCount || 0,
         totalAmount: (statistics.totalRequests || 0) * 1000, // Mock calculation
@@ -272,7 +275,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
       <div className={cn("mt-8 p-3 bg-muted rounded-lg", isCreatingRequest && "opacity-50")}>
         <h4 className="font-medium mb-2">Быстрая статистика</h4>
         <div className="space-y-2 text-sm">
-          {currentRole === 'executor' && (
+          {currentRole === 'EXECUTOR' && (
             <>
               <div 
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded transition-colors"
@@ -299,7 +302,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
               </div>
             </>
           )}
-          {currentRole === 'registrar' && (
+          {currentRole === 'REGISTRAR' && (
             <>
               <div 
                 className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1 rounded transition-colors"
@@ -329,7 +332,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
               </div>
             </>
           )}
-          {currentRole === 'distributor' && (
+          {currentRole === 'DISTRIBUTOR' && (
             <>
               <div className="flex items-center gap-2">
                 <Clock className="h-3 w-3 text-orange-500" />
@@ -353,7 +356,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
               </div>
             </>
           )}
-          {currentRole === 'treasurer' && (
+          {currentRole === 'TREASURER' && (
             <>
               <div className="flex items-center gap-2">
                 <Clock className="h-3 w-3 text-orange-500" />
@@ -377,7 +380,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, isCreatingR
               </div>
             </>
           )}
-          {currentRole === 'admin' && (
+          {currentRole === 'ADMIN' && (
             <>
               <div className="flex items-center gap-2">
                 <Users className="h-3 w-3 text-blue-500" />

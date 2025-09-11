@@ -157,10 +157,8 @@ export const CacheTags = {
   DICTIONARY: 'dictionary',
   EXPENSE_ITEMS: 'expense-articles',
   COUNTERPARTIES: 'counterparties',
-  CONTRACTS: 'contracts',
-  NORMATIVES: 'normatives',
-  PRIORITIES: 'priorities',
-  USERS: 'users',
+  CURRENCIES: 'currencies',
+  VAT_RATES: 'vat-rates',
   SEARCH: 'search',
   FILTER: 'filter',
   STATISTICS: 'statistics'

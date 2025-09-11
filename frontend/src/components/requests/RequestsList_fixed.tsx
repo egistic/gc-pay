@@ -133,7 +133,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
     let filteredRequests = [...requests];
 
     // Role-based filtering
-    if (currentRole === 'registrar') {
+    if (currentRole === 'REGISTRAR') {
       filteredRequests = filteredRequests.filter(req => 
         ['submitted', 'classified', 'returned', 'declined', 'approved', 'in-register', 'paid-full', 'paid-partial'].includes(req.status)
       );
@@ -169,7 +169,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
             break;
         }
       }
-    } else if (currentRole === 'distributor') {
+    } else if (currentRole === 'DISTRIBUTOR') {
       filteredRequests = filteredRequests.filter(req => 
         ['classified', 'approved', 'approved-on-behalf', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(req.status)
       );
@@ -208,7 +208,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
             break;
         }
       }
-    } else if (currentRole === 'treasurer') {
+    } else if (currentRole === 'TREASURER') {
       filteredRequests = filteredRequests.filter(req => 
         ['approved', 'approved-on-behalf', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(req.status)
       );
@@ -329,9 +329,9 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
         <div>
           <h2 className="text-2xl font-semibold">Заявки на оплату</h2>
           <p className="text-muted-foreground">
-            {currentRole === 'registrar' ? 'Заявки для классификации' :
-             currentRole === 'distributor' ? 'Заявки для согласования' :
-             currentRole === 'treasurer' ? 'Заявки к оплате' : ''}
+            {currentRole === 'REGISTRAR' ? 'Заявки для классификации' :
+             currentRole === 'DISTRIBUTOR' ? 'Заявки для согласования' :
+             currentRole === 'TREASURER' ? 'Заявки к оплате' : ''}
           </p>
         </div>
         <div className="flex gap-2">
@@ -347,7 +347,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
       </div>
 
       {/* Filters - only show for registrar and distributor */}
-      {(currentRole === 'registrar' || currentRole === 'distributor') && (
+      {(currentRole === 'REGISTRAR' || currentRole === 'DISTRIBUTOR') && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -409,19 +409,19 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
 
 
       {/* Summary stats - different for registrar and distributor */}
-      {currentRole === 'registrar' ? (
+      {currentRole === 'REGISTRAR' ? (
         <RegistrarStatsCards 
           filteredRequests={filteredRequests}
           currentFilter={currentFilter}
           onFilterClick={handleFilterClick}
         />
-      ) : currentRole === 'distributor' ? (
+      ) : currentRole === 'DISTRIBUTOR' ? (
         <DistributorStatsCards 
           filteredRequests={filteredRequests}
           currentFilter={currentFilter}
           onFilterClick={handleFilterClick}
         />
-      ) : currentRole === 'treasurer' ? (
+      ) : currentRole === 'TREASURER' ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Card 
             className={`cursor-pointer transition-all hover:shadow-md ${
@@ -602,7 +602,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
                     <TableCell>
                       <StatusBadge 
                         status={request.status}
-                        showTooltip={currentRole === 'executor'}
+                        showTooltip={currentRole === 'EXECUTOR'}
                         responsible={getReviewerName(request.status)}
                         statusTime={formatTimeSafely(request.updatedAt || request.createdAt)}
                       />

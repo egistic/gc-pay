@@ -7,19 +7,121 @@ import uuid
 import time
 from app.modules.users.router import router as users_router
 from app.modules.users.roles_router import router as roles_router
+from app.modules.users.expense_article_roles_router import router as expense_article_roles_router
+from app.modules.users.positions_router import router as positions_router
 from app.modules.requests.router import router as requests_router
 from app.modules.files.router import router as files_router
 from app.modules.auth.router import router as auth_router
 from app.modules.dictionaries.router import router as dictionaries_router
+from app.modules.dictionaries.audit_router import router as dictionaries_audit_router
+from app.modules.dictionaries.import_export_router import router as dictionaries_import_export_router
 from app.modules.registry.router import router as registry_router
 from app.modules.distribution.router import router as distribution_router
 from app.modules.sub_registrar.router import router as sub_registrar_router
 from app.modules.distributor.router import router as distributor_router
 from app.modules.export_contracts.router import router as export_contracts_router
+from app.modules.admin.router import router as admin_router
 
-app = FastAPI(title="GC Spends API", version="0.1.0")
+app = FastAPI(
+    title="GC Spends API",
+    version="1.0.0",
+    description="""
+    ## GC Spends API - Система управления расходами и платежами
+    
+    Это API для управления системой расходов и платежей, включающая в себя:
+    
+    * **Аутентификация и авторизация** - управление пользователями и ролями
+    * **Управление запросами** - создание и обработка платежных запросов
+    * **Справочники** - управление статьями расходов и другими справочными данными
+    * **Регистрация** - ведение реестра документов
+    * **Распределение** - управление распределением средств
+    * **Экспорт контрактов** - работа с контрактными данными
+    * **Файлы** - загрузка и управление файлами
+    
+    ### Аутентификация
+    API использует JWT токены для аутентификации. Получите токен через `/api/v1/auth/login` и используйте его в заголовке `Authorization: Bearer <token>`.
+    
+    ### Базовый URL
+    Все API endpoints доступны по адресу: `http://localhost:8000/api/v1/`
+    """,
+    contact={
+        "name": "GC Spends Team",
+        "email": "support@gcspends.com",
+    },
+    license_info={
+        "name": "MIT",
+    },
+    servers=[
+        {
+            "url": "http://localhost:8000",
+            "description": "Development server"
+        },
+        {
+            "url": "https://gcback.openlayers.kz",
+            "description": "Production server"
+        }
+    ],
+    openapi_tags=[
+        {
+            "name": "auth",
+            "description": "Аутентификация и авторизация пользователей"
+        },
+        {
+            "name": "users",
+            "description": "Управление пользователями системы"
+        },
+        {
+            "name": "roles",
+            "description": "Управление ролями и правами доступа"
+        },
+        {
+            "name": "requests",
+            "description": "Управление платежными запросами"
+        },
+        {
+            "name": "dictionaries",
+            "description": "Справочники системы (статьи расходов, категории и т.д.)"
+        },
+        {
+            "name": "files",
+            "description": "Загрузка и управление файлами"
+        },
+        {
+            "name": "registry",
+            "description": "Реестр документов"
+        },
+        {
+            "name": "distribution",
+            "description": "Распределение средств"
+        },
+        {
+            "name": "sub-registrar",
+            "description": "Функции суб-регистратора"
+        },
+        {
+            "name": "distributor",
+            "description": "Функции дистрибьютора"
+        },
+        {
+            "name": "export-contracts",
+            "description": "Экспорт контрактных данных"
+        },
+        {
+            "name": "admin",
+            "description": "Административные функции системы"
+        },
+        {
+            "name": "health",
+            "description": "Проверка состояния системы"
+        }
+    ]
+)
 
-api = FastAPI()
+api = FastAPI(
+    title="GC Spends API v1",
+    version="1.0.0",
+    description="API для управления системой расходов и платежей"
+)
 
 # Add CORS middleware to both app and api
 app.add_middleware(
@@ -99,7 +201,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://gcback.openlayers.kz"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://gcback.openlayers.kz"
     
     # Remove server information
     if "Server" in response.headers:
@@ -148,14 +250,19 @@ app.mount(settings.api_prefix, api)
 api.include_router(auth_router)
 api.include_router(users_router)
 api.include_router(roles_router)
+api.include_router(expense_article_roles_router)
+api.include_router(positions_router)
 api.include_router(requests_router)
 api.include_router(files_router)
 api.include_router(dictionaries_router)
+api.include_router(dictionaries_audit_router)
+api.include_router(dictionaries_import_export_router)
 api.include_router(registry_router)
 api.include_router(distribution_router)
 api.include_router(sub_registrar_router)
 api.include_router(distributor_router)
 api.include_router(export_contracts_router)
+api.include_router(admin_router)
 
 @app.options("/{path:path}")
 async def app_options_handler(path: str):
@@ -171,6 +278,11 @@ async def app_options_handler(path: str):
         }
     )
 
-@app.get("/health")
+@app.get("/health", tags=["health"], summary="Проверка состояния системы")
 def health():
+    """
+    Проверка состояния API сервера.
+    
+    Возвращает статус "ok" если сервер работает корректно.
+    """
     return {"status": "ok"}

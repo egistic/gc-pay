@@ -88,4 +88,22 @@ export class SubRegistrarService {
     
     return response.json();
   }
+
+  /**
+   * Save closing document data
+   */
+  static async saveClosingDocs(requestId: string, data: any): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/sub-registrar/closing-docs/${requestId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to save closing document: ${response.statusText}`);
+    }
+  }
 }

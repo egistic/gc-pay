@@ -259,17 +259,37 @@ def send_requests_parallel(
 ):
     """Send requests to both SUB_REGISTRAR and DISTRIBUTOR in parallel"""
     # Verify user has REGISTRAR role
-    if not any(role.role.code == "REGISTRAR" for role in current_user.user_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied. REGISTRAR role required."
-        )
+    registrar_role = db.query(Role).filter(Role.code == RoleCode.REGISTRAR.value).first()
+    if registrar_role:
+        user_role = db.query(UserRole).filter(
+            and_(
+                UserRole.user_id == current_user.id,
+                UserRole.role_id == registrar_role.id,
+                UserRole.valid_from <= date.today(),
+                UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+            )
+        ).first()
+        if not user_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. REGISTRAR role required."
+            )
     
-    # Validate request exists and is in correct status
-    request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
-    if not request:
-        raise HTTPException(status_code=404, detail="Request not found")
+    # Check if this is a split request
+    is_split_request = payload.original_request_id is not None
     
+    if is_split_request:
+        # For split requests, find the original request
+        request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.original_request_id).first()
+        if not request:
+            raise HTTPException(status_code=404, detail="Original request not found")
+    else:
+        # For regular requests, find by request_id
+        request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+        if not request:
+            raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Validate request status
     if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]:
         raise HTTPException(
             status_code=400, 
@@ -288,7 +308,9 @@ def send_requests_parallel(
     
     # Validate expense splits
     total_amount = sum(split.amount for split in payload.expense_splits)
-    if abs(total_amount - float(request.amount_total)) > 0.01:
+    
+    # For split requests, we don't validate against original request amount
+    if not is_split_request and abs(total_amount - float(request.amount_total)) > 0.01:
         raise HTTPException(
             status_code=400,
             detail=f"Total split amount ({total_amount}) must equal request amount ({request.amount_total})"
@@ -301,35 +323,99 @@ def send_requests_parallel(
         raise HTTPException(status_code=400, detail="One or more expense items not found")
     
     try:
+        # If this is a split request, create a new payment request
+        if is_split_request:
+            # Generate new request number with suffix based on existing splits
+            existing_splits = db.query(PaymentRequest).filter(
+                PaymentRequest.number.like(f"{request.number}-%")
+            ).count()
+            split_number = existing_splits + 1
+            
+            new_request = PaymentRequest(
+                id=payload.request_id,
+                number=f"{request.number}-{split_number}",
+                title=f"{request.title} (Часть {split_number})",
+                amount_total=total_amount,
+                currency_code=request.currency_code,
+                counterparty_id=request.counterparty_id,
+                created_by_user_id=request.created_by_user_id,
+                status=RequestStatus.SUBMITTED.value,
+                distribution_status="DISTRIBUTED",
+                # Copy all required fields from original request
+                due_date=request.due_date,
+                vat_total=request.vat_total,
+                expense_article_text=request.expense_article_text,
+                doc_number=request.doc_number,
+                doc_date=request.doc_date,
+                doc_type=request.doc_type,
+                paying_company=request.paying_company,
+                counterparty_category=request.counterparty_category,
+                vat_rate=request.vat_rate,
+                product_service=request.product_service,
+                volume=request.volume,
+                price_rate=request.price_rate,
+                period=request.period,
+                responsible_registrar_id=request.responsible_registrar_id
+            )
+            db.add(new_request)
+            
+            # Flush to ensure the new request is available for foreign key references
+            db.flush()
+            
+            # Create expense splits for the new request
+            for split_data in payload.expense_splits:
+                expense_split = ExpenseSplit(
+                    request_id=payload.request_id,
+                    expense_item_id=split_data.expense_item_id,
+                    amount=split_data.amount,
+                    comment=split_data.comment,
+                    contract_id=split_data.contract_id,
+                    priority=split_data.priority
+                )
+                db.add(expense_split)
+        
         # Create sub-registrar assignment
+        # For split requests, use the new request ID; for regular requests, use the original request ID
+        assignment_request_id = payload.request_id if is_split_request else request.id
         sub_registrar_assignment = SubRegistrarAssignment(
-            request_id=payload.request_id,
+            request_id=assignment_request_id,
             sub_registrar_id=payload.sub_registrar_id,
             status="ASSIGNED"
         )
         db.add(sub_registrar_assignment)
         
         # Create distributor requests (one per expense article)
-        distributor_request_ids = []
+        distributor_requests = []
         for split_data in payload.expense_splits:
+            # For split requests, use the new request ID; for regular requests, use the original request ID
+            original_request_id = payload.request_id if is_split_request else request.id
             distributor_request = DistributorRequest(
-                original_request_id=payload.request_id,
+                original_request_id=original_request_id,
                 expense_article_id=split_data.expense_item_id,
                 amount=split_data.amount,
                 distributor_id=payload.distributor_id,
                 status="PENDING"
             )
             db.add(distributor_request)
-            distributor_request_ids.append(distributor_request.id)
+            distributor_requests.append(distributor_request)
+        
+        # Flush to generate IDs for distributor requests
+        db.flush()
+        
+        # Extract IDs after flush
+        distributor_request_ids = [dr.id for dr in distributor_requests]
         
         # Update request status
-        request.distribution_status = "DISTRIBUTED"
-        request.status = RequestStatus.IN_REGISTRY.value
+        if not is_split_request:
+            request.distribution_status = "DISTRIBUTED"
+            request.status = RequestStatus.IN_REGISTRY.value
         
         # Create request event
         from app.models import RequestEvent
+        # For split requests, use the new request ID; for regular requests, use the original request ID
+        event_request_id = payload.request_id if is_split_request else request.id
         event = RequestEvent(
-            request_id=payload.request_id,
+            request_id=event_request_id,
             event_type="DISTRIBUTED",
             actor_user_id=current_user.id,
             payload=f"Request distributed to sub-registrar and distributor. Total amount: {total_amount}"
@@ -340,7 +426,7 @@ def send_requests_parallel(
         db.refresh(sub_registrar_assignment)
         
         return schemas.ParallelDistributionOut(
-            request_id=request.id,
+            request_id=payload.request_id,
             sub_registrar_assignment_id=sub_registrar_assignment.id,
             distributor_request_ids=distributor_request_ids,
             total_amount=total_amount,

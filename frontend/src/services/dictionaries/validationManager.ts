@@ -121,7 +121,7 @@ export class ExpenseItemValidator extends BaseValidator<ExpenseItemDictionary> {
     }
 
     // Owner role validation
-    const validRoles: UserRole[] = ['executor', 'registrar', 'distributor', 'treasurer', 'admin'];
+    const validRoles: UserRole[] = ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER', 'ADMIN'];
     errors.push(...this.validateEnum(item.ownerRole, 'ownerRole', validRoles));
 
     return {
@@ -140,7 +140,7 @@ export class ExpenseItemValidator extends BaseValidator<ExpenseItemDictionary> {
         }
         return this.validateString(value, 'code', 3, 10);
       case 'ownerRole':
-        const validRoles: UserRole[] = ['executor', 'registrar', 'distributor', 'treasurer', 'admin'];
+        const validRoles: UserRole[] = ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER', 'ADMIN'];
         return this.validateEnum(value, 'ownerRole', validRoles);
       default:
         return [];
@@ -342,7 +342,7 @@ export class UserValidator extends BaseValidator<UserDictionary> {
     }
 
     // Current role validation
-    const validRoles: UserRole[] = ['executor', 'registrar', 'distributor', 'treasurer', 'admin'];
+    const validRoles: UserRole[] = ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER', 'ADMIN'];
     errors.push(...this.validateEnum(item.currentRole, 'currentRole', validRoles));
 
     return {
@@ -358,8 +358,83 @@ export class UserValidator extends BaseValidator<UserDictionary> {
       case 'email':
         return this.validateEmail(value, 'email');
       case 'currentRole':
-        const validRoles: UserRole[] = ['executor', 'registrar', 'distributor', 'treasurer', 'admin'];
+        const validRoles: UserRole[] = ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER', 'ADMIN'];
         return this.validateEnum(value, 'currentRole', validRoles);
+      default:
+        return [];
+    }
+  }
+}
+
+/**
+ * Vat Rate Validator
+ */
+export class VatRateValidator extends BaseValidator<any> {
+  validate(item: any): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    // Required fields
+    errors.push(...this.validateRequired(item.rate, 'rate'));
+    errors.push(...this.validateRequired(item.name, 'name'));
+
+    // Number validations
+    if (item.rate !== undefined) {
+      if (typeof item.rate !== 'number' || item.rate < 0 || item.rate > 100) {
+        errors.push({
+          field: 'rate',
+          message: 'Rate must be a number between 0 and 100',
+          code: 'INVALID_RATE'
+        });
+      }
+    }
+
+    // String validations
+    errors.push(...this.validateString(item.name, 'name', 1, 255));
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  validateField(field: string, value: any): ValidationError[] {
+    switch (field) {
+      case 'rate':
+        if (typeof value !== 'number' || value < 0 || value > 100) {
+          return [{ field: 'rate', message: 'Rate must be a number between 0 and 100', code: 'INVALID_RATE' }];
+        }
+        return [];
+      case 'name':
+        return this.validateString(value, 'name', 1, 255);
+      default:
+        return [];
+    }
+  }
+}
+
+/**
+ * Currency Validator
+ */
+export class CurrencyValidator extends BaseValidator<any> {
+  validate(item: any): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    // Required fields
+    errors.push(...this.validateRequired(item.code, 'code'));
+
+    // String validations
+    errors.push(...this.validateString(item.code, 'code', 1, 10));
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  validateField(field: string, value: any): ValidationError[] {
+    switch (field) {
+      case 'code':
+        return this.validateString(value, 'code', 1, 10);
       default:
         return [];
     }
@@ -375,9 +450,8 @@ export class ValidationManager {
   constructor() {
     this.registerValidator('expense-articles', new ExpenseItemValidator());
     this.registerValidator('counterparties', new CounterpartyValidator());
-    this.registerValidator('contracts', new ContractValidator());
-    this.registerValidator('priorities', new PriorityValidator());
-    this.registerValidator('users', new UserValidator());
+    this.registerValidator('vat-rates', new VatRateValidator());
+    this.registerValidator('currencies', new CurrencyValidator());
   }
 
   registerValidator<T extends DictionaryItem>(type: string, validator: Validator<T>): void {

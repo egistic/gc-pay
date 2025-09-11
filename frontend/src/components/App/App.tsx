@@ -7,20 +7,27 @@ import { DictionaryProvider } from '../../context/DictionaryContext';
 import { AppStateProvider, useAppState, appActions } from '../../context/AppStateContext';
 import { useApiOperations } from '../../hooks/useApiOperations';
 import { useApiMode } from '../../hooks/useApiMode';
+import { useRoleSync } from '../../hooks/useRoleSync';
 import { ENHANCED_API_CONFIG } from '../../services/api';
 import { Toaster } from '../ui/sonner';
 import { toast } from 'sonner@2.0.3';
 import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 import { navItems } from '../layout/Navigation';
-import { useAuth } from '../../context/TestAuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Main App Content Component
-function AppContent() {
+interface AppContentProps {
+  logout: () => void;
+}
+
+function AppContent({ logout }: AppContentProps) {
   const { state, dispatch } = useAppState();
   const { loadInitialData } = useApiOperations();
   const { handleToggleApiMode } = useApiMode();
-  const { logout } = useAuth();
+  
+  // Sync role from AuthContext to AppState
+  useRoleSync();
 
   // Initialize browser polyfills and error handling
   useEffect(() => {
@@ -75,6 +82,7 @@ function AppContent() {
               currentPage={state.currentPage}
               onPageChange={(page) => dispatch(appActions.setCurrentPage(page))}
               currentRole={state.currentRole}
+              currentUser={state.currentUser}
               isCreatingRequest={state.showCreateForm}
               paymentRequests={state.paymentRequests}
               onFilterChange={(filter) => dispatch(appActions.setDashboardFilter(filter))}
@@ -128,7 +136,13 @@ function AppContent() {
 export default function App() {
   return (
     <AppStateProvider>
-      <AppContent />
+      <AppContentWithAuth />
     </AppStateProvider>
   );
+}
+
+// Component that has access to AuthContext
+function AppContentWithAuth() {
+  const { logout } = useAuth();
+  return <AppContent logout={logout} />;
 }

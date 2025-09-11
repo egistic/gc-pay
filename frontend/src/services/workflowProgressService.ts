@@ -56,13 +56,13 @@ export class WorkflowProgressService {
       {
         id: 'request-creation',
         name: 'Создание заявки',
-        role: 'executor',
+        role: 'EXECUTOR',
         description: 'Исполнитель создаёт заявку на оплату'
       },
       {
         id: 'request-submission',
         name: 'Подача заявки',
-        role: 'executor',
+        role: 'EXECUTOR',
         description: 'Заявка отправлена на рассмотрение'
       },
       {
@@ -191,11 +191,11 @@ export class WorkflowProgressService {
    */
   private static getNextRole(currentStatus: PaymentRequestStatus, distributionStatus: DistributionStatus): string | undefined {
     const roleMap: Record<PaymentRequestStatus, string> = {
-      'draft': 'executor',
+      'draft': 'EXECUTOR',
       'submitted': 'registrar',
       'classified': 'distributor',
       'allocated': 'distributor',
-      'returned': 'executor',
+      'returned': 'EXECUTOR',
       'approved': 'registrar',
       'approved-on-behalf': 'registrar',
       'to-pay': 'registrar',
@@ -206,8 +206,8 @@ export class WorkflowProgressService {
       'export_linked': 'treasurer',
       'paid-full': undefined,
       'paid-partial': 'treasurer',
-      'declined': 'executor',
-      'rejected': 'executor',
+      'declined': 'EXECUTOR',
+      'rejected': 'EXECUTOR',
       'cancelled': undefined
     };
 

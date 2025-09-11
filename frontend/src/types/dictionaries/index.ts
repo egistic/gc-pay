@@ -135,10 +135,6 @@ export interface BankDetails {
 export type DictionaryType = 
   | 'expense-articles'
   | 'counterparties'
-  | 'contracts'
-  | 'normatives'
-  | 'priorities'
-  | 'users'
   | 'currencies'
   | 'vat-rates';
 

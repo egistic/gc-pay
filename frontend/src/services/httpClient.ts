@@ -68,7 +68,7 @@ export const API_CONFIG: ApiConfig = {
     // Payment Requests
     getPaymentRequests: '/api/v1/requests/list',
     createPaymentRequest: '/api/v1/requests/create',
-    updatePaymentRequest: '/api/v1/requests/update',
+    updatePaymentRequest: '/api/v1/requests/:id',
     deletePaymentRequest: '/api/v1/requests/delete',
     getPaymentRequest: '/api/v1/requests/:id',
     
@@ -77,14 +77,14 @@ export const API_CONFIG: ApiConfig = {
     getDashboardMetrics: '/api/v1/requests/dashboard-metrics',
     
     // Workflow Actions
-    submitRequest: '/api/v1/requests/submit',
+    submitRequest: '/api/v1/requests/:id/submit',
     classifyRequest: '/api/v1/requests/:id/classify',
-    approveRequest: '/api/v1/requests/approve',
-    rejectRequest: '/api/v1/requests/reject',
-    addToRegistry: '/api/v1/requests/add-to-registry',
-    sendToDistributor: '/api/v1/requests/send-to-distributor',
-    distributorAction: '/api/v1/requests/distributor-action',
-    getRequestEvents: '/api/v1/requests/events',
+    approveRequest: '/api/v1/requests/:id/approve',
+    rejectRequest: '/api/v1/requests/:id/reject',
+    addToRegistry: '/api/v1/requests/:id/add-to-registry',
+    sendToDistributor: '/api/v1/requests/:id/send-to-distributor',
+    distributorAction: '/api/v1/requests/:id/distributor-action',
+    getRequestEvents: '/api/v1/requests/:id/events',
     
     // Dictionaries
     getCounterparties: '/api/v1/dictionaries/counterparties',
@@ -98,6 +98,17 @@ export const API_CONFIG: ApiConfig = {
     // Users
     getUsers: '/api/v1/users/list',
     getCurrentUser: '/api/v1/auth/me',
+    getUser: '/api/v1/users/:id',
+    createUser: '/api/v1/users',
+    updateUser: '/api/v1/users/:id',
+    deleteUser: '/api/v1/users/:id',
+    
+    // Roles
+    getRoles: '/api/v1/roles',
+    getRole: '/api/v1/roles/:id',
+    createRole: '/api/v1/roles',
+    updateRole: '/api/v1/roles/:id',
+    deleteRole: '/api/v1/roles/:id',
     
     // Files
     uploadFile: '/api/v1/files/upload',
@@ -147,6 +158,12 @@ class HttpClient {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Clear invalid token and redirect to login
+        localStorage.removeItem('test_token');
+        window.location.href = '/login';
+        throw new Error('Unauthorized - please login again');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -166,6 +183,12 @@ class HttpClient {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Clear invalid token and redirect to login
+        localStorage.removeItem('test_token');
+        window.location.href = '/login';
+        throw new Error('Unauthorized - please login again');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -185,13 +208,19 @@ class HttpClient {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Clear invalid token and redirect to login
+        localStorage.removeItem('test_token');
+        window.location.href = '/login';
+        throw new Error('Unauthorized - please login again');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return response.json();
   }
 
-  async delete(url: string, options: RequestInit = {}): Promise<any> {
+  async delete(url: string, data?: any, options: RequestInit = {}): Promise<any> {
     const response = await fetch(`${this.baseUrl}${url}`, {
       ...options,
       method: 'DELETE',
@@ -200,10 +229,22 @@ class HttpClient {
         ...this.getAuthHeaders(),
         ...options.headers,
       },
+      body: data ? JSON.stringify(data) : undefined,
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Clear invalid token and redirect to login
+        localStorage.removeItem('test_token');
+        window.location.href = '/login';
+        throw new Error('Unauthorized - please login again');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Handle 204 No Content response
+    if (response.status === 204) {
+      return;
     }
 
     return response.json();

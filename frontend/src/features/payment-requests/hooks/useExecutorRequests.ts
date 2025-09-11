@@ -52,7 +52,7 @@ export const useExecutorRequests = (options: UseExecutorRequestsOptions = {}): U
 
       // Build query parameters
       const queryParams = new URLSearchParams();
-      queryParams.append('role', 'executor');
+      queryParams.append('role', 'EXECUTOR');
       
       if (status && status !== 'all') {
         queryParams.append('status', status);
@@ -71,7 +71,7 @@ export const useExecutorRequests = (options: UseExecutorRequestsOptions = {}): U
 
       // Fetch data from API (already normalized by service)
       const response = await PaymentRequestService.getAll({
-        role: 'executor',
+        role: 'EXECUTOR',
         // Don't pass status filter to API - filter on client side
       });
 

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
@@ -12,23 +10,15 @@ import {
   ArrowLeft,
   AlertTriangle
 } from 'lucide-react';
-import { PaymentRequest, ExpenseSplit, ExpenseItem, ContractStatus, User, ExpenseSplitCreate, ParallelDistributionCreate } from '../../types';
+import { PaymentRequest, ExpenseSplit, ContractStatus, ParallelDistributionCreate } from '../../types';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { RequestInformationCard } from '../common/RequestInformationCard';
 import { ExpenseSplitForm } from './shared/ExpenseSplitForm';
-import { formatCurrency } from '../../utils/formatting';
 import { PaymentRequestService } from '../../services/paymentRequestService';
 import { DistributionService } from '../../services/distributionService';
 import { NotificationService } from '../../services/notificationService';
+import { useExpenseSplits } from '../../hooks/useExpenseSplits';
 
-interface ExpenseSplitData {
-  id: string;
-  requestId: string;
-  expenseItemId: string;
-  amount: number;
-  comment?: string;
-  subRegistrarId?: string;
-}
 
 interface ItemClassificationFormProps {
   request: PaymentRequest;
@@ -42,25 +32,21 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
   const { items: expenseItems, state: expenseItemsState } = useDictionaries('expense-articles');
   const { items: counterparties, state: counterpartiesState } = useDictionaries('counterparties');
   
-  const [expenseSplits, setExpenseSplits] = useState<ExpenseSplitData[]>([]);
   const [returnComment, setReturnComment] = useState('');
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [contractStatus, setContractStatus] = useState<ContractStatus | null>(null);
 
-  // Initialize with single expense split if none exist
-  useEffect(() => {
-    if (expenseSplits.length === 0) {
-      const initialSplit: ExpenseSplitData = {
-        id: 'split-1',
-        requestId: request.id,
-        expenseItemId: '',
-        amount: request.amount,
-        comment: ''
-      };
-      setExpenseSplits([initialSplit]);
-    }
-  }, [request]);
+  // Use the centralized expense splits hook
+  const { 
+    splits: expenseSplits, 
+    setSplits: setExpenseSplits, 
+    validationWarnings, 
+    isFormValid 
+  } = useExpenseSplits({ 
+    request, 
+    initialSplits: [] 
+  });
 
   // Load contract status
   useEffect(() => {
@@ -78,7 +64,7 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
 
 
   const handleSubmit = async () => {
-    if (!isFormValid()) {
+    if (!isFormValid) {
       toast.error('Исправьте ошибки валидации перед отправкой');
       return;
     }
@@ -93,9 +79,9 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
     setIsLoading(true);
     try {
       // First, classify the request
-      const expenseSplitsForApi: ExpenseSplit[] = expenseSplits.map(split => ({
-        id: split.id,
-        requestId: split.requestId,
+      const expenseSplitsForApi: ExpenseSplit[] = expenseSplits.map((split, index) => ({
+        id: `split-${Date.now()}-${index}`,
+        requestId: request.id,
         expenseItemId: split.expenseItemId,
         amount: split.amount,
         comment: split.comment,
@@ -110,48 +96,65 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         expenseSplits: expenseSplitsForApi
       });
 
+      // First, classify the original request
       await PaymentRequestService.classify(request.id, expenseSplitsForApi, '');
       
-      // Then, distribute the request
-      const uniqueSubRegistrars = [...new Set(expenseSplits.map(split => split.subRegistrarId).filter(Boolean))] as string[];
-      
-      // Create distribution data for each sub-registrar
-      const distributionPromises = uniqueSubRegistrars.map(subRegistrarId => {
-        const subRegistrarSplits = expenseSplits.filter(split => split.subRegistrarId === subRegistrarId);
-        
+      // Group splits by sub-registrar
+      const splitsBySubRegistrar = expenseSplits.reduce((acc, split) => {
+        const subRegistrarId = split.subRegistrarId;
+        if (subRegistrarId) {
+          if (!acc[subRegistrarId]) {
+            acc[subRegistrarId] = [];
+          }
+          acc[subRegistrarId].push(split);
+        }
+        return acc;
+      }, {} as Record<string, typeof expenseSplits>);
+
+      // Create distribution for each sub-registrar using the original request
+      const subRegistrarIds = Object.keys(splitsBySubRegistrar);
+      const createdRequests = [];
+
+      for (let i = 0; i < subRegistrarIds.length; i++) {
+        const subRegistrarId = subRegistrarIds[i];
+        const subRegistrarSplits = splitsBySubRegistrar[subRegistrarId];
+
+        // Generate unique ID for split request using crypto.randomUUID()
+        const splitRequestId = crypto.randomUUID();
+
+        // Distribute the request to this sub-registrar
         const parallelDistributionData: ParallelDistributionCreate = {
-          requestId: request.id,
+          requestId: splitRequestId, // Use split request ID
           subRegistrarId: subRegistrarId,
-          distributorId: '10756640-8f37-4cd2-84da-f9d1e3c16c70', // Hardcoded distributor ID
+          distributorId: '10756640-8f37-4cd2-84da-f9d1e3c16c70', // TODO: Get from user context
           expenseSplits: subRegistrarSplits.map(split => ({
             expenseItemId: split.expenseItemId,
             amount: split.amount,
             comment: split.comment,
             contractId: 'outside-contract',
-            priority: 'medium',
-            subRegistrarId: split.subRegistrarId
+            priority: 'medium'
           })),
-          comment: ''
+          comment: `Часть ${i + 1} для суб-регистратора`,
+          originalRequestId: request.id // Add original request ID for split requests
         };
 
-        return DistributionService.sendRequestsParallel(parallelDistributionData);
-      });
-
-      await Promise.all(distributionPromises);
+        const result = await DistributionService.sendRequestsParallel(parallelDistributionData);
+        createdRequests.push(result);
+      }
       
       // Send notifications
       NotificationService.notifyRequestDistributed(request.id, request.requestNumber || 'Без номера');
-      uniqueSubRegistrars.forEach(subRegistrarId => {
+      subRegistrarIds.forEach(subRegistrarId => {
         NotificationService.notifySubRegistrarAssigned(request.id, request.requestNumber || 'Без номера');
       });
       NotificationService.notifyDistributorRequestCreated(request.id, request.requestNumber || 'Без номера');
       
-      toast.success('Заявка успешно классифицирована и распределена');
+      toast.success(`Заявка успешно классифицирована и разделена на ${createdRequests.length} заявок для суб-регистраторов`);
       
       // Convert to ExpenseSplit format for parent component
-      const expenseSplitsForParent: ExpenseSplit[] = expenseSplits.map(split => ({
-        id: split.id,
-        requestId: split.requestId,
+      const expenseSplitsForParent: ExpenseSplit[] = expenseSplits.map((split, index) => ({
+        id: `split-${Date.now()}-${index}`,
+        requestId: request.id,
         expenseItemId: split.expenseItemId,
         amount: split.amount,
         comment: split.comment,
@@ -198,57 +201,10 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
 
   const getExpenseItemName = (id: string): string => {
     const item = expenseItems.find(item => item.id === id);
-    return item ? item.name : '';
+    return item?.name || '';
   };
 
-
-  const isFormValid = () => {
-    // Check if all splits have expense items assigned
-    const unassignedSplits = expenseSplits.filter(split => !split.expenseItemId);
-    if (unassignedSplits.length > 0) {
-      return false;
-    }
-
-    // Check if all splits have sub-registrars assigned
-    const unassignedSubRegistrars = expenseSplits.filter(split => !split.subRegistrarId);
-    if (unassignedSubRegistrars.length > 0) {
-      return false;
-    }
-
-    // Check if total amount matches request amount
-    const totalSplitsAmount = expenseSplits.reduce((sum, split) => sum + (split.amount || 0), 0);
-    if (Math.abs(totalSplitsAmount - request.amount) > 0.01) {
-      return false;
-    }
-
-    return true;
-  };
-
-  const getValidationWarnings = () => {
-    const warnings: string[] = [];
-    
-    // Check if all splits have expense items assigned
-    const unassignedSplits = expenseSplits.filter(split => !split.expenseItemId);
-    if (unassignedSplits.length > 0) {
-      warnings.push(`Необходимо выбрать статью расходов для ${unassignedSplits.length} позиций`);
-    }
-
-    // Check if all splits have sub-registrars assigned
-    const unassignedSubRegistrars = expenseSplits.filter(split => !split.subRegistrarId);
-    if (unassignedSubRegistrars.length > 0) {
-      warnings.push(`Необходимо выбрать суб-регистратора для ${unassignedSubRegistrars.length} позиций`);
-    }
-
-    // Check if total amount matches request amount
-    const totalSplitsAmount = expenseSplits.reduce((sum, split) => sum + (split.amount || 0), 0);
-    if (Math.abs(totalSplitsAmount - request.amount) > 0.01) {
-      warnings.push(`Сумма распределения (${formatCurrency(totalSplitsAmount, 'KZT')}) не равна сумме заявки (${formatCurrency(request.amount, 'KZT')})`);
-    }
-
-    return warnings;
-  };
-
-
+  
   // Show loading state while dictionaries are loading
   if (expenseItemsState.isLoading || counterpartiesState.isLoading) {
     return (
@@ -353,20 +309,13 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
       {/* Expense Splits Form */}
       <ExpenseSplitForm
         request={request}
-        expenseItems={expenseItems}
-        onSplitsChange={(splits) => {
-          const expenseSplitsData = splits.map(split => ({
-            id: `split-${Date.now()}-${Math.random()}`,
-            requestId: request.id,
-            ...split
-          }));
-          setExpenseSplits(expenseSplitsData);
-        }}
+        expenseItems={expenseItems as any}
+        onSplitsChange={setExpenseSplits}
         showValidation={true}
       />
 
       {/* Validation Warnings */}
-      {!isFormValid() && (
+      {!isFormValid && validationWarnings.length > 0 && (
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
@@ -374,7 +323,7 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
               <div className="space-y-2">
                 <h4 className="font-medium text-amber-800">Требуется исправление</h4>
                 <ul className="space-y-1 text-sm text-amber-700">
-                  {getValidationWarnings().map((warning, index) => (
+                  {validationWarnings.map((warning, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="w-1.5 h-1.5 bg-amber-600 rounded-full mt-2 flex-shrink-0"></span>
                       {warning}
@@ -423,7 +372,7 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         </Dialog>
         <Button 
           onClick={handleSubmit} 
-          disabled={!isFormValid() || isLoading}
+          disabled={!isFormValid || isLoading}
           className="flex-1"
         >
           <Save className="w-4 h-4 mr-2" />

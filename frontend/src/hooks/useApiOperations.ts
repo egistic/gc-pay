@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { useAppState, appActions } from '../context/AppStateContext';
 import { PaymentRequestService, UserService } from '../services/api';
 import { UserRole, PaymentRequest, ExpenseSplit, PaymentAllocation } from '../types';
@@ -16,14 +16,18 @@ export function useApiOperations() {
       console.log('Loading current user...');
       const user = await UserService.getCurrentUser();
       console.log('User loaded:', user);
-      dispatch(appActions.setCurrentUser(user));
-      dispatch(appActions.setCurrentRole(user.currentRole));
       
-      // Load payment requests
-      console.log('Loading payment requests for role:', user.currentRole);
-      const requests = await PaymentRequestService.getAll({ role: user.currentRole });
-      console.log('Payment requests loaded:', requests.length);
-      dispatch(appActions.setPaymentRequests(requests));
+      // Only set user if they are active
+      if (user && user.is_active) {
+        dispatch(appActions.setCurrentUser(user));
+      } else {
+        console.log('User is inactive, not setting current user');
+        dispatch(appActions.setCurrentUser(null));
+      }
+      // Note: currentRole will be set by useRoleSync hook
+      
+      // Load payment requests - will be loaded after role is set by useRoleSync
+      // Note: Payment requests will be loaded by useRoleSync after role is set
       
       console.log('Initial data loading completed successfully');
     } catch (error) {

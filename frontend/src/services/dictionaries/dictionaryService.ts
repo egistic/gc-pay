@@ -50,18 +50,15 @@ export class DictionaryService {
    * Initialize handlers for each dictionary type
    */
   private initializeHandlers(): void {
-    const types: DictionaryType[] = [
+    // Only initialize handlers for types that have backend support
+    const supportedTypes: DictionaryType[] = [
       'expense-articles',
       'counterparties', 
-      'contracts',
-      'normatives',
-      'priorities',
-      'users',
       'currencies',
       'vat-rates'
     ];
 
-    types.forEach(type => {
+    supportedTypes.forEach(type => {
       const handler = this.createHandler(type);
       this.handlers.set(type, handler);
     });
@@ -111,9 +108,37 @@ export class DictionaryService {
   getHandler<T extends DictionaryItem>(type: DictionaryType): DictionaryHandler<T> {
     const handler = this.handlers.get(type);
     if (!handler) {
-      throw new Error(`No handler found for dictionary type: ${type}`);
+      // Return a mock handler for unsupported types
+      return this.createMockHandler<T>(type);
     }
     return handler as DictionaryHandler<T>;
+  }
+
+  /**
+   * Create mock handler for unsupported dictionary types
+   */
+  private createMockHandler<T extends DictionaryItem>(type: DictionaryType): DictionaryHandler<T> {
+    return {
+      getItems: () => Promise.resolve([]),
+      getItemById: () => Promise.resolve(null),
+      createItem: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`)),
+      updateItem: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`)),
+      deleteItem: () => Promise.resolve(false),
+      validateItem: () => ({ isValid: false, errors: [{ field: 'type', message: `Dictionary type '${type}' is not supported` }] }),
+      searchItems: () => Promise.resolve([]),
+      getItemsByFilter: () => Promise.resolve([]),
+      getStatistics: () => Promise.resolve({
+        totalItems: 0,
+        activeItems: 0,
+        inactiveItems: 0,
+        recentlyUpdated: 0
+      }),
+      bulkCreate: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`)),
+      bulkUpdate: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`)),
+      bulkDelete: () => Promise.resolve({ success_count: 0, error_count: 0, errors: [] }),
+      exportItems: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`)),
+      importItems: () => Promise.reject(new Error(`Dictionary type '${type}' is not supported`))
+    };
   }
 
   /**
@@ -550,34 +575,6 @@ export class DictionaryService {
         createItem: (data: any) => this.api.createCounterparty(data),
         updateItem: (id: string, data: any) => this.api.updateCounterparty(id, data),
         deleteItem: (id: string) => this.api.deleteCounterparty(id)
-      },
-      'contracts': {
-        getItems: () => this.api.getContracts(),
-        getItem: (id: string) => this.api.getContract(id),
-        createItem: (data: any) => this.api.createContract(data),
-        updateItem: (id: string, data: any) => this.api.updateContract(id, data),
-        deleteItem: (id: string) => this.api.deleteContract(id)
-      },
-      'normatives': {
-        getItems: () => this.api.getNormatives(),
-        getItem: (id: string) => this.api.getNormative(id),
-        createItem: (data: any) => this.api.createNormative(data),
-        updateItem: (id: string, data: any) => this.api.updateNormative(id, data),
-        deleteItem: (id: string) => this.api.deleteNormative(id)
-      },
-      'priorities': {
-        getItems: () => this.api.getPriorities(),
-        getItem: (id: string) => this.api.getPriority(id),
-        createItem: (data: any) => this.api.createPriority(data),
-        updateItem: (id: string, data: any) => this.api.updatePriority(id, data),
-        deleteItem: (id: string) => this.api.deletePriority(id)
-      },
-      'users': {
-        getItems: () => this.api.getUsers(),
-        getItem: (id: string) => this.api.getUser(id),
-        createItem: (data: any) => this.api.createUser(data),
-        updateItem: (id: string, data: any) => this.api.updateUser(id, data),
-        deleteItem: (id: string) => this.api.deleteUser(id)
       },
       'currencies': {
         getItems: () => this.api.getCurrencies(),

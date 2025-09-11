@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from app.core.db import get_db
-from app.core.security import hash_password
+from app.core.security import hash_password, get_current_user, require_roles
 from app.models import User, Role, UserRole
 from . import schemas
 import uuid
@@ -11,7 +11,11 @@ from datetime import date
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("", response_model=schemas.UserOut, status_code=201)
-def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(
+    payload: schemas.UserCreate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.UserOut = Depends(require_roles("ADMIN"))
+):
     exists = db.query(User).filter(User.email == payload.email).first()
     if exists:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
@@ -26,10 +30,31 @@ def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(user)
     return schemas.UserOut.model_validate(user.__dict__)
 
-@router.get("", response_model=list[schemas.UserOut])
+@router.get("", response_model=list[schemas.UserWithRoles])
 def list_users(db: Session = Depends(get_db)):
     users = db.query(User).order_by(User.full_name).all()
-    return [schemas.UserOut.model_validate(u.__dict__) for u in users]
+    result = []
+    
+    for user in users:
+        # Get user roles
+        user_roles = db.query(UserRole).filter(
+            and_(
+                UserRole.user_id == user.id,
+                UserRole.valid_from <= date.today(),
+                UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+            )
+        ).all()
+        
+        roles = []
+        for user_role in user_roles:
+            role = db.query(Role).filter(Role.id == user_role.role_id).first()
+            if role:
+                roles.append(schemas.RoleOut.model_validate(role.__dict__))
+        
+        user_data = schemas.UserOut.model_validate(user.__dict__)
+        result.append(schemas.UserWithRoles(**user_data.model_dump(), roles=roles))
+    
+    return result
 
 @router.get("/{user_id}", response_model=schemas.UserWithRoles)
 def get_user(user_id: uuid.UUID, db: Session = Depends(get_db)):
@@ -57,7 +82,12 @@ def get_user(user_id: uuid.UUID, db: Session = Depends(get_db)):
     return schemas.UserWithRoles(**user_data.model_dump(), roles=roles)
 
 @router.put("/{user_id}", response_model=schemas.UserOut)
-def update_user(user_id: uuid.UUID, payload: schemas.UserUpdate, db: Session = Depends(get_db)):
+def update_user(
+    user_id: uuid.UUID, 
+    payload: schemas.UserUpdate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.UserOut = Depends(require_roles("ADMIN"))
+):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -83,7 +113,11 @@ def update_user(user_id: uuid.UUID, payload: schemas.UserUpdate, db: Session = D
     return schemas.UserOut.model_validate(user.__dict__)
 
 @router.delete("/{user_id}", status_code=204)
-def delete_user(user_id: uuid.UUID, db: Session = Depends(get_db)):
+def delete_user(
+    user_id: uuid.UUID, 
+    db: Session = Depends(get_db),
+    current_user: schemas.UserOut = Depends(require_roles("ADMIN"))
+):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -98,7 +132,12 @@ def get_roles(db: Session = Depends(get_db)):
     return [schemas.RoleOut.model_validate(role.__dict__) for role in roles]
 
 @router.post("/{user_id}/roles", response_model=schemas.UserWithRoles)
-def assign_role_to_user(user_id: uuid.UUID, payload: schemas.UserRoleAssign, db: Session = Depends(get_db)):
+def assign_role_to_user(
+    user_id: uuid.UUID, 
+    payload: schemas.UserRoleAssign, 
+    db: Session = Depends(get_db),
+    current_user: schemas.UserOut = Depends(require_roles("ADMIN"))
+):
     # Check if user exists
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

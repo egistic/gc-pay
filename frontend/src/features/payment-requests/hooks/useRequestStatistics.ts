@@ -30,7 +30,7 @@ export const useRequestStatistics = (options: UseRequestStatisticsOptions = {}):
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { role = 'executor', userId } = options;
+  const { role = 'EXECUTOR', userId } = options;
 
   const fetchStatistics = useCallback(async () => {
     try {

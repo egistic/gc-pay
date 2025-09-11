@@ -25,7 +25,7 @@ import {
 import { Check, ChevronsUpDown, Building, MapPin, Tag } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { Counterparty, CounterpartyCategory } from '../../types';
-import { useDictionaries } from '../../hooks/useDictionaries';
+import { useDictionaryData } from '../../hooks/useDictionaryData';
 
 interface CounterpartySelectProps {
   value?: string;
@@ -41,7 +41,7 @@ export function CounterpartySelect({ value, onValueChange, onCounterpartyAdd, fi
   const [searchTerm, setSearchTerm] = useState('');
   
   // Get counterparties from dictionary service
-  const { items: counterparties, state } = useDictionaries('counterparties');
+  const { items: counterparties, loading, error } = useDictionaryData('counterparties');
 
   // Фильтрация по категории и поиску
   const filteredCounterparties = counterparties.filter(cp => {
@@ -160,15 +160,15 @@ export function CounterpartySelect({ value, onValueChange, onCounterpartyAdd, fi
                 />
                 <CommandList className="max-h-[300px]">
                   <CommandEmpty>
-                    {state.isLoading ? (
+                    {loading ? (
                       <div className="flex items-center justify-center py-4">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                         <span className="ml-2 text-sm text-muted-foreground">Загрузка контрагентов...</span>
                       </div>
-                    ) : state.error ? (
+                    ) : error ? (
                       <div className="text-center py-4 text-red-500">
                         <p>Ошибка загрузки контрагентов</p>
-                        <p className="text-xs text-muted-foreground mt-1">{state.error}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{error}</p>
                       </div>
                     ) : filteredCounterparties.length === 0 ? (
                       filterByCategory 

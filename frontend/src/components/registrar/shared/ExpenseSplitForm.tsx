@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -43,7 +43,7 @@ interface ExpenseSplitFormProps {
   className?: string;
 }
 
-export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = ({
+export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
   request,
   expenseItems,
   onSplitsChange,
@@ -234,4 +234,6 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = ({
 
     </div>
   );
-};
+});
+
+ExpenseSplitForm.displayName = 'ExpenseSplitForm';

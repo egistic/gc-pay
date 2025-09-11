@@ -157,14 +157,14 @@ export const WorkflowDashboard: React.FC<WorkflowDashboardProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">
-            {currentRole === 'registrar' && 'Рабочий стол регистратора'}
-            {currentRole === 'sub_registrar' && 'Рабочий стол суб-регистратора'}
-            {currentRole === 'distributor' && 'Рабочий стол распорядителя'}
+            {currentRole === 'REGISTRAR' && 'Рабочий стол регистратора'}
+            {currentRole === 'SUB_REGISTRAR' && 'Рабочий стол суб-регистратора'}
+            {currentRole === 'DISTRIBUTOR' && 'Рабочий стол распорядителя'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            {currentRole === 'registrar' && 'Управление распределением заявок'}
-            {currentRole === 'sub_registrar' && 'Обработка назначенных заявок'}
-            {currentRole === 'distributor' && 'Обработка заявок и привязка контрактов'}
+            {currentRole === 'REGISTRAR' && 'Управление распределением заявок'}
+            {currentRole === 'SUB_REGISTRAR' && 'Обработка назначенных заявок'}
+            {currentRole === 'DISTRIBUTOR' && 'Обработка заявок и привязка контрактов'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -176,7 +176,7 @@ export const WorkflowDashboard: React.FC<WorkflowDashboardProps> = ({
             <FileText className="h-4 w-4" />
             Все заявки
           </Button>
-          {currentRole === 'registrar' && (
+          {currentRole === 'REGISTRAR' && (
             <Button
               onClick={() => onNavigate('registrar-distribution')}
               className="flex items-center gap-2"
@@ -207,9 +207,9 @@ export const WorkflowDashboard: React.FC<WorkflowDashboardProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {currentRole === 'registrar' && 'Ожидают распределения'}
-                  {currentRole === 'sub_registrar' && 'Назначены'}
-                  {currentRole === 'distributor' && 'Ожидают обработки'}
+                  {currentRole === 'REGISTRAR' && 'Ожидают распределения'}
+                  {currentRole === 'SUB_REGISTRAR' && 'Назначены'}
+                  {currentRole === 'DISTRIBUTOR' && 'Ожидают обработки'}
                 </p>
                 <p className="text-2xl font-bold text-blue-600">{stats.pending}</p>
               </div>
@@ -223,14 +223,14 @@ export const WorkflowDashboard: React.FC<WorkflowDashboardProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {currentRole === 'registrar' && 'Распределены'}
-                  {currentRole === 'sub_registrar' && 'В работе'}
-                  {currentRole === 'distributor' && 'Обогащены'}
+                  {currentRole === 'REGISTRAR' && 'Распределены'}
+                  {currentRole === 'SUB_REGISTRAR' && 'В работе'}
+                  {currentRole === 'DISTRIBUTOR' && 'Обогащены'}
                 </p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {currentRole === 'registrar' && stats.distributed}
-                  {currentRole === 'sub_registrar' && stats.inProgress}
-                  {currentRole === 'distributor' && stats.enriched}
+                  {currentRole === 'REGISTRAR' && stats.distributed}
+                  {currentRole === 'SUB_REGISTRAR' && stats.inProgress}
+                  {currentRole === 'DISTRIBUTOR' && stats.enriched}
                 </p>
               </div>
               <Activity className="h-8 w-8 text-orange-500" />
@@ -243,14 +243,14 @@ export const WorkflowDashboard: React.FC<WorkflowDashboardProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {currentRole === 'registrar' && 'Завершены'}
-                  {currentRole === 'sub_registrar' && 'Завершены'}
-                  {currentRole === 'distributor' && 'Привязаны'}
+                  {currentRole === 'REGISTRAR' && 'Завершены'}
+                  {currentRole === 'SUB_REGISTRAR' && 'Завершены'}
+                  {currentRole === 'DISTRIBUTOR' && 'Привязаны'}
                 </p>
                 <p className="text-2xl font-bold text-green-600">
-                  {currentRole === 'registrar' && stats.completed}
-                  {currentRole === 'sub_registrar' && stats.completed}
-                  {currentRole === 'distributor' && stats.linked}
+                  {currentRole === 'REGISTRAR' && stats.completed}
+                  {currentRole === 'SUB_REGISTRAR' && stats.completed}
+                  {currentRole === 'DISTRIBUTOR' && stats.linked}
                 </p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />

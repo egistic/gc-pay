@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ExpenseSplit, PaymentRequest } from '../types';
 
 interface UseExpenseSplitsProps {
@@ -15,6 +15,8 @@ interface UseExpenseSplitsReturn {
   removeSplit: (index: number) => void;
   updateSplit: (index: number, field: keyof Omit<ExpenseSplit, 'id' | 'requestId'>, value: any) => void;
   validationErrors: string[];
+  validationWarnings: string[];
+  isFormValid: boolean;
 }
 
 export function useExpenseSplits({ 
@@ -51,6 +53,12 @@ export function useExpenseSplits({
       errors.push(`${unassignedSplits.length} статей не имеют назначенного расходного элемента`);
     }
 
+    // Check if all splits have sub-registrars assigned (if subRegistrarId field exists)
+    const unassignedSubRegistrars = splits.filter(split => 'subRegistrarId' in split && !split.subRegistrarId);
+    if (unassignedSubRegistrars.length > 0) {
+      errors.push(`Необходимо выбрать суб-регистратора для ${unassignedSubRegistrars.length} позиций`);
+    }
+
     // Check if total amount matches request amount
     if (!isBalanced) {
       errors.push(`Сумма распределения (${totalSplit.toLocaleString()}) не равна сумме документа (${request.amount.toLocaleString()})`);
@@ -65,21 +73,53 @@ export function useExpenseSplits({
     return errors;
   }, [splits, isBalanced, totalSplit, request.amount]);
 
-  const addSplit = () => {
-    setSplits([...splits, { expenseItemId: '', amount: 0, comment: '' }]);
-  };
+  const validationWarnings = useMemo(() => {
+    const warnings: string[] = [];
 
-  const removeSplit = (index: number) => {
-    if (splits.length > 1) {
-      setSplits(splits.filter((_, i) => i !== index));
+    // Check if all splits have expense items assigned
+    const unassignedSplits = splits.filter(split => !split.expenseItemId);
+    if (unassignedSplits.length > 0) {
+      warnings.push(`Необходимо выбрать статью расходов для ${unassignedSplits.length} позиций`);
     }
-  };
 
-  const updateSplit = (index: number, field: keyof Omit<ExpenseSplit, 'id' | 'requestId'>, value: any) => {
-    const newSplits = [...splits];
-    newSplits[index] = { ...newSplits[index], [field]: value };
-    setSplits(newSplits);
-  };
+    // Check if all splits have sub-registrars assigned (if subRegistrarId field exists)
+    const unassignedSubRegistrars = splits.filter(split => 'subRegistrarId' in split && !split.subRegistrarId);
+    if (unassignedSubRegistrars.length > 0) {
+      warnings.push(`Необходимо выбрать суб-регистратора для ${unassignedSubRegistrars.length} позиций`);
+    }
+
+    // Check if total amount matches request amount
+    if (!isBalanced) {
+      warnings.push(`Сумма распределения (${totalSplit.toLocaleString()}) не равна сумме заявки (${request.amount.toLocaleString()})`);
+    }
+
+    return warnings;
+  }, [splits, isBalanced, totalSplit, request.amount]);
+
+  const isFormValid = useMemo(() => {
+    return validationErrors.length === 0;
+  }, [validationErrors]);
+
+  const addSplit = useCallback(() => {
+    setSplits(prev => [...prev, { expenseItemId: '', amount: 0, comment: '' }]);
+  }, []);
+
+  const removeSplit = useCallback((index: number) => {
+    setSplits(prev => {
+      if (prev.length > 1) {
+        return prev.filter((_, i) => i !== index);
+      }
+      return prev;
+    });
+  }, []);
+
+  const updateSplit = useCallback((index: number, field: keyof Omit<ExpenseSplit, 'id' | 'requestId'>, value: any) => {
+    setSplits(prev => {
+      const newSplits = [...prev];
+      newSplits[index] = { ...newSplits[index], [field]: value };
+      return newSplits;
+    });
+  }, []);
 
   return {
     splits,
@@ -89,6 +129,8 @@ export function useExpenseSplits({
     addSplit,
     removeSplit,
     updateSplit,
-    validationErrors
+    validationErrors,
+    validationWarnings,
+    isFormValid
   };
 }

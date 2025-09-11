@@ -5,7 +5,7 @@ import uuid
 from datetime import date, datetime
 from typing import List, Optional
 from app.core.db import get_db
-# from app.core.security import get_current_user_id
+from app.core.security import get_current_user_id
 from app.models import PaymentRequest, PaymentRequestLine, User
 from . import schemas
 from app.common.enums import RequestStatus
@@ -16,17 +16,18 @@ def _next_number(db: Session) -> str:
     cnt = db.query(func.count(PaymentRequest.id)).scalar() or 0
     return f"REQ-{cnt+1:06d}"
 
+@router.post("/create", response_model=schemas.RequestOut, status_code=201)
 @router.post("", response_model=schemas.RequestOut, status_code=201)
-def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)):
+def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db), current_user_id: str = Depends(get_current_user_id)):
     try:
         # Log incoming request data for debugging
         print(f"Creating request with payload: {payload.model_dump()}")
         
         number = _next_number(db)
-        # Get the first available user for Phase 1 (no authentication yet)
-        first_user = db.query(User).first()
-        if not first_user:
-            raise HTTPException(status_code=400, detail="No users available")
+        # Use authenticated user ID
+        current_user = db.query(User).filter(User.id == current_user_id).first()
+        if not current_user:
+            raise HTTPException(status_code=404, detail="User not found")
         
         # Validate required fields
         if not payload.counterparty_id:
@@ -42,7 +43,7 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
         
         req = PaymentRequest(
             number=number,
-            created_by_user_id=first_user.id,  # Use first available user
+            created_by_user_id=current_user.id,  # Use authenticated user
             counterparty_id=payload.counterparty_id,
             title=payload.title,
             status=RequestStatus.DRAFT.value,
@@ -110,7 +111,7 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
                     mime_type=file_data.get('mimeType', 'application/octet-stream'),
                     storage_path=file_data.get('url', ''),
                     doc_type=file_data.get('docType', ''),
-                    uploaded_by=first_user.id
+                    uploaded_by=current_user.id
                 )
                 db.add(request_file)
         
@@ -141,22 +142,16 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
 def get_request_statistics(
     role: Optional[str] = Query(None, description="Filter by role"),
     user_id: Optional[uuid.UUID] = Query(None, description="Filter by user ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get request statistics based on role and user"""
     query = db.query(PaymentRequest)
     
     # Apply role-based filtering
-    if role == "executor":
-        # For executor role, get all requests created by executor users
-        from app.models import User, UserRole, Role
-        executor_role = db.query(Role).filter(Role.code == "EXECUTOR").first()
-        if executor_role:
-            executor_user_ids = db.query(UserRole.user_id).filter(
-                UserRole.role_id == executor_role.id,
-                UserRole.is_primary == True
-            )
-            query = query.filter(PaymentRequest.created_by_user_id.in_(executor_user_ids))
+    if role == "EXECUTOR":
+        # For executor role, show only requests created by current user
+        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
     elif role == "registrar":
         # Registrar sees submitted and registered requests
         query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
@@ -191,17 +186,10 @@ def get_request_statistics(
     )
     
     # Apply same role filtering to expense articles
-    if role == "executor":
-        from app.models import User, UserRole, Role
-        executor_role = db.query(Role).filter(Role.code == "EXECUTOR").first()
-        if executor_role:
-            executor_user_ids = db.query(UserRole.user_id).filter(
-                UserRole.role_id == executor_role.id,
-                UserRole.is_primary == True
-            )
-            expense_articles_query = expense_articles_query.filter(
-                PaymentRequest.created_by_user_id.in_(executor_user_ids)
-            )
+    if role == "EXECUTOR":
+        expense_articles_query = expense_articles_query.filter(
+            PaymentRequest.created_by_user_id == current_user_id
+        )
     elif role == "registrar":
         expense_articles_query = expense_articles_query.filter(
             PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value])
@@ -242,22 +230,16 @@ def get_requests(
     user_id: Optional[uuid.UUID] = Query(None, description="User ID"),
     status: Optional[str] = Query(None, description="Request status"),
     responsible_registrar_id: Optional[uuid.UUID] = Query(None, description="Responsible registrar ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get list of payment requests with optional filtering"""
     query = db.query(PaymentRequest)
     
     # Apply role-based filtering
-    if role == "executor":
-        # For executor role, get all requests created by executor users
-        from app.models import User, UserRole, Role
-        executor_role = db.query(Role).filter(Role.code == "EXECUTOR").first()
-        if executor_role:
-            executor_user_ids = db.query(UserRole.user_id).filter(
-                UserRole.role_id == executor_role.id,
-                UserRole.is_primary == True
-            )
-            query = query.filter(PaymentRequest.created_by_user_id.in_(executor_user_ids))
+    if role == "EXECUTOR":
+        # For executor role, show only requests created by current user
+        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
     elif role == "registrar":
         query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
     elif role == "distributor":
@@ -313,26 +295,20 @@ def get_requests(
 def get_dashboard_metrics(
     role: str = Query(..., description="User role"),
     user_id: Optional[uuid.UUID] = Query(None, description="User ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
 ):
     """Get dashboard metrics for specific role"""
     # Get statistics
-    stats = get_request_statistics(role=role, user_id=user_id, db=db)
+    stats = get_request_statistics(role=role, user_id=user_id, db=db, current_user_id=current_user_id)
     
     # Get recent requests (last 10) - simplified
     query = db.query(PaymentRequest)
     
     # Apply role-based filtering for recent requests
-    if role == "executor":
-        # For executor role, get all requests created by executor users
-        from app.models import User, UserRole, Role
-        executor_role = db.query(Role).filter(Role.code == "EXECUTOR").first()
-        if executor_role:
-            executor_user_ids = db.query(UserRole.user_id).filter(
-                UserRole.role_id == executor_role.id,
-                UserRole.is_primary == True
-            )
-            query = query.filter(PaymentRequest.created_by_user_id.in_(executor_user_ids))
+    if role == "EXECUTOR":
+        # For executor role, show only requests created by current user
+        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
     elif role == "registrar":
         query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
     elif role == "distributor":

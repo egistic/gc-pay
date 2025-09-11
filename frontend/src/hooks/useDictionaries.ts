@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   DictionaryItem, 
   DictionaryType, 
@@ -10,11 +10,14 @@ import {
   ValidationResult
 } from '../types/dictionaries';
 import { DictionaryService } from '../services/dictionaries/dictionaryService';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Hook for managing dictionary state and operations
  */
 export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) {
+  const { isAdmin, user } = useAuth();
+  
   const [state, setState] = useState<DictionaryState>({
     currentDictionary: type,
     selectedItems: [],
@@ -32,7 +35,7 @@ export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) 
   const [statistics, setStatistics] = useState<DictionaryStatistics | null>(null);
 
   const service = DictionaryService.getInstance();
-  const handler = service.getHandler<T>(type);
+  const handler = useMemo(() => service.getHandler<T>(type), [service, type]);
 
   /**
    * Load items from service
@@ -351,14 +354,27 @@ export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) 
    * Refresh data
    */
   const refresh = useCallback(async () => {
-    await Promise.all([loadItems(), loadStatistics()]);
-  }, [loadItems, loadStatistics]);
+    const promises = [loadItems()];
+    // Only load statistics for admin users
+    if (isAdmin) {
+      promises.push(loadStatistics());
+    }
+    await Promise.all(promises);
+  }, [loadItems, loadStatistics, isAdmin]);
 
   // Load data on mount
   useEffect(() => {
+    // Skip loading counterparties for EXECUTOR role
+    if (type === 'counterparties' && user?.roles?.some(role => role.code === 'EXECUTOR')) {
+      return;
+    }
+    
     loadItems();
-    loadStatistics();
-  }, [loadItems, loadStatistics]);
+    // Only load statistics for admin users
+    if (isAdmin) {
+      loadStatistics();
+    }
+  }, [loadItems, loadStatistics, isAdmin, type, user]);
 
   return {
     // State
@@ -400,7 +416,7 @@ export function useDictionaryItem<T extends DictionaryItem>(type: DictionaryType
   const [error, setError] = useState<string | null>(null);
 
   const service = DictionaryService.getInstance();
-  const handler = service.getHandler<T>(type);
+  const handler = useMemo(() => service.getHandler<T>(type), [service, type]);
 
   const loadItem = useCallback(async () => {
     if (!id) return;

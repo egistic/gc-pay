@@ -387,7 +387,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium">{entry.action}</span>
                       <Badge variant="outline" className="text-xs">
-                        {entry.role === 'executor' ? 'Исполнитель' :
+                        {entry.role === 'EXECUTOR' ? 'Исполнитель' :
                          entry.role === 'registrar' ? 'Регистратор' :
                          entry.role === 'distributor' ? 'Распорядитель' :
                          'Казначей'}

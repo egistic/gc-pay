@@ -15,6 +15,8 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
     
     # Relationships
     user_roles: Mapped[list["UserRole"]] = relationship("UserRole", back_populates="user")
@@ -24,6 +26,9 @@ class Role(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String(64), unique=True)
     name: Mapped[str] = mapped_column(String(128))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
 class Department(Base):
     __tablename__ = "departments"
@@ -47,6 +52,7 @@ class UserRole(Base):
     valid_from: Mapped[date] = mapped_column(SA_Date)           # <-- Python date in annotation
     valid_to: Mapped[date | None] = mapped_column(SA_Date, nullable=True)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="user_roles")
@@ -80,6 +86,8 @@ class Counterparty(Base):
     tax_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     category: Mapped[str | None] = mapped_column(String(128), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
 class Currency(Base):
     __tablename__ = "currencies"
@@ -92,6 +100,8 @@ class VatRate(Base):
     rate: Mapped[float] = mapped_column(Numeric(6, 3))
     name: Mapped[str] = mapped_column(String(64))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
 # Expense Articles
 class ExpenseArticle(Base):
@@ -101,6 +111,8 @@ class ExpenseArticle(Base):
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
 class ArticleRequiredDoc(Base):
     __tablename__ = "article_required_docs"
@@ -118,6 +130,23 @@ class Responsibility(Base):
     is_primary: Mapped[bool] = mapped_column(Boolean, default=True)
     valid_from: Mapped[date] = mapped_column(SA_Date)
     valid_to: Mapped[date | None] = mapped_column(SA_Date, nullable=True)
+
+class ExpenseArticleRoleAssignment(Base):
+    __tablename__ = "expense_article_role_assignments"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    article_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("expense_articles.id"))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id"))
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+    valid_from: Mapped[date] = mapped_column(SA_Date)
+    valid_to: Mapped[date | None] = mapped_column(SA_Date, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    
+    # Relationships
+    article: Mapped["ExpenseArticle"] = relationship("ExpenseArticle")
+    user: Mapped["User"] = relationship("User")
+    role: Mapped["Role"] = relationship("Role")
 
 # Requests
 class PaymentRequest(Base):

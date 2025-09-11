@@ -22,12 +22,14 @@ export class PaymentRequestService {
     role?: UserRole;
     dateFrom?: string;
     dateTo?: string;
+    responsibleRegistrarId?: string;
   }): Promise<PaymentRequest[]> {
     const queryParams = new URLSearchParams();
     if (filters?.status) queryParams.append('status', filters.status);
     if (filters?.role) queryParams.append('role', filters.role);
     if (filters?.dateFrom) queryParams.append('dateFrom', filters.dateFrom);
     if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo);
+    if (filters?.responsibleRegistrarId) queryParams.append('responsible_registrar_id', filters.responsibleRegistrarId);
     
     const endpoint = `${API_CONFIG.endpoints.getPaymentRequests}?${queryParams}`;
     const backendResponse = await httpClient.get<BackendRequestListOut[]>(endpoint);

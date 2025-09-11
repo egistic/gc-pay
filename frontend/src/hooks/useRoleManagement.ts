@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { useAppState, appActions } from '../context/AppStateContext';
 import { useApiOperations } from './useApiOperations';
 import { UserRole } from '../types';

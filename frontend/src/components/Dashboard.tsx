@@ -42,7 +42,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Get dictionary data
+  // Get dictionary data (only for non-executor roles)
   const { items: counterparties } = useDictionaries('counterparties');
 
   // Load payment requests from API
@@ -71,7 +71,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
   }, [currentRole]);
 
   // If executor role, use the unified ExecutorDashboard component
-  if (currentRole === 'executor') {
+  if (currentRole === 'EXECUTOR') {
     return (
       <ExecutorDashboard 
         onViewRequest={onViewRequest}
@@ -87,7 +87,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
   const getMetrics = () => {
     const allRequests = allPaymentRequests;
     
-    if (currentRole === 'registrar') {
+    if (currentRole === 'REGISTRAR') {
       const allRegistrarRequests = allRequests.filter(r => 
         ['submitted', 'classified', 'returned', 'declined'].includes(r.status)
       );
@@ -123,7 +123,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
       };
     }
     
-    if (currentRole === 'distributor') {
+    if (currentRole === 'DISTRIBUTOR') {
       const allDistributorRequests = allRequests.filter(r => 
         ['classified', 'approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(r.status)
       );
@@ -166,7 +166,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
       };
     }
     
-    if (currentRole === 'executor') {
+    if (currentRole === 'EXECUTOR') {
       const allExecutorRequests = allRequests.filter(r => 
         ['draft', 'submitted', 'classified', 'approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(r.status)
       );
@@ -247,7 +247,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
     
     // No mock data - use only real API data
     
-    if (currentRole === 'registrar') {
+    if (currentRole === 'REGISTRAR') {
       requests = requests.filter(r => ['submitted', 'classified', 'returned', 'declined'].includes(r.status));
       
       // Apply filters for registrar
@@ -283,7 +283,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
             break;
         }
       }
-    } else if (currentRole === 'distributor') {
+    } else if (currentRole === 'DISTRIBUTOR') {
       requests = requests.filter(r => ['classified', 'approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(r.status));
       
       // Apply filters for distributor
@@ -327,7 +327,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
             break;
         }
       }
-    } else if (currentRole === 'treasurer') {
+    } else if (currentRole === 'TREASURER') {
       requests = requests.filter(r => ['approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(r.status));
       
       // Apply filters for treasurer
@@ -468,9 +468,9 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
 
 
       {/* Metrics cards for other roles */}
-      {currentRole !== 'executor' && (
-        <div className={`grid gap-4 ${currentRole === 'distributor' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
-          {currentRole === 'registrar' && (
+      {currentRole !== 'EXECUTOR' && (
+        <div className={`grid gap-4 ${currentRole === 'DISTRIBUTOR' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
+          {currentRole === 'REGISTRAR' && (
             <>
               <Card 
                 className={`cursor-pointer transition-all hover:shadow-md ${ 
@@ -528,7 +528,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
             </>
           )}
 
-          {currentRole === 'distributor' && (
+          {currentRole === 'DISTRIBUTOR' && (
             <>
               <Card 
                 className={`cursor-pointer transition-all hover:shadow-md ${ 
@@ -622,7 +622,7 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
             </>
           )}
 
-          {currentRole === 'treasurer' && (
+          {currentRole === 'TREASURER' && (
             <div className="col-span-full">
               <OptimizedTreasurerDashboard
                 paymentRequests={paymentRequests.length > 0 ? paymentRequests : apiPaymentRequests}

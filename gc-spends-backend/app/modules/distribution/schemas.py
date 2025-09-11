@@ -64,6 +64,7 @@ class ParallelDistributionCreate(BaseModel):
     distributor_id: uuid.UUID
     expense_splits: List[ExpenseSplitCreate]
     comment: Optional[str] = None
+    original_request_id: Optional[uuid.UUID] = None  # For split requests
 
 class ParallelDistributionOut(BaseModel):
     request_id: uuid.UUID

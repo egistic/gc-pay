@@ -121,7 +121,7 @@ export class DistributionService {
    * Send requests to both SUB_REGISTRAR and DISTRIBUTOR in parallel
    */
   static async sendRequestsParallel(data: ParallelDistributionCreate): Promise<ParallelDistributionOut> {
-    return await httpClient.post('/api/v1/distribution/send-requests', {
+    const payload: any = {
       request_id: data.requestId,
       sub_registrar_id: data.subRegistrarId,
       distributor_id: data.distributorId,
@@ -133,7 +133,14 @@ export class DistributionService {
         priority: split.priority
       })),
       comment: data.comment
-    });
+    };
+
+    // Add original_request_id if provided (for split requests)
+    if (data.originalRequestId) {
+      payload.original_request_id = data.originalRequestId;
+    }
+
+    return await httpClient.post('/api/v1/distribution/send-requests', payload);
   }
 
   /**

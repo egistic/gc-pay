@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { useAppState, appActions } from '../context/AppStateContext';
 import { UserRole, PaymentRequest } from '../types';
 
@@ -7,7 +7,7 @@ export function useRequestHandling() {
   const { state, dispatch } = useAppState();
 
   const handleCreateRequest = useCallback(() => {
-    if (state.currentRole === 'executor') {
+    if (state.currentRole === 'EXECUTOR') {
       dispatch(appActions.setShowCreateForm(true));
     }
   }, [state.currentRole, dispatch]);
@@ -17,7 +17,7 @@ export function useRequestHandling() {
     
     const request = state.paymentRequests.find(r => r.id === id);
     
-    if (state.currentRole === 'executor') {
+    if (state.currentRole === 'EXECUTOR') {
       dispatch(appActions.setCurrentPage('requests'));
       
       // If it's a draft, open it for editing
@@ -26,7 +26,7 @@ export function useRequestHandling() {
       } else {
         dispatch(appActions.setViewMode('view'));
       }
-    } else if (state.currentRole === 'registrar') {
+    } else if (state.currentRole === 'REGISTRAR') {
       dispatch(appActions.setCurrentPage('requests'));
       if (request && request.status === 'submitted') {
         dispatch(appActions.setViewMode('classify-items')); // Use new item classification form
@@ -34,7 +34,7 @@ export function useRequestHandling() {
         // Allow viewing any request for registrar
         dispatch(appActions.setViewMode('view'));
       }
-    } else if (state.currentRole === 'distributor') {
+    } else if (state.currentRole === 'DISTRIBUTOR') {
       dispatch(appActions.setCurrentPage('requests'));
       if (request && request.status === 'classified') {
         dispatch(appActions.setViewMode('approve'));
@@ -42,7 +42,7 @@ export function useRequestHandling() {
         // Allow viewing any request for distributor
         dispatch(appActions.setViewMode('view'));
       }
-    } else if (state.currentRole === 'treasurer') {
+    } else if (state.currentRole === 'TREASURER') {
       if (request && ['approved', 'in-register', 'approved-for-payment'].includes(request.status)) {
         dispatch(appActions.setCurrentPage('requests'));
         dispatch(appActions.setViewMode('treasurer-approve'));

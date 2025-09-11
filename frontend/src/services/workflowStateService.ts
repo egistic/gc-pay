@@ -75,8 +75,8 @@ export class WorkflowStateService {
    */
   static getResponsibleRole(status: PaymentRequestStatus): string[] {
     const roleMap: Record<PaymentRequestStatus, string[]> = {
-      'draft': ['executor'],
-      'submitted': ['executor'],
+      'draft': ['EXECUTOR'],
+      'submitted': ['EXECUTOR'],
       'classified': ['registrar'],
       'allocated': ['registrar'],
       'returned': ['registrar', 'distributor', 'treasurer'],
@@ -92,7 +92,7 @@ export class WorkflowStateService {
       'paid-partial': ['treasurer'],
       'declined': ['distributor', 'treasurer'],
       'rejected': ['distributor', 'treasurer'],
-      'cancelled': ['executor', 'registrar', 'distributor', 'treasurer']
+      'cancelled': ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER']
     };
 
     return roleMap[status] || [];

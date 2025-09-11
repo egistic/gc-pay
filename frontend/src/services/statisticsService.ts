@@ -113,7 +113,7 @@ export class StatisticsService {
    * Get comprehensive statistics for all roles
    */
   static async getAllRoleStatistics(): Promise<Record<UserRole, any>> {
-    const roles: UserRole[] = ['executor', 'registrar', 'distributor', 'treasurer'];
+    const roles: UserRole[] = ['EXECUTOR', 'REGISTRAR', 'DISTRIBUTOR', 'TREASURER'];
     const results: Record<string, any> = {};
 
     try {
@@ -291,13 +291,13 @@ export const StatisticsUtils = {
     if (count === 0) return 'bg-gray-100 text-gray-600';
     
     switch (role) {
-      case 'executor':
+      case 'EXECUTOR':
         return 'bg-blue-100 text-blue-800';
-      case 'registrar':
+      case 'REGISTRAR':
         return 'bg-orange-100 text-orange-800';
-      case 'distributor':
+      case 'DISTRIBUTOR':
         return 'bg-green-100 text-green-800';
-      case 'treasurer':
+      case 'TREASURER':
         return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-600';

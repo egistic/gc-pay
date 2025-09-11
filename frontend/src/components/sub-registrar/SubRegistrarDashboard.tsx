@@ -19,29 +19,21 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
-import { PaymentRequest } from '../../types';
+import { PaymentRequest, ClosingDocumentData } from '../../types';
 import { formatCurrency } from '../../utils/formatting';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { SubRegistrarRequestView } from './SubRegistrarRequestView';
+import { getStatusIcon, getStatusBadge } from '../common/RequestStatus';
+import { getCounterpartyName } from '../../utils/counterparty';
+import { PaymentRequestService } from '../../services/paymentRequestService';
+import { SubRegistrarService } from '../../services/subRegistrarService';
+import { toast } from 'sonner';
 
 interface SubRegistrarDashboardProps {
   currentUserId: string;
-  onViewRequest: (request: PaymentRequest) => void;
 }
 
-interface ClosingDocumentData {
-  documentType: string;
-  documentNumber: string;
-  documentDate: string;
-  amountWithoutVat: number;
-  vatAmount: number;
-  currency: string;
-  files: Array<{id: string, name: string, url: string, originalName: string}>;
-  originalDocumentsStatus: string;
-  comment?: string;
-}
-
-export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegistrarDashboardProps) {
+export function SubRegistrarDashboard({ currentUserId }: SubRegistrarDashboardProps) {
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<PaymentRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,13 +63,7 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
         setIsLoading(true);
         
         // Get requests assigned to this sub-registrar
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/requests/list?responsible_registrar_id=${currentUserId}`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to load assigned requests: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
+        const data = await PaymentRequestService.getAll({ responsibleRegistrarId: currentUserId });
         
         // Transform backend data to frontend format
         const transformedRequests: PaymentRequest[] = data.map((req: any) => ({
@@ -122,7 +108,7 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
       filtered = filtered.filter(request => 
         request.requestNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getCounterpartyName(request.counterpartyId).toLowerCase().includes(searchTerm.toLowerCase())
+        getCounterpartyName(counterparties, request.counterpartyId).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -134,9 +120,6 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
     setFilteredRequests(filtered);
   }, [requests, searchTerm, statusFilter]);
 
-  const getCounterpartyName = (id: string) => {
-    return counterparties.find(cp => cp.id === id)?.name || 'Неизвестен';
-  };
 
   const handleViewRequest = (request: PaymentRequest) => {
     setSelectedRequest(request);
@@ -147,37 +130,20 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
   };
 
   const handleSaveClosingDocument = async (data: ClosingDocumentData) => {
-    // TODO: Implement API call to save closing document data
-    console.log('Saving closing document data:', data);
-    // For now, just show success message
-    return Promise.resolve();
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'classified':
-        return <Badge className="bg-blue-100 text-blue-800">Классифицирована</Badge>;
-      case 'allocated':
-        return <Badge className="bg-green-100 text-green-800">Распределена</Badge>;
-      case 'returned':
-        return <Badge className="bg-red-100 text-red-800">Возвращена</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
+    try {
+      if (!selectedRequest) {
+        throw new Error('No request selected');
+      }
+      
+      await SubRegistrarService.saveClosingDocs(selectedRequest.id, data);
+      toast.success('Закрывающие документы успешно сохранены');
+    } catch (error) {
+      console.error('Error saving closing document:', error);
+      toast.error('Ошибка при сохранении закрывающих документов');
+      throw error;
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'classified':
-        return <CheckCircle className="w-4 h-4 text-blue-600" />;
-      case 'allocated':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'returned':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
-      default:
-        return <Clock className="w-4 h-4 text-gray-600" />;
-    }
-  };
 
   if (isLoading) {
     return (
@@ -333,7 +299,7 @@ export function SubRegistrarDashboard({ currentUserId, onViewRequest }: SubRegis
                       {request.requestNumber}
                     </TableCell>
                     <TableCell>
-                      {getCounterpartyName(request.counterpartyId)}
+                      {getCounterpartyName(counterparties, request.counterpartyId)}
                     </TableCell>
                     <TableCell>
                       {formatCurrency(request.amount, request.currency)}

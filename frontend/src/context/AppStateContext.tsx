@@ -33,7 +33,7 @@ export type AppAction =
 // Initial State
 const initialState: AppState = {
   currentUser: null,
-  currentRole: 'executor',
+  currentRole: 'EXECUTOR',
   currentPage: 'dashboard',
   showCreateForm: false,
   selectedRequestId: null,

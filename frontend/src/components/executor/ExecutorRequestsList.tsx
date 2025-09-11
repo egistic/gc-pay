@@ -17,7 +17,7 @@ import {
   Edit,
   AlertTriangle
 } from 'lucide-react';
-import { useDictionaries } from '../../hooks/useDictionaries';
+import { useDictionaryData } from '../../hooks/useDictionaryData';
 import { formatCurrency } from '../../utils/formatting';
 import { useExecutorRequests } from '../../features/payment-requests/hooks/useExecutorRequests';
 import { useRejectionReasons } from '../../features/payment-requests/hooks/useRejectionReasons';
@@ -33,7 +33,7 @@ interface ExecutorRequestsListProps {
 
 export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditRequest }: ExecutorRequestsListProps) {
   // Get dictionary data
-  const { items: counterparties } = useDictionaries('counterparties');
+  const { items: counterparties } = useDictionaryData('counterparties');
   
   // State for filtering
   const [searchTerm, setSearchTerm] = useState('');
@@ -83,7 +83,7 @@ export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditReq
           req.docNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.requestNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          counterparty?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          counterparty?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.amount.toString().includes(searchTerm)
         );
       });
@@ -416,7 +416,7 @@ export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditReq
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
                               onEditRequest(request.id);
                             }}

@@ -1,4 +1,11 @@
-export type UserRole = 'executor' | 'registrar' | 'sub_registrar' | 'distributor' | 'treasurer' | 'admin';
+export type UserRole = 'EXECUTOR' | 'REGISTRAR' | 'SUB_REGISTRAR' | 'DISTRIBUTOR' | 'TREASURER' | 'ADMIN';
+
+export interface Role {
+  id: string;
+  code: string;
+  name: string;
+  is_primary: boolean;
+}
 
 export type PaymentRequestStatus = 
   | 'draft' 
@@ -189,8 +196,26 @@ export interface User {
   email: string;
   phone?: string;
   is_active: boolean;
-  roles?: UserRole[];
+  roles?: Role[];
   currentRole?: UserRole;
+  position?: Position;
+  department?: Department;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Position {
+  id: string;
+  name: string;
+  code: string;
+  department_id: string;
+  department?: Department;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
 }
 
 // Новые типы для маршрутизации распорядителей
@@ -333,6 +358,7 @@ export interface ParallelDistributionCreate {
   distributorId: string;
   expenseSplits: ExpenseSplitCreate[];
   comment?: string;
+  originalRequestId?: string; // For split requests
 }
 
 export interface ParallelDistributionOut {
@@ -369,4 +395,16 @@ export interface SubRegistrarReportUpdate {
 
 export interface ExportContractLink {
   exportContractId: string;
+}
+
+export interface ClosingDocumentData {
+  documentType: string;
+  documentNumber: string;
+  documentDate: string;
+  amountWithoutVat: number;
+  vatAmount: number;
+  currency: string;
+  files: Array<{id: string, name: string, url: string, originalName: string}>;
+  originalDocumentsStatus: string;
+  comment?: string;
 }

@@ -16,7 +16,8 @@ import { useDictionaries } from '../../hooks/useDictionaries';
 import { formatCurrency } from '../../utils/formatting';
 import { useExecutorRequests } from '../../features/payment-requests/hooks/useExecutorRequests';
 import { useRoleStatistics } from '../../hooks/useStatistics';
-import { formatDateSafe, isOverdue } from '../../features/payment-requests/lib/formatDateSafe';
+import { formatDateSafe } from '../../features/payment-requests/lib/formatDateSafe';
+import { isOverdue } from '../../features/payment-requests/lib/isOverdue';
 import { getReviewerByStatus, STATUS_MAP } from '../../features/payment-requests/constants/status-map';
 
 interface ExpenseArticle {
@@ -46,7 +47,7 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
     loading: requestsLoading, 
     error: requestsError 
   } = useExecutorRequests({
-    status: currentFilter !== 'total' ? currentFilter : undefined,
+    status: currentFilter && currentFilter !== 'total' ? currentFilter : undefined,
     page: currentPage,
     limit: itemsPerPage
   });
@@ -55,7 +56,7 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
     statistics, 
     loading: statisticsLoading, 
     error: statisticsError 
-  } = useRoleStatistics('executor');
+  } = useRoleStatistics('EXECUTOR');
 
   const isLoading = requestsLoading || statisticsLoading;
   const error = requestsError || statisticsError;
@@ -107,6 +108,7 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+  
   
   // Calculate metrics from statistics
   const metrics = useMemo(() => {

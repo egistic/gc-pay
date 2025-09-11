@@ -22,6 +22,28 @@ router = APIRouter(prefix="/dictionaries", tags=["dictionaries"])
 # COUNTERPARTIES ENDPOINTS
 # ============================================================================
 
+@router.get("/counterparties/statistics")
+async def get_counterparties_statistics(db: Session = Depends(get_db)):
+    """Получение статистики по контрагентам"""
+    from datetime import datetime, timedelta
+    
+    total_items = db.query(Counterparty).count()
+    active_items = db.query(Counterparty).filter(Counterparty.is_active == True).count()
+    inactive_items = total_items - active_items
+    
+    # Недавно обновленные (за последние 7 дней)
+    week_ago = datetime.now() - timedelta(days=7)
+    recently_updated = db.query(Counterparty).filter(
+        Counterparty.updated_at >= week_ago
+    ).count()
+    
+    return {
+        "totalItems": total_items,
+        "activeItems": active_items,
+        "inactiveItems": inactive_items,
+        "recentlyUpdated": recently_updated
+    }
+
 @router.get("/counterparties", response_model=List[CounterpartyOut])
 def get_counterparties(
     active_only: bool = True,
@@ -188,6 +210,28 @@ def bulk_create_counterparties(request: BulkCreateRequest, db: Session = Depends
 # EXPENSE ARTICLES ENDPOINTS
 # ============================================================================
 
+@router.get("/expense-articles/statistics")
+async def get_expense_articles_statistics(db: Session = Depends(get_db)):
+    """Получение статистики по статьям расходов"""
+    from datetime import datetime, timedelta
+    
+    total_items = db.query(ExpenseArticle).count()
+    active_items = db.query(ExpenseArticle).filter(ExpenseArticle.is_active == True).count()
+    inactive_items = total_items - active_items
+    
+    # Недавно обновленные (за последние 7 дней)
+    week_ago = datetime.now() - timedelta(days=7)
+    recently_updated = db.query(ExpenseArticle).filter(
+        ExpenseArticle.updated_at >= week_ago
+    ).count()
+    
+    return {
+        "totalItems": total_items,
+        "activeItems": active_items,
+        "inactiveItems": inactive_items,
+        "recentlyUpdated": recently_updated
+    }
+
 @router.get("/expense-articles", response_model=List[ExpenseArticleOut])
 def get_expense_articles(
     active_only: bool = True,
@@ -329,6 +373,28 @@ def bulk_create_expense_articles(request: BulkCreateRequest, db: Session = Depen
 # ============================================================================
 # VAT RATES ENDPOINTS
 # ============================================================================
+
+@router.get("/vat-rates/statistics")
+async def get_vat_rates_statistics(db: Session = Depends(get_db)):
+    """Получение статистики по ставкам НДС"""
+    from datetime import datetime, timedelta
+    
+    total_items = db.query(VatRate).count()
+    active_items = db.query(VatRate).filter(VatRate.is_active == True).count()
+    inactive_items = total_items - active_items
+    
+    # Недавно обновленные (за последние 7 дней)
+    week_ago = datetime.now() - timedelta(days=7)
+    recently_updated = db.query(VatRate).filter(
+        VatRate.updated_at >= week_ago
+    ).count()
+    
+    return {
+        "totalItems": total_items,
+        "activeItems": active_items,
+        "inactiveItems": inactive_items,
+        "recentlyUpdated": recently_updated
+    }
 
 @router.get("/vat-rates", response_model=List[VatRateOut])
 def get_vat_rates(

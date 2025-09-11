@@ -53,6 +53,12 @@
         '@radix-ui/react-alert-dialog@1.1.6': '@radix-ui/react-alert-dialog',
         '@radix-ui/react-accordion@1.2.3': '@radix-ui/react-accordion',
         '@': path.resolve(__dirname, './src'),
+        '@ui/*': path.resolve(__dirname, './src/components/ui/*'),
+        '@components/*': path.resolve(__dirname, './src/components/*'),
+        '@services/*': path.resolve(__dirname, './src/services/*'),
+        '@types': path.resolve(__dirname, './src/types/index.ts'),
+        '@hooks/*': path.resolve(__dirname, './src/hooks/*'),
+        '@utils/*': path.resolve(__dirname, './src/utils/*'),
       },
     },
     build: {

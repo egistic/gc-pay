@@ -1,13 +1,25 @@
 import React from 'react';
-import { TestAuthProvider, useAuth } from './context/TestAuthContext';
-import { TestLogin } from './components/auth/TestLogin';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { Login } from './components/auth/Login';
 import App from './components/App/App';
+import { Loader2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
-    return <TestLogin onLogin={login} />;
+    return <Login />;
   }
 
   return <App />;
@@ -15,9 +27,9 @@ const AppContent: React.FC = () => {
 
 function AppWrapper() {
   return (
-    <TestAuthProvider>
+    <AuthProvider>
       <AppContent />
-    </TestAuthProvider>
+    </AuthProvider>
   );
 }
 

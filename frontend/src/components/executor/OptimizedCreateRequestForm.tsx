@@ -22,7 +22,7 @@ import {
   VATRate 
 } from '../../types';
 import { generateRequestNumber } from '../../utils/generators';
-import { useDictionaries } from '../../hooks/useDictionaries';
+import { useDictionaryData } from '../../hooks/useDictionaryData';
 import { PaymentRequestService } from '../../services/api';
 import { toast } from 'sonner';
 import { useAutoSaveDraft } from '../../features/payment-requests/hooks/useAutoSaveDraft';
@@ -39,19 +39,19 @@ interface OptimizedCreateRequestFormProps {
 }
 
 export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, initialData, isEditing, selectedRequestId }: OptimizedCreateRequestFormProps) {
-  // Get dictionary data from real API
-  const { items: counterparties } = useDictionaries('counterparties');
-  const { items: currencies } = useDictionaries('currencies');
-  const { items: vatRates } = useDictionaries('vat-rates');
+  // Get dictionary data from real API (without statistics)
+  const { items: counterparties } = useDictionaryData('counterparties');
+  const { items: currencies } = useDictionaryData('currencies');
+  const { items: vatRates } = useDictionaryData('vat-rates');
   
   const [formData, setFormData] = useState({
-    payingCompany: '' as PayingCompany | '',
-    docType: '' as DocumentType | '',
+    payingCompany: '' as any,
+    docType: '' as any,
     counterpartyId: '',
-    counterpartyCategory: '' as CounterpartyCategory | '',
+    counterpartyCategory: '' as any,
     amount: '',
-    currency: '' as Currency | '',
-    vatRate: '' as VATRate | '',
+    currency: '' as any,
+    vatRate: '' as any,
     dueDate: undefined as Date | undefined,
     docNumber: '',
     docDate: '',
@@ -97,13 +97,13 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
   // Function to reset form to empty state
   const resetFormToEmpty = (): void => {
     setFormData({
-      payingCompany: '' as PayingCompany | '',
-      docType: '' as DocumentType | '',
+      payingCompany: '' as any,
+      docType: '' as any,
       counterpartyId: '',
-      counterpartyCategory: '' as CounterpartyCategory | '',
+      counterpartyCategory: '' as any,
       amount: '',
-      currency: '' as Currency | '',
-      vatRate: '' as VATRate | '',
+      currency: '' as any,
+      vatRate: '' as any,
       dueDate: undefined,
       docNumber: '',
       docDate: '',
@@ -165,7 +165,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       paymentExecution: undefined,
       attachments: []
     },
-    draftId,
+    draftId: draftId || undefined,
     enabled: hasUserEdited && !isSubmitting && !isSavingDraft && !showConfirmDialog && !autoSaveDisabled && !hasSubmittedRef.current && !submitLockRef.current, // Only enable if user has edited and not submitted and not locked
     autoSaveDisabled: autoSaveDisabled,
     onDraftCreated: handleDraftCreated
@@ -185,12 +185,12 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       ...(draftId ? { id: draftId } : {}),
       // Only generate requestNumber for new submissions (not drafts)
       ...(draftId ? {} : { requestNumber: generateRequestNumber() }),
-      payingCompany: formData.payingCompany as PayingCompany || '',
-      docType: formData.docType as DocumentType || '',
+      payingCompany: (formData.payingCompany as PayingCompany) || ('' as PayingCompany),
+      docType: (formData.docType as DocumentType) || ('' as DocumentType),
       counterpartyId: formData.counterpartyId,
       counterpartyCategory: formData.counterpartyCategory as CounterpartyCategory,
       amount: formData.amount ? Number(formData.amount.replace(',', '.')) : 0,
-      currency: formData.currency || '',
+      currency: (formData.currency as Currency) || ('' as Currency),
       vatRate: formData.vatRate || 'Неизвестно',
       dueDate: formData.dueDate?.toISOString().split('T')[0] || '',
       description,
@@ -215,7 +215,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
           date: new Date().toISOString(),
           action: isDraft ? 'Черновик сохранен' : 'Заявка отправлена на рассмотрение',
           userId: '3394830b-1b62-4db4-a6e4-fdf76b5033f5',
-          role: 'executor'
+          role: 'EXECUTOR'
         }
       ],
       expenseSplits: []
@@ -226,16 +226,16 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
   useEffect(() => {
     if (initialData && isEditing) {
       setFormData({
-        payingCompany: (initialData.payingCompany || '') as PayingCompany | '',
-        docType: (initialData.docType || '') as DocumentType | '',
+        payingCompany: (initialData.payingCompany || '') as any,
+        docType: (initialData.docType || '') as any,
         counterpartyId: initialData.counterpartyId || '',
-        counterpartyCategory: (initialData.counterpartyCategory || '') as CounterpartyCategory | '',
+        counterpartyCategory: (initialData.counterpartyCategory || '') as any,
         amount: initialData.amount ? initialData.amount.toLocaleString('ru-RU', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }) : '',
-        currency: (initialData.currency || '') as Currency | '',
-        vatRate: (initialData.vatRate || '') as VATRate | '',
+        currency: (initialData.currency || '') as any,
+        vatRate: (initialData.vatRate || '') as any,
         dueDate: initialData.dueDate ? new Date(initialData.dueDate) : undefined,
         docNumber: initialData.docNumber || '',
         docDate: initialData.docDate || '',
@@ -254,7 +254,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       draftIdRef.current = initialData.id;
       
       // If initialData has non-DRAFT status, disable auto-save
-      if (initialData.status && initialData.status !== 'DRAFT') {
+      if (initialData.status && initialData.status !== STATUS_MAP.DRAFT) {
         setAutoSaveDisabled(true);
         hasSubmittedRef.current = true;
       }
@@ -311,7 +311,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
     }
     
     const counterparty = counterparties.find(cp => cp.id === formData.counterpartyId);
-    const counterpartyName = counterparty?.abbreviation || counterparty?.name || 'Unknown';
+    const counterpartyName = counterparty?.name || 'Unknown';
     
     return buildDocumentFileName({
       docType: formData.docType,
@@ -623,7 +623,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                 <Label htmlFor="payingCompany">Оплачивающая компания *</Label>
                 <Select
                   value={formData.payingCompany || ''}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, payingCompany: value as PayingCompany }))}
+                  onValueChange={(value: string) => setFormData(prev => ({ ...prev, payingCompany: value as PayingCompany }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите компанию" />
@@ -645,7 +645,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                 <Label htmlFor="docType">Тип документа-основания *</Label>
                 <Select
                   value={formData.docType || ''}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, docType: value as DocumentType }))}
+                  onValueChange={(value: string) => setFormData(prev => ({ ...prev, docType: value as DocumentType }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите тип" />
@@ -766,7 +766,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                 <Label htmlFor="currency">Валюта *</Label>
                 <Select
                   value={formData.currency || ''}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value as Currency }))}
+                  onValueChange={(value: string) => setFormData(prev => ({ ...prev, currency: value as Currency }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите валюту" />
@@ -790,7 +790,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                 <Label htmlFor="vatRate">Ставка НДС *</Label>
                 <Select
                   value={formData.vatRate || ''}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, vatRate: value as VATRate }))}
+                  onValueChange={(value: string) => setFormData(prev => ({ ...prev, vatRate: value as VATRate }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите ставку НДС" />
@@ -827,7 +827,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                     <Calendar
                       mode="single"
                       selected={formData.dueDate}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, dueDate: date }))}
+                      onSelect={(date: Date) => setFormData(prev => ({ ...prev, dueDate: date }))}
                       initialFocus
                     />
                   </PopoverContent>

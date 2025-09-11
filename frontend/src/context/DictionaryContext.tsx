@@ -103,11 +103,11 @@ const initialState: DictionaryContextState = {
         error: null
       }
     },
-    'contracts': {
+    'vat-rates': {
       items: [],
       statistics: null,
       state: {
-        currentDictionary: 'contracts',
+        currentDictionary: 'vat-rates',
         selectedItems: [],
         searchQuery: '',
         filters: {},
@@ -119,43 +119,11 @@ const initialState: DictionaryContextState = {
         error: null
       }
     },
-    'normatives': {
+    'currencies': {
       items: [],
       statistics: null,
       state: {
-        currentDictionary: 'normatives',
-        selectedItems: [],
-        searchQuery: '',
-        filters: {},
-        pagination: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
-        editingItem: null,
-        bulkActionMode: false,
-        relatedData: {},
-        isLoading: false,
-        error: null
-      }
-    },
-    'priorities': {
-      items: [],
-      statistics: null,
-      state: {
-        currentDictionary: 'priorities',
-        selectedItems: [],
-        searchQuery: '',
-        filters: {},
-        pagination: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
-        editingItem: null,
-        bulkActionMode: false,
-        relatedData: {},
-        isLoading: false,
-        error: null
-      }
-    },
-    'users': {
-      items: [],
-      statistics: null,
-      state: {
-        currentDictionary: 'users',
+        currentDictionary: 'currencies',
         selectedItems: [],
         searchQuery: '',
         filters: {},

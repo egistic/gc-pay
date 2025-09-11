@@ -235,7 +235,7 @@ export class DictionaryApiEndpoints {
       address: item.address || '',
       region: item.region || '',
       category: item.category,
-      isActive: item.is_active,
+      is_active: item.is_active,
       code: item.id, // Use ID as code for now
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -258,7 +258,7 @@ export class DictionaryApiEndpoints {
       address: response.address || '',
       region: response.region || '',
       category: response.category,
-      isActive: response.is_active,
+      is_active: response.is_active,
       code: response.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -277,69 +277,69 @@ export class DictionaryApiEndpoints {
   deleteCounterparty = (id: string): Promise<void> => 
     this.apiClient.delete(`/dictionaries/counterparties/${id}`);
 
-  // Contracts
+  // Contracts (Not supported - return empty data)
   getContracts = (): Promise<DictionaryItem[]> => 
-    this.apiClient.get('/dictionaries/contracts');
+    Promise.resolve([]);
 
   getContract = (id: string): Promise<DictionaryItem> => 
-    this.apiClient.get(`/dictionaries/contracts/${id}`);
+    Promise.reject(new Error('Contracts dictionary is not supported'));
 
   createContract = (data: any): Promise<DictionaryItem> => 
-    this.apiClient.post('/dictionaries/contracts', data);
+    Promise.reject(new Error('Contracts dictionary is not supported'));
 
   updateContract = (id: string, data: any): Promise<DictionaryItem> => 
-    this.apiClient.put(`/dictionaries/contracts/${id}`, data);
+    Promise.reject(new Error('Contracts dictionary is not supported'));
 
   deleteContract = (id: string): Promise<void> => 
-    this.apiClient.delete(`/dictionaries/contracts/${id}`);
+    Promise.reject(new Error('Contracts dictionary is not supported'));
 
-  // Normatives
+  // Normatives (Not supported - return empty data)
   getNormatives = (): Promise<DictionaryItem[]> => 
-    this.apiClient.get('/dictionaries/normatives');
+    Promise.resolve([]);
 
   getNormative = (id: string): Promise<DictionaryItem> => 
-    this.apiClient.get(`/dictionaries/normatives/${id}`);
+    Promise.reject(new Error('Normatives dictionary is not supported'));
 
   createNormative = (data: any): Promise<DictionaryItem> => 
-    this.apiClient.post('/dictionaries/normatives', data);
+    Promise.reject(new Error('Normatives dictionary is not supported'));
 
   updateNormative = (id: string, data: any): Promise<DictionaryItem> => 
-    this.apiClient.put(`/dictionaries/normatives/${id}`, data);
+    Promise.reject(new Error('Normatives dictionary is not supported'));
 
   deleteNormative = (id: string): Promise<void> => 
-    this.apiClient.delete(`/dictionaries/normatives/${id}`);
+    Promise.reject(new Error('Normatives dictionary is not supported'));
 
-  // Priorities
+  // Priorities (Not supported - return empty data)
   getPriorities = (): Promise<DictionaryItem[]> => 
-    this.apiClient.get('/dictionaries/priorities');
+    Promise.resolve([]);
 
   getPriority = (id: string): Promise<DictionaryItem> => 
-    this.apiClient.get(`/dictionaries/priorities/${id}`);
+    Promise.reject(new Error('Priorities dictionary is not supported'));
 
   createPriority = (data: any): Promise<DictionaryItem> => 
-    this.apiClient.post('/dictionaries/priorities', data);
+    Promise.reject(new Error('Priorities dictionary is not supported'));
 
   updatePriority = (id: string, data: any): Promise<DictionaryItem> => 
-    this.apiClient.put(`/dictionaries/priorities/${id}`, data);
+    Promise.reject(new Error('Priorities dictionary is not supported'));
 
   deletePriority = (id: string): Promise<void> => 
-    this.apiClient.delete(`/dictionaries/priorities/${id}`);
+    Promise.reject(new Error('Priorities dictionary is not supported'));
 
-  // Users
+  // Users (Not supported - return empty data)
   getUsers = (): Promise<DictionaryItem[]> => 
-    this.apiClient.get('/dictionaries/users');
+    Promise.resolve([]);
 
   getUser = (id: string): Promise<DictionaryItem> => 
-    this.apiClient.get(`/dictionaries/users/${id}`);
+    Promise.reject(new Error('Users dictionary is not supported'));
 
   createUser = (data: any): Promise<DictionaryItem> => 
-    this.apiClient.post('/dictionaries/users', data);
+    Promise.reject(new Error('Users dictionary is not supported'));
 
   updateUser = (id: string, data: any): Promise<DictionaryItem> => 
-    this.apiClient.put(`/dictionaries/users/${id}`, data);
+    Promise.reject(new Error('Users dictionary is not supported'));
 
   deleteUser = (id: string): Promise<void> => 
-    this.apiClient.delete(`/dictionaries/users/${id}`);
+    Promise.reject(new Error('Users dictionary is not supported'));
 
   // Currencies
   getCurrencies = (): Promise<DictionaryItem[]> => 
@@ -368,65 +368,147 @@ export class DictionaryApiEndpoints {
   bulkCreate = (type: DictionaryType, items: any[]): Promise<{ success_count: number; error_count: number; errors: any[]; created_items: any[] }> => 
     this.apiClient.post(`/dictionaries/${type}/bulk`, { items });
 
-  bulkUpdate = (type: DictionaryType, updates: { id: string; data: any }[]): Promise<{ success_count: number; error_count: number; errors: any[]; updated_items: any[] }> => 
-    this.apiClient.put(`/dictionaries/${type}/bulk`, { updates });
+  bulkUpdate = async (type: DictionaryType, updates: { id: string; data: any }[]): Promise<{ success_count: number; error_count: number; errors: any[]; updated_items: any[] }> => {
+    // Since backend doesn't have bulk update, we'll update items individually
+    let success_count = 0;
+    let error_count = 0;
+    const errors: any[] = [];
+    const updated_items: any[] = [];
 
-  bulkDelete = (type: DictionaryType, ids: string[]): Promise<{ success_count: number; error_count: number; errors: any[] }> => 
-    this.apiClient.post(`/dictionaries/${type}/bulk-delete`, { ids });
+    for (const { id, data } of updates) {
+      try {
+        let updatedItem;
+        if (type === 'counterparties') {
+          updatedItem = await this.updateCounterparty(id, data);
+        } else if (type === 'expense-articles') {
+          updatedItem = await this.updateExpenseItem(id, data);
+        } else if (type === 'vat-rates') {
+          updatedItem = await this.updateVatRate(id, data);
+        }
+        updated_items.push(updatedItem);
+        success_count++;
+      } catch (error) {
+        error_count++;
+        errors.push({
+          id,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+
+    return { success_count, error_count, errors, updated_items };
+  };
+
+  bulkDelete = async (type: DictionaryType, ids: string[]): Promise<{ success_count: number; error_count: number; errors: any[] }> => {
+    // Since backend doesn't have bulk delete, we'll delete items individually
+    let success_count = 0;
+    let error_count = 0;
+    const errors: any[] = [];
+
+    for (const id of ids) {
+      try {
+        if (type === 'counterparties') {
+          await this.deleteCounterparty(id);
+        } else if (type === 'expense-articles') {
+          await this.deleteExpenseItem(id);
+        } else if (type === 'vat-rates') {
+          await this.deleteVatRate(id);
+        }
+        success_count++;
+      } catch (error) {
+        error_count++;
+        errors.push({
+          id,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+
+    return { success_count, error_count, errors };
+  };
 
   // Search and filter
   search = async (type: DictionaryType, query: string): Promise<DictionaryItem[]> => {
-    if (type === 'counterparties') {
-      // For counterparties, we'll search in the full list since backend doesn't have search endpoint
-      const allItems = await this.getCounterparties();
-      return allItems.filter(item => 
-        item.name?.toLowerCase().includes(query.toLowerCase()) ||
-        item.binIin?.includes(query) ||
-        (item.email && item.email.toLowerCase().includes(query.toLowerCase())) ||
-        (item.region && item.region.toLowerCase().includes(query.toLowerCase())) ||
-        item.abbreviation?.toLowerCase().includes(query.toLowerCase())
-      );
+    // Check if type is supported
+    const supportedTypes = ['counterparties', 'expense-articles', 'vat-rates', 'currencies'];
+    if (!supportedTypes.includes(type)) {
+      return Promise.resolve([]);
     }
-    return this.apiClient.get(`/dictionaries/${type}/search?q=${encodeURIComponent(query)}`);
+
+    if (type === 'counterparties') {
+      // Use backend search parameter
+      return this.apiClient.get(`/dictionaries/counterparties?search=${encodeURIComponent(query)}`);
+    } else if (type === 'expense-articles') {
+      // Use backend search parameter
+      return this.apiClient.get(`/dictionaries/expense-articles?search=${encodeURIComponent(query)}`);
+    } else if (type === 'vat-rates') {
+      // Use backend search parameter
+      return this.apiClient.get(`/dictionaries/vat-rates?search=${encodeURIComponent(query)}`);
+    } else if (type === 'currencies') {
+      // Currencies don't support search
+      return this.apiClient.get('/dictionaries/currencies');
+    }
+    return Promise.resolve([]);
   };
 
   filter = async (type: DictionaryType, filters: Record<string, any>): Promise<DictionaryItem[]> => {
-    if (type === 'counterparties') {
-      // For counterparties, we'll filter in the full list since backend doesn't have filter endpoint
-      const allItems = await this.getCounterparties();
-      return allItems.filter(item => {
-        if (filters.category && item.category !== filters.category) return false;
-        if (filters.isActive !== undefined && item.isActive !== filters.isActive) return false;
-        return true;
-      });
+    // Check if type is supported
+    const supportedTypes = ['counterparties', 'expense-articles', 'vat-rates', 'currencies'];
+    if (!supportedTypes.includes(type)) {
+      return Promise.resolve([]);
     }
-    return this.apiClient.post(`/dictionaries/${type}/filter`, filters);
+
+    const params = new URLSearchParams();
+    
+    if (filters.is_active !== undefined) {
+      params.append('active_only', filters.is_active.toString());
+    }
+    if (filters.category) {
+      params.append('category', filters.category);
+    }
+    if (filters.search) {
+      params.append('search', filters.search);
+    }
+    
+    const queryString = params.toString();
+    const url = queryString ? `/dictionaries/${type}?${queryString}` : `/dictionaries/${type}`;
+    
+    return this.apiClient.get(url);
   };
 
   // Statistics
   getStatistics = async (type: DictionaryType): Promise<any> => {
-    if (type === 'counterparties') {
-      const items = await this.getCounterparties();
+    // Check if type is supported
+    const supportedTypes = ['counterparties', 'expense-articles', 'vat-rates', 'currencies'];
+    if (!supportedTypes.includes(type)) {
       return {
-        total: items.length,
-        active: items.filter(item => item.isActive).length,
-        inactive: items.filter(item => !item.isActive).length,
+        totalItems: 0,
+        activeItems: 0,
+        inactiveItems: 0,
         recentlyUpdated: 0
       };
     }
-    // Mock statistics since backend doesn't have this endpoint yet
-    const items = await this.apiClient.get(`/dictionaries/${type}`);
-    return {
-      total: items.length,
-      active: items.filter((item: any) => item.is_active).length,
-      inactive: items.filter((item: any) => !item.is_active).length,
-      categories: type === 'counterparties' ? 
-        items.reduce((acc: any, item: any) => {
-          const category = item.category || 'Не указана';
-          acc[category] = (acc[category] || 0) + 1;
-          return acc;
-        }, {}) : {}
-    };
+
+    try {
+      // Use real API endpoint for statistics
+      const stats = await this.apiClient.get(`/dictionaries/${type}/statistics`);
+      return {
+        totalItems: stats.totalItems,
+        activeItems: stats.activeItems,
+        inactiveItems: stats.inactiveItems,
+        recentlyUpdated: stats.recentlyUpdated
+      };
+    } catch (error) {
+      console.warn(`Failed to get statistics for ${type}, falling back to mock data:`, error);
+      // Fallback to mock statistics
+      const items = await this.apiClient.get(`/dictionaries/${type}`);
+      return {
+        totalItems: items.length,
+        activeItems: items.filter((item: any) => item.is_active).length,
+        inactiveItems: items.filter((item: any) => !item.is_active).length,
+        recentlyUpdated: 0
+      };
+    }
   };
 
   // Import/Export
@@ -458,7 +540,7 @@ export class MockApiClient implements ApiClient {
 
   private initializeMockData(): void {
     // Initialize with empty arrays for each dictionary type
-    const types = ['expense-articles', 'counterparties', 'contracts', 'normatives', 'priorities', 'users'];
+    const types = ['expense-articles', 'counterparties', 'currencies', 'vat-rates'];
     types.forEach(type => {
       this.mockData.set(type, []);
     });
