@@ -434,7 +434,7 @@ def update_request(
         for line in payload.lines:
             db.add(PaymentRequestLine(
                 request_id=request_id,
-                article_id=line.article_id,
+                article_id=None,  # Not required for drafts
                 executor_position_id=line.executor_position_id,
                 registrar_position_id=line.executor_position_id,
                 distributor_position_id=line.executor_position_id,

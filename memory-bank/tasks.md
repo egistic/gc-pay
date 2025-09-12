@@ -28,6 +28,8 @@ This plan outlines the integration of real users, roles, and positions from the 
 - [x] **Fixed RequestLineOut schema** to make article_id optional
 - [x] **Updated request creation logic** to handle nullable article_id
 - [x] **Fixed _get_request_with_lines function** to properly handle None article_id
+- [x] **Fixed RequestLineIn schema issue** in update_request function
+- [x] **Updated update_request logic** to set article_id=None for drafts
 
 ### Current Status
 - ✅ **Backend API**: Fully functional with position and department management
@@ -36,6 +38,8 @@ This plan outlines the integration of real users, roles, and positions from the 
 - ✅ **Position Assignment**: Working with automatic department binding
 - ✅ **Database**: Cleaned and seeded with new data structure
 - ✅ **Request Creation API**: Fixed foreign key constraint violations with position IDs
+- ✅ **Draft Saving**: Fixed AttributeError with article_id in RequestLineIn schema
+- ✅ **Request Updates**: Both creation and update operations work correctly
 
 ## Current System Analysis
 
