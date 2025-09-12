@@ -10,8 +10,7 @@ import {
   CheckCircle, 
   Clock, 
   AlertCircle,
-  ExternalLink,
-  DocumentText
+  ExternalLink
 } from 'lucide-react';
 import { 
   PaymentRequest, 
@@ -138,7 +137,7 @@ export const WorkflowRequestInformationCard: React.FC<WorkflowRequestInformation
             {subRegistrarReport && (
               <div className="space-y-3">
                 <h4 className="text-sm font-medium flex items-center gap-2">
-                  <DocumentText className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   Отчёт суб-регистратора
                 </h4>
                 

@@ -150,7 +150,7 @@ def get_request_statistics(
     current_user_id: str = Depends(get_current_user_id)
 ):
     """Get request statistics based on role and user"""
-    query = db.query(PaymentRequest)
+    query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
     # Apply role-based filtering
     if role == "EXECUTOR":
@@ -238,7 +238,7 @@ def get_requests(
     current_user_id: str = Depends(get_current_user_id)
 ):
     """Get list of payment requests with optional filtering"""
-    query = db.query(PaymentRequest)
+    query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
     # Apply role-based filtering
     if role == "EXECUTOR":
@@ -307,7 +307,7 @@ def get_dashboard_metrics(
     stats = get_request_statistics(role=role, user_id=user_id, db=db, current_user_id=current_user_id)
     
     # Get recent requests (last 10) - simplified
-    query = db.query(PaymentRequest)
+    query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
     # Apply role-based filtering for recent requests
     if role == "EXECUTOR":
@@ -367,7 +367,7 @@ def update_request(
     payload: schemas.RequestUpdate, 
     db: Session = Depends(get_db)
 ):
-    req = db.query(PaymentRequest).filter(PaymentRequest.id == request_id).first()
+    req = db.query(PaymentRequest).filter(and_(PaymentRequest.id == request_id, PaymentRequest.deleted == False)).first()
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
     
@@ -454,7 +454,7 @@ def update_request(
 
 @router.delete("/{request_id}", status_code=204)
 def delete_request(request_id: uuid.UUID, db: Session = Depends(get_db)):
-    req = db.query(PaymentRequest).filter(PaymentRequest.id == request_id).first()
+    req = db.query(PaymentRequest).filter(and_(PaymentRequest.id == request_id, PaymentRequest.deleted == False)).first()
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
     
@@ -695,7 +695,7 @@ def distributor_action(
 
 def _get_request_with_lines(request_id: uuid.UUID, db: Session) -> schemas.RequestOut:
     """Helper function to get request with lines and files"""
-    req = db.query(PaymentRequest).filter(PaymentRequest.id == request_id).first()
+    req = db.query(PaymentRequest).filter(and_(PaymentRequest.id == request_id, PaymentRequest.deleted == False)).first()
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
     

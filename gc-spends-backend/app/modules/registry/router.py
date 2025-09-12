@@ -41,7 +41,7 @@ def get_payment_registry(
     status: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(PaymentRequest).filter(PaymentRequest.status == "IN_REGISTRY")
+    query = db.query(PaymentRequest).filter(and_(PaymentRequest.status == "IN_REGISTRY", PaymentRequest.deleted == False))
     
     if status:
         query = query.filter(PaymentRequest.status == status)
@@ -70,7 +70,7 @@ def get_payment_registry(
 def get_registry_statistics(db: Session = Depends(get_db)):
     """Get payment registry statistics"""
     # Get all requests in registry
-    registry_requests = db.query(PaymentRequest).filter(PaymentRequest.status == "IN_REGISTRY").all()
+    registry_requests = db.query(PaymentRequest).filter(and_(PaymentRequest.status == "IN_REGISTRY", PaymentRequest.deleted == False)).all()
     
     total_entries = len(registry_requests)
     total_amount = sum(req.amount_total for req in registry_requests)
@@ -92,6 +92,8 @@ def get_registry_statistics(db: Session = Depends(get_db)):
 @router.get("/{registry_id}", response_model=RegistryEntryOut)
 def get_registry_entry(registry_id: uuid.UUID, db: Session = Depends(get_db)):
     request = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(
         PaymentRequest.id == registry_id,
         PaymentRequest.status == "IN_REGISTRY"
     ).first()
@@ -118,7 +120,9 @@ def create_registry_entry(
     db: Session = Depends(get_db)
 ):
     # Check if request exists and is approved
-    request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+    request = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(PaymentRequest.id == payload.request_id).first()
     if not request:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
     
@@ -153,6 +157,8 @@ def update_registry_entry(
     db: Session = Depends(get_db)
 ):
     request = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(
         PaymentRequest.id == registry_id,
         PaymentRequest.status == "IN_REGISTRY"
     ).first()
@@ -183,6 +189,8 @@ def remove_from_registry(
     db: Session = Depends(get_db)
 ):
     request = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(
         PaymentRequest.id == registry_id,
         PaymentRequest.status == "IN_REGISTRY"
     ).first()

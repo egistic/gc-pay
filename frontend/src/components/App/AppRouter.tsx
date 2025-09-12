@@ -135,7 +135,13 @@ export function AppRouter() {
           return (
             <ItemClassificationForm
               request={request}
-              onSubmit={PaymentRequestService.classify}
+              onSubmit={(expenseSplits, comment) => {
+                // This is handled internally by ItemClassificationForm
+                console.log('onSubmit called with expenseSplits:', expenseSplits);
+                // Close the classification form and return to list view
+                dispatch(appActions.setViewMode('list'));
+                dispatch(appActions.setSelectedRequestId(null));
+              }}
               onReturn={PaymentRequestService.return}
               onCancel={() => {
                 dispatch(appActions.setViewMode('list'));
@@ -152,7 +158,13 @@ export function AppRouter() {
           return (
             <ItemClassificationForm
               request={request}
-              onSubmit={PaymentRequestService.classify}
+              onSubmit={(expenseSplits, comment) => {
+                // This is handled internally by ItemClassificationForm
+                console.log('onSubmit called with expenseSplits:', expenseSplits);
+                // Close the classification form and return to list view
+                dispatch(appActions.setViewMode('list'));
+                dispatch(appActions.setSelectedRequestId(null));
+              }}
               onReturn={PaymentRequestService.return}
               onCancel={() => {
                 dispatch(appActions.setViewMode('list'));

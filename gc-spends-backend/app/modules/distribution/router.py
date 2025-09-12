@@ -77,7 +77,7 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
     """Classify payment request and assign to sub-registrar"""
     
     # Validate request exists and is in correct status
-    request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+    request = db.query(PaymentRequest).filter(and_(PaymentRequest.id == payload.request_id, PaymentRequest.deleted == False)).first()
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
@@ -181,7 +181,7 @@ def return_request(payload: schemas.ReturnRequestCreate, db: Session = Depends(g
     """Return request to executor for revision"""
     
     # Validate request exists
-    request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+    request = db.query(PaymentRequest).filter(and_(PaymentRequest.id == payload.request_id, PaymentRequest.deleted == False)).first()
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
@@ -243,6 +243,8 @@ def get_pending_requests(
     
     # Get requests that are approved/registered and pending distribution
     requests = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(
         and_(
             PaymentRequest.status.in_([RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]),
             PaymentRequest.distribution_status == "PENDING"
@@ -280,12 +282,12 @@ def send_requests_parallel(
     
     if is_split_request:
         # For split requests, find the original request
-        request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.original_request_id).first()
+        request = db.query(PaymentRequest).filter(and_(PaymentRequest.id == payload.original_request_id, PaymentRequest.deleted == False)).first()
         if not request:
             raise HTTPException(status_code=404, detail="Original request not found")
     else:
         # For regular requests, find by request_id
-        request = db.query(PaymentRequest).filter(PaymentRequest.id == payload.request_id).first()
+        request = db.query(PaymentRequest).filter(and_(PaymentRequest.id == payload.request_id, PaymentRequest.deleted == False)).first()
         if not request:
             raise HTTPException(status_code=404, detail="Request not found")
     
@@ -327,6 +329,8 @@ def send_requests_parallel(
         if is_split_request:
             # Generate new request number with suffix based on existing splits
             existing_splits = db.query(PaymentRequest).filter(
+                PaymentRequest.deleted == False
+            ).filter(
                 PaymentRequest.number.like(f"{request.number}-%")
             ).count()
             split_number = existing_splits + 1
@@ -440,13 +444,236 @@ def send_requests_parallel(
             detail=f"Failed to distribute request: {str(e)}"
         )
 
-@router.post("/split-request", response_model=schemas.ParallelDistributionOut)
+@router.post("/split-request", response_model=schemas.SplitRequestOut)
 def split_request_by_articles(
-    payload: schemas.ParallelDistributionCreate,
+    payload: schemas.SplitRequestCreate,
     db: Session = Depends(get_db),
     current_user: UserOut = Depends(get_current_user)
 ):
-    """Split request by expense articles for distributor"""
-    # This is the same as send_requests_parallel but with a different name for clarity
-    return send_requests_parallel(payload, db, current_user)
+    """Split request by expense articles - creates separate requests for each expense article"""
+    # Verify user has REGISTRAR role
+    registrar_role = db.query(Role).filter(Role.code == RoleCode.REGISTRAR.value).first()
+    if registrar_role:
+        user_role = db.query(UserRole).filter(
+            and_(
+                UserRole.user_id == current_user.id,
+                UserRole.role_id == registrar_role.id,
+                UserRole.valid_from <= date.today(),
+                UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+            )
+        ).first()
+        if not user_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. REGISTRAR role required."
+            )
+    
+    # Validate that we have at least 2 expense splits for splitting
+    if len(payload.expense_splits) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="At least 2 expense articles are required for splitting a request"
+        )
+    
+    # Get original request
+    original_request = db.query(PaymentRequest).filter(and_(PaymentRequest.id == payload.original_request_id, PaymentRequest.deleted == False)).first()
+    if not original_request:
+        raise HTTPException(status_code=404, detail="Original request not found")
+    
+    # Validate original request status
+    if original_request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Original request must be approved, registered, or submitted to be split"
+        )
+    
+    # Validate sub-registrar exists and has correct role
+    sub_registrar = db.query(User).filter(User.id == payload.sub_registrar_id).first()
+    if not sub_registrar:
+        raise HTTPException(status_code=404, detail="Sub-registrar not found")
+    
+    # Validate distributor exists and has correct role
+    distributor = db.query(User).filter(User.id == payload.distributor_id).first()
+    if not distributor:
+        raise HTTPException(status_code=404, detail="Distributor not found")
+    
+    # Validate expense items exist
+    expense_item_ids = [split.expense_item_id for split in payload.expense_splits]
+    existing_items = db.query(ExpenseArticle).filter(ExpenseArticle.id.in_(expense_item_ids)).all()
+    if len(existing_items) != len(expense_item_ids):
+        raise HTTPException(status_code=400, detail="One or more expense items not found")
+    
+    # Validate total amount matches original request
+    total_amount = sum(split.amount for split in payload.expense_splits)
+    if abs(total_amount - float(original_request.amount_total)) > 0.01:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Total split amount ({total_amount}) must equal original request amount ({original_request.amount_total})"
+        )
+    
+    try:
+        # Mark original request as deleted (soft delete)
+        original_request.deleted = True
+        original_request.status = RequestStatus.CANCELLED.value
+        original_request.distribution_status = "SPLIT"
+        
+        # Create split requests - one for each expense article
+        split_requests = []
+        for i, split_data in enumerate(payload.expense_splits, 1):
+            # Generate split request number
+            split_number = f"{original_request.number}-{i:02d}"
+            
+            # Create new payment request for this split
+            split_request = PaymentRequest(
+                id=uuid.uuid4(),
+                number=split_number,
+                title=f"{original_request.title} (Статья {i})",
+                amount_total=split_data.amount,
+                currency_code=original_request.currency_code,
+                counterparty_id=original_request.counterparty_id,
+                created_by_user_id=original_request.created_by_user_id,
+                status=RequestStatus.REGISTERED.value,
+                distribution_status="DISTRIBUTED",
+                # Copy all informational fields from original request
+                due_date=original_request.due_date,
+                vat_total=original_request.vat_total,
+                expense_article_text=original_request.expense_article_text,
+                doc_number=original_request.doc_number,
+                doc_date=original_request.doc_date,
+                doc_type=original_request.doc_type,
+                paying_company=original_request.paying_company,
+                counterparty_category=original_request.counterparty_category,
+                vat_rate=original_request.vat_rate,
+                product_service=original_request.product_service,
+                volume=original_request.volume,
+                price_rate=original_request.price_rate,
+                period=original_request.period,
+                responsible_registrar_id=original_request.responsible_registrar_id,
+                # Split request specific fields
+                original_request_id=original_request.id,
+                split_sequence=i,
+                is_split_request=True,
+                deleted=False  # New split requests are not deleted
+            )
+            db.add(split_request)
+            split_requests.append(split_request)
+        
+        # Flush to ensure all split requests are created
+        db.flush()
+        
+        # Create expense splits for each split request
+        for i, (split_request, split_data) in enumerate(zip(split_requests, payload.expense_splits)):
+            expense_split = ExpenseSplit(
+                request_id=split_request.id,
+                expense_item_id=split_data.expense_item_id,
+                amount=split_data.amount,
+                comment=split_data.comment,
+                contract_id=split_data.contract_id,
+                priority=split_data.priority
+            )
+            db.add(expense_split)
+        
+        # Create sub-registrar assignments for each split request
+        sub_registrar_assignments = []
+        for split_request in split_requests:
+            assignment = SubRegistrarAssignment(
+                request_id=split_request.id,
+                sub_registrar_id=payload.sub_registrar_id,
+                status="ASSIGNED"
+            )
+            db.add(assignment)
+            sub_registrar_assignments.append(assignment)
+        
+        # Create distributor requests for each split request
+        distributor_requests = []
+        for split_request, split_data in zip(split_requests, payload.expense_splits):
+            distributor_request = DistributorRequest(
+                original_request_id=split_request.id,
+                expense_article_id=split_data.expense_item_id,
+                amount=split_data.amount,
+                distributor_id=payload.distributor_id,
+                status="PENDING"
+            )
+            db.add(distributor_request)
+            distributor_requests.append(distributor_request)
+        
+        # Original request status already updated above (marked as deleted)
+        
+        # Create request events for original request and each split
+        from app.models import RequestEvent
+        
+        # Event for original request
+        original_event = RequestEvent(
+            request_id=original_request.id,
+            event_type="SPLIT_AND_DELETED",
+            actor_user_id=current_user.id,
+            payload=f"Request split into {len(split_requests)} separate requests and marked as deleted. Total amount: {total_amount}"
+        )
+        db.add(original_event)
+        
+        # Events for each split request
+        for i, split_request in enumerate(split_requests, 1):
+            split_event = RequestEvent(
+                request_id=split_request.id,
+                event_type="CREATED_FROM_SPLIT",
+                actor_user_id=current_user.id,
+                payload=f"Split request created from original request {original_request.number}. Article {i}, Amount: {split_request.amount_total}, Status: CLASSIFIED"
+            )
+            db.add(split_event)
+        
+        db.commit()
+        
+        # Extract IDs after commit
+        split_request_ids = [sr.id for sr in split_requests]
+        
+        return schemas.SplitRequestOut(
+            original_request_id=original_request.id,
+            split_requests=split_request_ids,
+            total_amount=total_amount,
+            status="SPLIT"
+        )
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to split request: {str(e)}"
+        )
+
+@router.get("/split-requests/{original_request_id}", response_model=List[schemas.PendingRequestOut])
+def get_split_requests(
+    original_request_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Get all split requests for an original request"""
+    # Verify user has REGISTRAR role
+    registrar_role = db.query(Role).filter(Role.code == RoleCode.REGISTRAR.value).first()
+    if registrar_role:
+        user_role = db.query(UserRole).filter(
+            and_(
+                UserRole.user_id == current_user.id,
+                UserRole.role_id == registrar_role.id,
+                UserRole.valid_from <= date.today(),
+                UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+            )
+        ).first()
+        if not user_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. REGISTRAR role required."
+            )
+    
+    # Get all split requests for the original request (only non-deleted)
+    split_requests = db.query(PaymentRequest).filter(
+        PaymentRequest.deleted == False
+    ).filter(
+        and_(
+            PaymentRequest.original_request_id == original_request_id,
+            PaymentRequest.is_split_request == True,
+            PaymentRequest.deleted == False
+        )
+    ).order_by(PaymentRequest.split_sequence).all()
+    
+    return split_requests
 

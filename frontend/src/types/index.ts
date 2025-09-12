@@ -75,6 +75,11 @@ export interface PaymentRequest {
   paymentAllocations?: PaymentAllocation[];
   paymentExecution?: PaymentExecution;
   attachments?: FileAttachment[];
+  // Split request fields
+  originalRequestId?: string;
+  splitSequence?: number;
+  isSplitRequest?: boolean;
+  deleted?: boolean;
 }
 
 export interface FileAttachment {

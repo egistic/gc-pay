@@ -17,6 +17,7 @@ import { ExpenseSplitForm } from './shared/ExpenseSplitForm';
 import { PaymentRequestService } from '../../services/paymentRequestService';
 import { DistributionService } from '../../services/distributionService';
 import { NotificationService } from '../../services/notificationService';
+import { SplitRequestService } from '../../services/splitRequestService';
 import { useExpenseSplits } from '../../hooks/useExpenseSplits';
 import { useAuth } from '../../context/AuthContext';
 
@@ -73,19 +74,71 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
       return;
     }
 
+    // Check if expenseSplits is defined and not empty
+    if (!expenseSplits || expenseSplits.length === 0) {
+      toast.error('Добавьте статьи расходов для классификации');
+      return;
+    }
+
     // Check if all splits have sub-registrars assigned
-    const unassignedSplits = expenseSplits.filter(split => !split.subRegistrarId);
+    const unassignedSplits = (expenseSplits || []).filter(split => !split.subRegistrarId);
     if (unassignedSplits.length > 0) {
       toast.error('Выберите суб-регистратора для всех позиций');
+      return;
+    }
+
+    // Early validation of request object
+    if (!request) {
+      toast.error('Ошибка: объект заявки не найден');
       return;
     }
 
     setIsLoading(true);
     try {
       // First, classify the request
-      const expenseSplitsForApi: ExpenseSplit[] = expenseSplits.map((split, index) => ({
+      let requestId: string;
+      
+      if (Array.isArray(request)) {
+        // If request is an array, take the first element and ensure it's a valid ID
+        if (request.length === 0) {
+          throw new Error('Invalid request array: array is empty');
+        }
+        
+        const firstRequest = request[0];
+        if (firstRequest && typeof firstRequest === 'object' && firstRequest.id) {
+          requestId = typeof firstRequest.id === 'string' ? firstRequest.id : String(firstRequest.id);
+        } else {
+          throw new Error('Invalid request array: first element must have an id property');
+        }
+      } else if (typeof request === 'object' && request !== null) {
+        if (request.id) {
+          requestId = typeof request.id === 'string' ? request.id : String(request.id);
+        } else {
+          throw new Error('Invalid request object: missing id property');
+        }
+      } else if (typeof request === 'string') {
+        // Handle case where request is a string (should not happen but just in case)
+        if (request.includes('[object') || request.includes(',')) {
+          throw new Error(`Invalid request string: ${request}. Expected a valid request object.`);
+        }
+        requestId = request;
+      } else {
+        throw new Error(`Invalid request type: ${typeof request}. Expected object or array.`);
+      }
+      
+      // Validate that requestId is a valid UUID-like string
+      if (!requestId || requestId.includes('[object') || requestId.includes(',')) {
+        throw new Error(`Invalid request ID: ${requestId}`);
+      }
+      
+      // Additional validation for UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(requestId)) {
+        throw new Error(`Invalid request ID format: ${requestId}. Expected UUID format.`);
+      }
+      const expenseSplitsForApi: ExpenseSplit[] = (expenseSplits || []).map((split, index) => ({
         id: `split-${Date.now()}-${index}`,
-        requestId: request.id,
+        requestId: requestId,
         expenseItemId: split.expenseItemId,
         amount: split.amount,
         comment: split.comment,
@@ -94,17 +147,10 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         subRegistrarId: split.subRegistrarId
       }));
 
-      console.log('DEBUG: Sending classification request:', {
-        requestId: request.id,
-        requestStatus: request.status,
-        expenseSplits: expenseSplitsForApi
-      });
 
-      // First, classify the original request
-      await PaymentRequestService.classify(request.id, expenseSplitsForApi, '');
-      
-      // Group splits by sub-registrar
-      const splitsBySubRegistrar = expenseSplits.reduce((acc, split) => {
+      // Use Split logic instead of regular classification
+      // Group splits by sub-registrar to get the first sub-registrar and distributor
+      const splitsBySubRegistrar = (expenseSplits || []).reduce((acc, split) => {
         const subRegistrarId = split.subRegistrarId;
         if (subRegistrarId) {
           if (!acc[subRegistrarId]) {
@@ -115,50 +161,46 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         return acc;
       }, {} as Record<string, typeof expenseSplits>);
 
-      // Create distribution for each sub-registrar using the original request
       const subRegistrarIds = Object.keys(splitsBySubRegistrar);
-      const createdRequests = [];
-
-      for (let i = 0; i < subRegistrarIds.length; i++) {
-        const subRegistrarId = subRegistrarIds[i];
-        const subRegistrarSplits = splitsBySubRegistrar[subRegistrarId];
-
-        // Generate unique ID for split request using crypto.randomUUID()
-        const splitRequestId = crypto.randomUUID();
-
-        // Distribute the request to this sub-registrar
-        const parallelDistributionData: ParallelDistributionCreate = {
-          requestId: splitRequestId, // Use split request ID
-          subRegistrarId: subRegistrarId,
-          distributorId: user?.id || '', // Use authenticated user ID
-          expenseSplits: subRegistrarSplits.map(split => ({
-            expenseItemId: split.expenseItemId,
-            amount: split.amount,
-            comment: split.comment,
-            contractId: 'outside-contract',
-            priority: 'medium'
-          })),
-          comment: `Часть ${i + 1} для суб-регистратора`,
-          originalRequestId: request.id // Add original request ID for split requests
-        };
-
-        const result = await DistributionService.sendRequestsParallel(parallelDistributionData);
-        createdRequests.push(result);
+      if (subRegistrarIds.length === 0) {
+        throw new Error('Не выбраны суб-регистраторы для разделения заявки');
       }
+
+      // Use first sub-registrar and current user as distributor for split
+      const firstSubRegistrarId = subRegistrarIds[0];
+      const distributorId = user?.id || '';
       
-      // Send notifications
-      NotificationService.notifyRequestDistributed(request.id, request.requestNumber || 'Без номера');
-      subRegistrarIds.forEach(subRegistrarId => {
-        NotificationService.notifySubRegistrarAssigned(request.id, request.requestNumber || 'Без номера');
+      // Prepare expense splits for split request
+      const splitExpenseSplits = (expenseSplits || []).map(split => ({
+        expense_item_id: split.expenseItemId,
+        amount: split.amount,
+        comment: split.comment || '',
+        contract_id: split.contractId || 'outside-contract',
+        priority: split.priority || 'medium'
+      }));
+
+      // Call Split endpoint
+      const splitResult = await SplitRequestService.splitRequest({
+        original_request_id: requestId,
+        expense_splits: splitExpenseSplits,
+        sub_registrar_id: firstSubRegistrarId,
+        distributor_id: distributorId,
+        comment: 'Заявка разделена на статьи расходов'
       });
-      NotificationService.notifyDistributorRequestCreated(request.id, request.requestNumber || 'Без номера');
+
+      // Send notifications
+      NotificationService.notifyRequestDistributed(requestId, request.requestNumber || 'Без номера');
+      NotificationService.notifyDistributorRequestCreated(requestId, request.requestNumber || 'Без номера');
       
-      toast.success(`Заявка успешно классифицирована и разделена на ${createdRequests.length} заявок для суб-регистраторов`);
+      toast.success(`Заявка успешно разделена на ${splitResult.split_requests.length} заявок`);
+      
+      // Force page reload to update data
+      window.location.reload();
       
       // Convert to ExpenseSplit format for parent component
-      const expenseSplitsForParent: ExpenseSplit[] = expenseSplits.map((split, index) => ({
+      const expenseSplitsForParent: ExpenseSplit[] = (expenseSplits || []).map((split, index) => ({
         id: `split-${Date.now()}-${index}`,
-        requestId: request.id,
+        requestId: requestId,
         expenseItemId: split.expenseItemId,
         amount: split.amount,
         comment: split.comment,
@@ -182,10 +224,68 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
       return;
     }
 
+    // Early validation of request object
+    console.log('DEBUG: Early request validation (return):', request);
+    if (!request) {
+      toast.error('Ошибка: объект заявки не найден');
+      return;
+    }
+
     setIsLoading(true);
     try {
+      let requestId: string;
+      
+      console.log('DEBUG: Raw request (return):', request);
+      console.log('DEBUG: Request type (return):', typeof request);
+      console.log('DEBUG: Is array (return):', Array.isArray(request));
+      
+      if (Array.isArray(request)) {
+        if (request.length === 0) {
+          throw new Error('Invalid request array: array is empty');
+        }
+        
+        const firstRequest = request[0];
+        if (firstRequest && typeof firstRequest === 'object' && firstRequest.id) {
+          requestId = typeof firstRequest.id === 'string' ? firstRequest.id : String(firstRequest.id);
+          console.log('DEBUG: Using first request ID (return):', requestId);
+        } else {
+          throw new Error('Invalid request array: first element must have an id property');
+        }
+      } else if (typeof request === 'object' && request !== null) {
+        if (request.id) {
+          requestId = typeof request.id === 'string' ? request.id : String(request.id);
+          console.log('DEBUG: Using object request ID (return):', requestId);
+        } else {
+          throw new Error('Invalid request object: missing id property');
+        }
+      } else if (typeof request === 'string') {
+        // Handle case where request is a string (should not happen but just in case)
+        if (request.includes('[object') || request.includes(',')) {
+          throw new Error(`Invalid request string: ${request}. Expected a valid request object.`);
+        }
+        requestId = request;
+        console.log('DEBUG: Using string request ID (return):', requestId);
+      } else {
+        throw new Error(`Invalid request type: ${typeof request}. Expected object or array.`);
+      }
+      
+      // Validate that requestId is a valid UUID-like string
+      if (!requestId || requestId.includes('[object') || requestId.includes(',')) {
+        console.error('ERROR: Invalid request ID detected (return):', requestId);
+        console.error('ERROR: Request object was (return):', request);
+        throw new Error(`Invalid request ID: ${requestId}`);
+      }
+      
+      // Additional validation for UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(requestId)) {
+        console.error('ERROR: Request ID is not a valid UUID (return):', requestId);
+        console.error('ERROR: Request object was (return):', request);
+        throw new Error(`Invalid request ID format: ${requestId}. Expected UUID format.`);
+      }
+      
       await DistributionService.returnRequest({
-        requestId: request.id,
+        requestId: requestId,
         comment: returnComment
       });
       toast.success('Заявка возвращена исполнителю');

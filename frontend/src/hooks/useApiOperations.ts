@@ -10,18 +10,14 @@ export function useApiOperations() {
   // Load initial data
   const loadInitialData = useCallback(async () => {
     try {
-      console.log('Starting to load initial data...');
       dispatch(appActions.setIsLoading(true));
       
-      console.log('Loading current user...');
       const user = await UserService.getCurrentUser();
-      console.log('User loaded:', user);
       
       // Only set user if they are active
       if (user && user.is_active) {
         dispatch(appActions.setCurrentUser(user));
       } else {
-        console.log('User is inactive, not setting current user');
         dispatch(appActions.setCurrentUser(null));
       }
       // Note: currentRole will be set by useRoleSync hook
@@ -29,7 +25,6 @@ export function useApiOperations() {
       // Load payment requests - will be loaded after role is set by useRoleSync
       // Note: Payment requests will be loaded by useRoleSync after role is set
       
-      console.log('Initial data loading completed successfully');
     } catch (error) {
       console.error('Failed to load initial data:', error);
       toast.error(`Ошибка загрузки данных: ${error.message || error}`);

@@ -4,6 +4,7 @@ import { ExpenseSplit, PaymentRequest } from '../types';
 interface UseExpenseSplitsProps {
   request: PaymentRequest;
   initialSplits?: ExpenseSplit[];
+  isSplitMode?: boolean; // New prop for split mode
 }
 
 interface UseExpenseSplitsReturn {
@@ -21,7 +22,8 @@ interface UseExpenseSplitsReturn {
 
 export function useExpenseSplits({ 
   request, 
-  initialSplits 
+  initialSplits,
+  isSplitMode = false
 }: UseExpenseSplitsProps): UseExpenseSplitsReturn {
   const [splits, setSplits] = useState<Omit<ExpenseSplit, 'id' | 'requestId'>[]>(() => {
     if (initialSplits && initialSplits.length > 0) {
@@ -33,7 +35,7 @@ export function useExpenseSplits({
         priority: split.priority
       }));
     }
-    return [{ expenseItemId: '', amount: request.amount, comment: '' }];
+    return [{ expenseItemId: '', amount: request.amount || 0, comment: '' }];
   });
 
   const totalSplit = useMemo(() => {
@@ -61,7 +63,7 @@ export function useExpenseSplits({
 
     // Check if total amount matches request amount
     if (!isBalanced) {
-      errors.push(`Сумма распределения (${totalSplit.toLocaleString()}) не равна сумме документа (${request.amount.toLocaleString()})`);
+      errors.push(`Сумма ${isSplitMode ? 'разделения' : 'распределения'} (${totalSplit.toLocaleString()}) не равна сумме документа (${request.amount.toLocaleString()})`);
     }
 
     // Check if all splits have amounts
@@ -70,8 +72,13 @@ export function useExpenseSplits({
       errors.push(`${emptyAmountSplits.length} статей не имеют указанной суммы`);
     }
 
+    // Split mode specific validation
+    if (isSplitMode && splits.length < 2) {
+      errors.push('Для разделения заявки необходимо минимум 2 статьи расходов');
+    }
+
     return errors;
-  }, [splits, isBalanced, totalSplit, request.amount]);
+  }, [splits, isBalanced, totalSplit, request.amount, isSplitMode]);
 
   const validationWarnings = useMemo(() => {
     const warnings: string[] = [];
@@ -90,11 +97,16 @@ export function useExpenseSplits({
 
     // Check if total amount matches request amount
     if (!isBalanced) {
-      warnings.push(`Сумма распределения (${totalSplit.toLocaleString()}) не равна сумме заявки (${request.amount.toLocaleString()})`);
+      warnings.push(`Сумма ${isSplitMode ? 'разделения' : 'распределения'} (${totalSplit.toLocaleString()}) не равна сумме заявки (${request.amount.toLocaleString()})`);
+    }
+
+    // Split mode specific warnings
+    if (isSplitMode && splits.length < 2) {
+      warnings.push('Для разделения заявки необходимо минимум 2 статьи расходов');
     }
 
     return warnings;
-  }, [splits, isBalanced, totalSplit, request.amount]);
+  }, [splits, isBalanced, totalSplit, request.amount, isSplitMode]);
 
   const isFormValid = useMemo(() => {
     return validationErrors.length === 0;

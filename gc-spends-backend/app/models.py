@@ -178,8 +178,17 @@ class PaymentRequest(Base):
     period: Mapped[str | None] = mapped_column(String(128), nullable=True)
     responsible_registrar_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     distribution_status: Mapped[str] = mapped_column(String(32), server_default=text("'PENDING'"))
+    # Split request fields
+    original_request_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("payment_requests.id"), nullable=True)  # Reference to original request if this is a split
+    split_sequence: Mapped[int | None] = mapped_column(nullable=True)  # Sequence number for split requests (1, 2, 3, etc.)
+    is_split_request: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))  # Flag to indicate if this is a split request
+    deleted: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))  # Soft delete flag
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    
+    # Relationships for split requests
+    original_request: Mapped["PaymentRequest | None"] = relationship("PaymentRequest", remote_side=[id], foreign_keys=[original_request_id])
+    split_requests: Mapped[list["PaymentRequest"]] = relationship("PaymentRequest", foreign_keys=[original_request_id])
 
 class PaymentRequestLine(Base):
     __tablename__ = "payment_request_lines"

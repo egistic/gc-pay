@@ -120,7 +120,7 @@ def publish_sub_registrar_report(
     
     # Update the original payment request status
     payment_request = db.query(PaymentRequest).filter(
-        PaymentRequest.id == request_id
+        and_(PaymentRequest.id == request_id, PaymentRequest.deleted == False)
     ).first()
     if payment_request:
         payment_request.distribution_status = "REPORT_PUBLISHED"

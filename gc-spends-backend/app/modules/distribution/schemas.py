@@ -73,6 +73,20 @@ class ParallelDistributionOut(BaseModel):
     total_amount: float
     status: str
 
+# Split Request Schemas
+class SplitRequestCreate(BaseModel):
+    original_request_id: uuid.UUID
+    expense_splits: List[ExpenseSplitCreate]
+    sub_registrar_id: uuid.UUID
+    distributor_id: uuid.UUID
+    comment: Optional[str] = None
+
+class SplitRequestOut(BaseModel):
+    original_request_id: uuid.UUID
+    split_requests: List[uuid.UUID]  # IDs of created split requests
+    total_amount: float
+    status: str
+
 class PendingRequestOut(BaseModel):
     id: uuid.UUID
     number: str

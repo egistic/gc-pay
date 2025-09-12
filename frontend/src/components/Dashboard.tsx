@@ -81,7 +81,9 @@ export function Dashboard({ currentRole, onFilterChange, currentFilter, onViewRe
   }
   
   // Use API data if available, otherwise use prop data
-  const allPaymentRequests = paymentRequests.length > 0 ? paymentRequests : apiPaymentRequests;
+  // Filter out deleted requests as an additional safety measure
+  const allPaymentRequests = (paymentRequests.length > 0 ? paymentRequests : apiPaymentRequests)
+    .filter(request => !request.deleted);
   
   // Calculate metrics based on role
   const getMetrics = () => {

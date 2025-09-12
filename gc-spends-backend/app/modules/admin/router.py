@@ -17,7 +17,7 @@ def get_system_statistics(db: Session = Depends(get_db)):
     total_users = db.query(User).count()
     active_users = db.query(User).filter(User.is_active == True).count()
     total_roles = db.query(Role).count()
-    total_requests = db.query(PaymentRequest).count()
+    total_requests = db.query(PaymentRequest).filter(PaymentRequest.deleted == False).count()
     
     # Simple health check - in production this would be more sophisticated
     system_health = "healthy" if total_users > 0 else "warning"
@@ -434,7 +434,7 @@ def bulk_delete_users(payload: schemas.BulkUserDelete, db: Session = Depends(get
             if user:
                 # Check if user has any payment requests
                 payment_requests_count = db.query(PaymentRequest).filter(
-                    PaymentRequest.created_by_user_id == user_id
+                    and_(PaymentRequest.created_by_user_id == user_id, PaymentRequest.deleted == False)
                 ).count()
                 
                 if payment_requests_count > 0:

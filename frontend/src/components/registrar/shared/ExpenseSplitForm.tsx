@@ -41,6 +41,8 @@ interface ExpenseSplitFormProps {
   initialSplits?: ExpenseSplit[];
   showValidation?: boolean;
   className?: string;
+  isSplitMode?: boolean; // New prop to indicate if this is for splitting a request
+  onSplitRequest?: (splits: Omit<ExpenseSplit, 'id' | 'requestId'>[]) => void; // Callback for split action
 }
 
 export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
@@ -49,7 +51,9 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
   onSplitsChange,
   initialSplits,
   showValidation = true,
-  className = ''
+  className = '',
+  isSplitMode = false,
+  onSplitRequest
 }) => {
   const {
     splits,
@@ -59,7 +63,7 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
     removeSplit,
     updateSplit,
     validationErrors
-  } = useExpenseSplits({ request, initialSplits });
+  } = useExpenseSplits({ request, initialSplits, isSplitMode });
 
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
   
@@ -95,12 +99,28 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
     return item ? item.name : 'Не выбрано';
   };
 
+  const handleSplitRequest = () => {
+    if (splits.length < 2) {
+      toast.error('Для разделения заявки необходимо минимум 2 статьи расходов');
+      return;
+    }
+    
+    if (!isBalanced) {
+      toast.error('Сумма распределения должна равняться сумме заявки');
+      return;
+    }
+    
+    if (onSplitRequest) {
+      onSplitRequest(splits);
+    }
+  };
+
   return (
     <div className={`space-y-4 ${className}`}>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Распределение по статьям расходов
+            {isSplitMode ? 'Разделение заявки по статьям расходов' : 'Распределение по статьям расходов'}
             <Badge variant={isBalanced ? "default" : "destructive"}>
               Сумма: {formatCurrency(totalSplit, request.currency)}
             </Badge>
@@ -111,8 +131,17 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Сумма распределения ({formatCurrency(totalSplit, request.currency)}) 
+                Сумма {isSplitMode ? 'разделения' : 'распределения'} ({formatCurrency(totalSplit, request.currency)}) 
                 не равна сумме документа ({formatCurrency(request.amount, request.currency)})
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isSplitMode && splits.length < 2 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Для разделения заявки необходимо минимум 2 статьи расходов. Добавьте еще {2 - splits.length} статью.
               </AlertDescription>
             </Alert>
           )}
@@ -224,10 +253,22 @@ export const ExpenseSplitForm: React.FC<ExpenseSplitFormProps> = memo(({
             </div>
           ))}
 
-          <Button variant="outline" onClick={addSplit} className="w-full">
-            <Plus className="h-4 w-4 mr-2" />
-            Добавить статью расходов
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={addSplit} className="flex-1">
+              <Plus className="h-4 w-4 mr-2" />
+              Добавить статью расходов
+            </Button>
+            
+            {isSplitMode && onSplitRequest && (
+              <Button 
+                onClick={handleSplitRequest}
+                disabled={splits.length < 2 || !isBalanced}
+                className="flex-1"
+              >
+                Разделить заявку
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 

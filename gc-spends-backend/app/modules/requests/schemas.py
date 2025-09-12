@@ -92,6 +92,11 @@ class RequestOut(BaseModel):
     volume: str | None = None
     price_rate: str | None = None
     period: str | None = None
+    # Split request fields
+    original_request_id: uuid.UUID | None = None
+    split_sequence: int | None = None
+    is_split_request: bool = False
+    deleted: bool = False
 
 class RequestListOut(BaseModel):
     id: uuid.UUID
@@ -119,6 +124,11 @@ class RequestListOut(BaseModel):
     doc_date: date | None = None
     doc_type: str | None = None
     files: list[dict] | None = None
+    # Split request fields
+    original_request_id: uuid.UUID | None = None
+    split_sequence: int | None = None
+    is_split_request: bool = False
+    deleted: bool = False
 
 class RequestSubmit(BaseModel):
     comment: str | None = None

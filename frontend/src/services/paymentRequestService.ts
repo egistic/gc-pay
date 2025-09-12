@@ -37,7 +37,8 @@ export class PaymentRequestService {
     // Use adapter to normalize data
     try {
       const normalizedData = toFrontendRequestListItemList(backendResponse);
-      return normalizedData;
+      // Filter out deleted requests
+      return normalizedData.filter(request => !request.deleted);
     } catch (error) {
       console.error('Error normalizing data:', error);
       console.error('Backend response:', backendResponse);
@@ -50,7 +51,14 @@ export class PaymentRequestService {
     const backendResponse = await httpClient.get<BackendRequestOut>(endpoint);
     
     // Use adapter to normalize data
-    return toFrontendRequest(backendResponse);
+    const request = toFrontendRequest(backendResponse);
+    
+    // Return null if request is deleted
+    if (request.deleted) {
+      return null;
+    }
+    
+    return request;
   }
   
   static async create(request: Partial<PaymentRequest>): Promise<PaymentRequest> {
@@ -87,14 +95,14 @@ export class PaymentRequestService {
   }
   
   static async classify(
-    id: string, 
-    splits: ExpenseSplit[], 
+    id: string,
+    splits: ExpenseSplit[],
     comment?: string
   ): Promise<PaymentRequest> {
     const endpoint = API_CONFIG.endpoints.classifyRequest.replace(':id', id);
     
     // Map frontend expense splits to backend format
-    const expense_splits = splits.map(split => ({
+    const expense_splits = (splits || []).map(split => ({
       article_id: split.expenseItemId,
       amount: split.amount,
       comment: split.comment || null
@@ -150,7 +158,7 @@ export class PaymentRequestService {
     const endpoint = API_CONFIG.endpoints.sendToDistributor.replace(':id', id);
     
     // Map frontend expense splits to backend format
-    const expense_splits = splits.map(split => ({
+    const expense_splits = (splits || []).map(split => ({
       article_id: split.expenseItemId,
       amount: split.amount,
       comment: split.comment || null
