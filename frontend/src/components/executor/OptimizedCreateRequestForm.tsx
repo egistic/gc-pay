@@ -774,7 +774,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
                   <SelectContent>
                     {currencies.map((currency) => (
                       <SelectItem key={currency.code} value={currency.code}>
-                        {currency.code} - {currency.name || currency.code}
+                        {currency.name || currency.code}
                       </SelectItem>
                     ))}
                   </SelectContent>

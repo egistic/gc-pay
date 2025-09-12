@@ -235,7 +235,7 @@ export class DictionaryApiEndpoints {
       address: item.address || '',
       region: item.region || '',
       category: item.category,
-      is_active: item.is_active,
+      isActive: item.is_active, // Map snake_case to camelCase
       code: item.id, // Use ID as code for now
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -258,7 +258,7 @@ export class DictionaryApiEndpoints {
       address: response.address || '',
       region: response.region || '',
       category: response.category,
-      is_active: response.is_active,
+      isActive: response.is_active, // Map snake_case to camelCase
       code: response.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -342,11 +342,51 @@ export class DictionaryApiEndpoints {
     Promise.reject(new Error('Users dictionary is not supported'));
 
   // Currencies
-  getCurrencies = (): Promise<DictionaryItem[]> => 
-    this.apiClient.get('/dictionaries/currencies');
+  getCurrencies = async (): Promise<DictionaryItem[]> => {
+    const response = await this.apiClient.get('/dictionaries/currencies');
+    // Map backend response to frontend format
+    return response.map((item: any) => ({
+      id: item.code,
+      code: item.code,
+      name: this.getCurrencyName(item.code), // Get display name for currency
+      scale: item.scale,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'system',
+      updatedBy: 'system',
+      version: 1
+    }));
+  };
 
-  getCurrency = (code: string): Promise<DictionaryItem> => 
-    this.apiClient.get(`/dictionaries/currencies/${code}`);
+  getCurrency = async (code: string): Promise<DictionaryItem> => {
+    const response = await this.apiClient.get(`/dictionaries/currencies/${code}`);
+    // Map backend response to frontend format
+    return {
+      id: response.code,
+      code: response.code,
+      name: this.getCurrencyName(response.code),
+      scale: response.scale,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'system',
+      updatedBy: 'system',
+      version: 1
+    };
+  };
+
+  // Helper method to get currency display name
+  private getCurrencyName = (code: string): string => {
+    const currencyNames: Record<string, string> = {
+      'KZT': 'Казахстанский тенге',
+      'USD': 'Доллар США',
+      'EUR': 'Евро',
+      'RUB': 'Российский рубль',
+      'CNY': 'Китайский юань'
+    };
+    return currencyNames[code] || code;
+  };
 
   // VAT Rates
   getVatRates = (): Promise<DictionaryItem[]> => 
