@@ -18,6 +18,7 @@ import { PaymentRequestService } from '../../services/paymentRequestService';
 import { DistributionService } from '../../services/distributionService';
 import { NotificationService } from '../../services/notificationService';
 import { useExpenseSplits } from '../../hooks/useExpenseSplits';
+import { useAuth } from '../../context/AuthContext';
 
 
 interface ItemClassificationFormProps {
@@ -28,6 +29,9 @@ interface ItemClassificationFormProps {
 }
 
 export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }: ItemClassificationFormProps) {
+  // Get authentication context
+  const { user } = useAuth();
+  
   // Get dictionary data
   const { items: expenseItems, state: expenseItemsState } = useDictionaries('expense-articles');
   const { items: counterparties, state: counterpartiesState } = useDictionaries('counterparties');
@@ -126,7 +130,7 @@ export function ItemClassificationForm({ request, onSubmit, onReturn, onCancel }
         const parallelDistributionData: ParallelDistributionCreate = {
           requestId: splitRequestId, // Use split request ID
           subRegistrarId: subRegistrarId,
-          distributorId: '10756640-8f37-4cd2-84da-f9d1e3c16c70', // TODO: Get from user context
+          distributorId: user?.id || '', // Use authenticated user ID
           expenseSplits: subRegistrarSplits.map(split => ({
             expenseItemId: split.expenseItemId,
             amount: split.amount,

@@ -68,7 +68,7 @@ export function AppRouter() {
   // Removed useApiOperations - using useRoleSync and direct service calls instead
   const { handleRoleChange } = useRoleManagement();
   const { handleCreateRequest, handleViewRequest, handleRequestUpdate } = useRequestHandling();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
   // Show login page if not authenticated
   if (authLoading) {
@@ -225,7 +225,7 @@ export function AppRouter() {
             return (
               <RoleBasedRouter userRole={state.currentRole} currentPage="sub-registrar-assignments">
                 <SubRegistrarDashboard
-                  currentUserId="6c626090-ab4a-44c2-a16d-01b73423557b" // Айгуль Нурланова
+                  currentUserId={user?.id || ''} // Use authenticated user ID
                 />
               </RoleBasedRouter>
             );
@@ -286,7 +286,7 @@ export function AppRouter() {
                 />
               ) : state.currentRole === 'SUB_REGISTRAR' ? (
                 <SubRegistrarDashboard
-                  currentUserId="6c626090-ab4a-44c2-a16d-01b73423557b" // Айгуль Нурланова
+                  currentUserId={user?.id || ''} // Use authenticated user ID
                 />
               ) : (
                 <RequestsList

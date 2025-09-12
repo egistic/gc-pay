@@ -81,11 +81,17 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
             if not line.currency_code:
                 raise HTTPException(status_code=400, detail="Currency code is required for line items")
             
+            # Get appropriate positions for different roles
+            # For now, use the same position for all roles, but this can be enhanced later
+            # to assign different positions based on business logic
+            registrar_position_id = line.executor_position_id
+            distributor_position_id = line.executor_position_id
+            
             db.add(PaymentRequestLine(
                 request_id=req.id,
                 executor_position_id=line.executor_position_id,
-                registrar_position_id=line.executor_position_id,  # placeholder: assign later via responsibility
-                distributor_position_id=line.executor_position_id, # placeholder
+                registrar_position_id=registrar_position_id,
+                distributor_position_id=distributor_position_id,
                 quantity=line.quantity,
                 amount_net=line.amount_net,
                 vat_rate_id=line.vat_rate_id,

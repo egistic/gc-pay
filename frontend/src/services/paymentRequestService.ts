@@ -198,12 +198,15 @@ export class PaymentRequestService {
     try {
       // Try positions endpoint first
       const response = await httpClient.get<any[]>('/api/v1/positions');
-      const executorPosition = response.find(position => position.title === 'Исполнитель');
-      return executorPosition?.id || "27a48e7e-0e8b-4124-95b1-a37e6ae2bbb6"; // fallback to existing hardcoded ID
+      const executorPosition = response.find(position => 
+        position.title === 'Executor' || 
+        position.title === 'Исполнитель'
+      );
+      return executorPosition?.id || "c7b61f23-6c57-4649-bb9e-0d9deef0c173"; // fallback to new Executor position ID
     } catch (error) {
       console.warn('Failed to fetch positions, using fallback ID. This is expected if positions endpoint requires authentication:', error);
-      // Return the known working executor position ID as fallback
-      return "27a48e7e-0e8b-4124-95b1-a37e6ae2bbb6"; // fallback to existing hardcoded ID (known to exist)
+      // Return the new Executor position ID as fallback
+      return "c7b61f23-6c57-4649-bb9e-0d9deef0c173"; // fallback to new Executor position ID
     }
   }
 

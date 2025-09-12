@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { useAutoSaveDraft } from '../../features/payment-requests/hooks/useAutoSaveDraft';
 import { buildDocumentFileName } from '../../features/payment-requests/lib/buildDocumentFileName';
 import { STATUS_MAP } from '../../features/payment-requests/constants/status-map';
+import { useAuth } from '../../context/AuthContext';
 
 interface OptimizedCreateRequestFormProps {
   onSubmit: (request: Partial<PaymentRequest>) => void;
@@ -39,6 +40,9 @@ interface OptimizedCreateRequestFormProps {
 }
 
 export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, initialData, isEditing, selectedRequestId }: OptimizedCreateRequestFormProps) {
+  // Get authentication context
+  const { user } = useAuth();
+  
   // Get dictionary data from real API (without statistics)
   const { items: counterparties } = useDictionaryData('counterparties');
   const { items: currencies } = useDictionaryData('currencies');
@@ -158,7 +162,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
       docFileUrl: formData.docFileUrl,
       files: formData.files || [],
       status: autoSaveStatus, // Dynamic status - prevents saving after submit
-      createdBy: '3394830b-1b62-4db4-a6e4-fdf76b5033f5', // This should come from auth context
+      createdBy: user?.id || '', // Use authenticated user ID
       history: [],
       expenseSplits: [],
       paymentAllocations: [],
@@ -214,7 +218,7 @@ export function OptimizedCreateRequestForm({ onSubmit, onCancel, onSaveDraft, in
           id: Date.now().toString(),
           date: new Date().toISOString(),
           action: isDraft ? 'Черновик сохранен' : 'Заявка отправлена на рассмотрение',
-          userId: '3394830b-1b62-4db4-a6e4-fdf76b5033f5',
+          userId: user?.id || '',
           role: 'EXECUTOR'
         }
       ],
