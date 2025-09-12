@@ -182,7 +182,7 @@ class PaymentRequestLine(Base):
     __tablename__ = "payment_request_lines"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
-    article_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("expense_articles.id"))
+    article_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("expense_articles.id"), nullable=True)
     executor_position_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("positions.id"))
     registrar_position_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("positions.id"))
     distributor_position_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("positions.id"))

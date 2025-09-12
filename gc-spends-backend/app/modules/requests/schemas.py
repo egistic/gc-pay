@@ -4,7 +4,6 @@ from datetime import date, datetime
 from typing import List, Optional
 
 class RequestLineIn(BaseModel):
-    article_id: uuid.UUID
     executor_position_id: uuid.UUID
     quantity: float = Field(gt=0)
     amount_net: float = Field(ge=0)

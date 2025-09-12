@@ -70,8 +70,6 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
         total = 0
         for line in payload.lines:
             # Validate line data
-            if not line.article_id:
-                raise HTTPException(status_code=400, detail="Article ID is required for line items")
             if not line.executor_position_id:
                 raise HTTPException(status_code=400, detail="Executor position ID is required for line items")
             if line.quantity <= 0:
@@ -85,7 +83,6 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
             
             db.add(PaymentRequestLine(
                 request_id=req.id,
-                article_id=line.article_id,
                 executor_position_id=line.executor_position_id,
                 registrar_position_id=line.executor_position_id,  # placeholder: assign later via responsibility
                 distributor_position_id=line.executor_position_id, # placeholder

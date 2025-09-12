@@ -192,6 +192,32 @@ export class PaymentRequestService {
     }
   }
 
+  // Helper methods to get dynamic IDs from dictionaries
+
+  private static async getExecutorPositionId(): Promise<string> {
+    try {
+      // Try positions endpoint first
+      const response = await httpClient.get<any[]>('/api/v1/positions');
+      const executorPosition = response.find(position => position.title === 'Исполнитель');
+      return executorPosition?.id || "27a48e7e-0e8b-4124-95b1-a37e6ae2bbb6"; // fallback to existing hardcoded ID
+    } catch (error) {
+      console.warn('Failed to fetch positions, using fallback ID. This is expected if positions endpoint requires authentication:', error);
+      // Return the known working executor position ID as fallback
+      return "27a48e7e-0e8b-4124-95b1-a37e6ae2bbb6"; // fallback to existing hardcoded ID (known to exist)
+    }
+  }
+
+  private static async getDefaultVatRateId(): Promise<string> {
+    try {
+      const response = await httpClient.get<any[]>('/api/v1/dictionaries/vat-rates');
+      const zeroVatRate = response.find(rate => rate.rate === 0);
+      return zeroVatRate?.id || "55689349-dfc3-42ce-8f86-e473e2e00477"; // fallback to existing hardcoded ID
+    } catch (error) {
+      console.warn('Failed to fetch VAT rates, using fallback ID:', error);
+      return "55689349-dfc3-42ce-8f86-e473e2e00477"; // fallback to existing hardcoded ID
+    }
+  }
+
   // Map frontend PaymentRequest to backend format
   private static async mapFrontendToBackend(request: Partial<PaymentRequest>): Promise<any> {
     
@@ -212,17 +238,22 @@ export class PaymentRequestService {
       request.period && `Период: ${request.period}`
     ].filter(Boolean).join(', '); // Use comma separator instead of newline
 
+    // Get dynamic IDs from dictionaries
+    const [executorPositionId, vatRateId] = await Promise.all([
+      this.getExecutorPositionId(),
+      this.getDefaultVatRateId()
+    ]);
+
     // Create a single line item from the frontend data
     const lines = [];
     
     // Create a line item if amount exists and is greater than 0, or if it's a draft
     if ((request.amount !== undefined && request.amount !== null && amount > 0) || request.status === 'draft') {
       lines.push({
-        article_id: "8e1ff15d-79ea-48a6-ba30-59f64dcc9f6d", // First available expense article ID
-        executor_position_id: "27a48e7e-0e8b-4124-95b1-a37e6ae2bbb6", // Исполнитель position ID
+        executor_position_id: executorPositionId, // Dynamic executor position ID
         quantity: 1, // Default quantity
         amount_net: amount || 0, // Use properly converted amount, default to 0 for drafts
-        vat_rate_id: "55689349-dfc3-42ce-8f86-e473e2e00477", // 0% VAT rate ID
+        vat_rate_id: vatRateId, // Dynamic VAT rate ID
         currency_code: request.currency || 'KZT',
         note: description || 'Черновик заявки' // Use concatenated description
       });
