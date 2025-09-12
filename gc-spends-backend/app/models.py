@@ -43,6 +43,9 @@ class Position(Base):
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    
+    # Relationships
+    department: Mapped["Department"] = relationship("Department")
 
 class UserRole(Base):
     __tablename__ = "user_roles"

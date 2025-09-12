@@ -1,5 +1,6 @@
 import { httpClient, API_CONFIG } from './httpClient';
 import { Position, Department } from '../types';
+import { PositionService, PositionOut, DepartmentOut, PositionCreate, PositionUpdate, DepartmentCreate, DepartmentUpdate, UserPositionAssign, UserPositionOut } from './positionService';
 
 // Admin-specific types
 export interface SystemStatistics {
@@ -60,8 +61,8 @@ export interface UserWithRoles {
   phone?: string;
   is_active: boolean;
   roles: RoleOut[];
-  position?: Position;
-  department?: Department;
+  position?: PositionOut;
+  department?: DepartmentOut;
   created_at: string;
   updated_at?: string;
 }
@@ -153,5 +154,54 @@ export class AdminService {
 
   static async getRoleUsage(roleId: string): Promise<RoleUsage> {
     return httpClient.get<RoleUsage>(`/api/v1/admin/roles/${roleId}/usage`);
+  }
+
+  // Position and Department Management (delegated to PositionService)
+  static async getDepartments(): Promise<DepartmentOut[]> {
+    return PositionService.getDepartments();
+  }
+
+  static async createDepartment(department: DepartmentCreate): Promise<DepartmentOut> {
+    return PositionService.createDepartment(department);
+  }
+
+  static async updateDepartment(departmentId: string, department: DepartmentUpdate): Promise<DepartmentOut> {
+    return PositionService.updateDepartment(departmentId, department);
+  }
+
+  static async deleteDepartment(departmentId: string): Promise<void> {
+    return PositionService.deleteDepartment(departmentId);
+  }
+
+  static async getPositions(): Promise<PositionOut[]> {
+    return PositionService.getPositions();
+  }
+
+  static async getPosition(positionId: string): Promise<PositionOut> {
+    return PositionService.getPosition(positionId);
+  }
+
+  static async createPosition(position: PositionCreate): Promise<PositionOut> {
+    return PositionService.createPosition(position);
+  }
+
+  static async updatePosition(positionId: string, position: PositionUpdate): Promise<PositionOut> {
+    return PositionService.updatePosition(positionId, position);
+  }
+
+  static async deletePosition(positionId: string): Promise<void> {
+    return PositionService.deletePosition(positionId);
+  }
+
+  static async assignUserToPosition(positionId: string, assignment: UserPositionAssign): Promise<UserPositionOut> {
+    return PositionService.assignUserToPosition(positionId, assignment);
+  }
+
+  static async getPositionUsers(positionId: string): Promise<UserPositionOut[]> {
+    return PositionService.getPositionUsers(positionId);
+  }
+
+  static async removeUserFromPosition(assignmentId: string): Promise<void> {
+    return PositionService.removeUserFromPosition(assignmentId);
   }
 }

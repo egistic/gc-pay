@@ -88,6 +88,20 @@ class RoleStatistics(BaseModel):
     most_used_role: Optional[str] = None
     least_used_role: Optional[str] = None
 
+# Position and Department schemas
+class DepartmentOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    code: str
+
+class PositionOut(BaseModel):
+    id: uuid.UUID
+    department_id: uuid.UUID
+    title: str
+    description: Optional[str] = None
+    is_active: bool = True
+    department: Optional[DepartmentOut] = None
+
 # User with Roles (extended)
 class UserWithRoles(BaseModel):
     id: uuid.UUID
@@ -96,6 +110,8 @@ class UserWithRoles(BaseModel):
     phone: Optional[str] = None
     is_active: bool
     roles: List['RoleOut'] = []
+    position: Optional[PositionOut] = None
+    department: Optional[DepartmentOut] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

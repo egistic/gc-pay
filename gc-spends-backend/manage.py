@@ -1,4 +1,4 @@
-import sys, os, uuid, pandas as pd
+import sys, os, uuid
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from app.core.config import settings

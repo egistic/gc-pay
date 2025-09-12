@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -82,34 +82,29 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
   const loadPositions = async () => {
     setLoading(true);
     try {
-      // This would be replaced with actual API call
-      const mockPositions: PositionWithDepartment[] = [
-        {
-          id: '1',
-          name: 'Менеджер по закупкам',
-          code: 'PURCH_MGR',
-          department_id: '1',
-          department: { id: '1', name: 'Отдел закупок', code: 'PURCH' },
-          userCount: 3
-        },
-        {
-          id: '2',
-          name: 'Финансовый аналитик',
-          code: 'FIN_ANALYST',
-          department_id: '2',
-          department: { id: '2', name: 'Финансовый отдел', code: 'FIN' },
-          userCount: 2
-        },
-        {
-          id: '3',
-          name: 'Регистратор',
-          code: 'REGISTRAR',
-          department_id: '3',
-          department: { id: '3', name: 'Отдел регистрации', code: 'REG' },
-          userCount: 1
-        }
-      ];
-      setPositions(mockPositions);
+      const data = await AdminService.getPositions();
+      const positionsWithCounts: PositionWithDepartment[] = await Promise.all(
+        data.map(async (position) => {
+          try {
+            const users = await AdminService.getPositionUsers(position.id);
+            return {
+              ...position,
+              name: position.title, // Map title to name for compatibility
+              code: position.title, // Use title as code for now
+              userCount: users.length
+            };
+          } catch (error) {
+            console.warn(`Error loading users for position ${position.id}:`, error);
+            return {
+              ...position,
+              name: position.title,
+              code: position.title,
+              userCount: 0
+            };
+          }
+        })
+      );
+      setPositions(positionsWithCounts);
     } catch (error) {
       console.error('Error loading positions:', error);
     } finally {
@@ -119,37 +114,45 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
 
   const loadDepartments = async () => {
     try {
-      // This would be replaced with actual API call
-      const mockDepartments: DepartmentWithPositions[] = [
-        {
-          id: '1',
-          name: 'Отдел закупок',
-          code: 'PURCH',
-          positions: [
-            { id: '1', name: 'Менеджер по закупкам', code: 'PURCH_MGR', department_id: '1' }
-          ],
-          userCount: 3
-        },
-        {
-          id: '2',
-          name: 'Финансовый отдел',
-          code: 'FIN',
-          positions: [
-            { id: '2', name: 'Финансовый аналитик', code: 'FIN_ANALYST', department_id: '2' }
-          ],
-          userCount: 2
-        },
-        {
-          id: '3',
-          name: 'Отдел регистрации',
-          code: 'REG',
-          positions: [
-            { id: '3', name: 'Регистратор', code: 'REGISTRAR', department_id: '3' }
-          ],
-          userCount: 1
-        }
-      ];
-      setDepartments(mockDepartments);
+      const data = await AdminService.getDepartments();
+      const departmentsWithPositions: DepartmentWithPositions[] = await Promise.all(
+        data.map(async (department) => {
+          try {
+            // Get positions for this department
+            const allPositions = await AdminService.getPositions();
+            const departmentPositions = allPositions.filter(pos => pos.department_id === department.id);
+            
+            // Calculate total user count for this department
+            let totalUserCount = 0;
+            for (const position of departmentPositions) {
+              try {
+                const users = await AdminService.getPositionUsers(position.id);
+                totalUserCount += users.length;
+              } catch (error) {
+                console.warn(`Error loading users for position ${position.id}:`, error);
+              }
+            }
+            
+            return {
+              ...department,
+              positions: departmentPositions.map(pos => ({
+                ...pos,
+                name: pos.title,
+                code: pos.title
+              })),
+              userCount: totalUserCount
+            };
+          } catch (error) {
+            console.warn(`Error loading positions for department ${department.id}:`, error);
+            return {
+              ...department,
+              positions: [],
+              userCount: 0
+            };
+          }
+        })
+      );
+      setDepartments(departmentsWithPositions);
     } catch (error) {
       console.error('Error loading departments:', error);
     }
@@ -203,8 +206,12 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
 
   const handleCreatePosition = async () => {
     try {
-      // This would be replaced with actual API call
-      console.log('Creating position:', positionForm);
+      await AdminService.createPosition({
+        department_id: positionForm.department_id,
+        title: positionForm.name,
+        description: positionForm.code, // Use code as description
+        is_active: true
+      });
       setShowCreatePositionDialog(false);
       setPositionForm({ name: '', code: '', department_id: '' });
       loadPositions();
@@ -215,8 +222,10 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
 
   const handleCreateDepartment = async () => {
     try {
-      // This would be replaced with actual API call
-      console.log('Creating department:', departmentForm);
+      await AdminService.createDepartment({
+        name: departmentForm.name,
+        code: departmentForm.code
+      });
       setShowCreateDepartmentDialog(false);
       setDepartmentForm({ name: '', code: '' });
       loadDepartments();
@@ -248,8 +257,12 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
     if (!editingPosition) return;
     
     try {
-      // This would be replaced with actual API call
-      console.log('Updating position:', editingPosition.id, positionForm);
+      await AdminService.updatePosition(editingPosition.id, {
+        department_id: positionForm.department_id,
+        title: positionForm.name,
+        description: positionForm.code,
+        is_active: true
+      });
       setShowEditPositionDialog(false);
       setEditingPosition(null);
       loadPositions();
@@ -262,8 +275,10 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
     if (!editingDepartment) return;
     
     try {
-      // This would be replaced with actual API call
-      console.log('Updating department:', editingDepartment.id, departmentForm);
+      await AdminService.updateDepartment(editingDepartment.id, {
+        name: departmentForm.name,
+        code: departmentForm.code
+      });
       setShowEditDepartmentDialog(false);
       setEditingDepartment(null);
       loadDepartments();
@@ -276,8 +291,7 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
     if (selectedPositions.length === 0) return;
     
     try {
-      // This would be replaced with actual API call
-      console.log('Deleting positions:', selectedPositions);
+      await Promise.all(selectedPositions.map(id => AdminService.deletePosition(id)));
       setSelectedPositions([]);
       loadPositions();
     } catch (error) {
@@ -289,8 +303,7 @@ export function PositionManagement({ onBack }: PositionManagementProps) {
     if (selectedDepartments.length === 0) return;
     
     try {
-      // This would be replaced with actual API call
-      console.log('Deleting departments:', selectedDepartments);
+      await Promise.all(selectedDepartments.map(id => AdminService.deleteDepartment(id)));
       setSelectedDepartments([]);
       loadDepartments();
     } catch (error) {

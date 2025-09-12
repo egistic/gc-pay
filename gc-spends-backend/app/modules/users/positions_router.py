@@ -328,21 +328,13 @@ def assign_user_to_position(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
-    # Проверяем, что пользователь уже не назначен на эту позицию в указанный период
-    existing = db.query(UserPosition).filter(
-        and_(
-            UserPosition.user_id == assignment.user_id,
-            UserPosition.position_id == position_id,
-            UserPosition.valid_from <= assignment.valid_from,
-            UserPosition.valid_to.is_(None) | (UserPosition.valid_to >= assignment.valid_from)
-        )
-    ).first()
+    # Удаляем существующие назначения пользователя на любые позиции
+    existing_assignments = db.query(UserPosition).filter(
+        UserPosition.user_id == assignment.user_id
+    ).all()
     
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already assigned to this position in the specified period"
-        )
+    for existing in existing_assignments:
+        db.delete(existing)
     
     # Создаем новое назначение
     new_assignment = UserPosition(
@@ -356,11 +348,8 @@ def assign_user_to_position(
     db.commit()
     db.refresh(new_assignment)
     
-    # Загружаем связанные объекты
-    new_assignment = db.query(UserPosition).options(
-        joinedload(UserPosition.user),
-        joinedload(UserPosition.position)
-    ).filter(UserPosition.id == new_assignment.id).first()
+    # Загружаем связанные объекты отдельно
+    user = db.query(User).filter(User.id == assignment.user_id).first()
     
     return UserPositionOut(
         id=new_assignment.id,
@@ -369,15 +358,15 @@ def assign_user_to_position(
         valid_from=new_assignment.valid_from,
         valid_to=new_assignment.valid_to,
         user={
-            "id": str(new_assignment.user.id),
-            "full_name": new_assignment.user.full_name,
-            "email": new_assignment.user.email
-        } if new_assignment.user else None,
+            "id": str(user.id),
+            "full_name": user.full_name,
+            "email": user.email
+        } if user else None,
         position={
-            "id": str(new_assignment.position.id),
-            "title": new_assignment.position.title,
-            "description": new_assignment.position.description
-        } if new_assignment.position else None
+            "id": str(position.id),
+            "title": position.title,
+            "description": position.description
+        }
     )
 
 @router.get("/{position_id}/users", response_model=List[UserPositionOut])
@@ -392,13 +381,13 @@ def get_position_users(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Position not found")
     
     # Получаем все назначения пользователей на позицию
-    assignments = db.query(UserPosition).options(
-        joinedload(UserPosition.user),
-        joinedload(UserPosition.position)
-    ).filter(UserPosition.position_id == position_id).all()
+    assignments = db.query(UserPosition).filter(UserPosition.position_id == position_id).all()
     
     result = []
     for assignment in assignments:
+        # Загружаем пользователя отдельно
+        user = db.query(User).filter(User.id == assignment.user_id).first()
+        
         result.append(UserPositionOut(
             id=assignment.id,
             user_id=assignment.user_id,
@@ -406,15 +395,15 @@ def get_position_users(
             valid_from=assignment.valid_from,
             valid_to=assignment.valid_to,
             user={
-                "id": str(assignment.user.id),
-                "full_name": assignment.user.full_name,
-                "email": assignment.user.email
-            } if assignment.user else None,
+                "id": str(user.id),
+                "full_name": user.full_name,
+                "email": user.email
+            } if user else None,
             position={
-                "id": str(assignment.position.id),
-                "title": assignment.position.title,
-                "description": assignment.position.description
-            } if assignment.position else None
+                "id": str(position.id),
+                "title": position.title,
+                "description": position.description
+            }
         ))
     
     return result

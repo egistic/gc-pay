@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, func, desc, or_
 from app.core.db import get_db
-from app.models import User, Role, UserRole, PaymentRequest
+from app.models import User, Role, UserRole, PaymentRequest, Position, Department, UserPosition
 from . import schemas
 import uuid
 from datetime import date, datetime, timedelta
@@ -132,6 +132,45 @@ def search_users(
                     updated_at=role_obj.updated_at
                 ))
         
+        # Get user position
+        user_position = db.query(UserPosition).filter(
+            and_(
+                UserPosition.user_id == user.id,
+                UserPosition.valid_from <= date.today(),
+                UserPosition.valid_to.is_(None) | (UserPosition.valid_to >= date.today())
+            )
+        ).first()
+        
+        position = None
+        department = None
+        
+        if user_position:
+            position_obj = db.query(Position).filter(Position.id == user_position.position_id).first()
+            if position_obj:
+                # Get department for position
+                department_obj = db.query(Department).filter(Department.id == position_obj.department_id).first()
+                
+                position = schemas.PositionOut(
+                    id=position_obj.id,
+                    department_id=position_obj.department_id,
+                    title=position_obj.title,
+                    description=position_obj.description,
+                    is_active=position_obj.is_active,
+                    department=schemas.DepartmentOut(
+                        id=department_obj.id,
+                        name=department_obj.name,
+                        code=department_obj.code
+                    ) if department_obj else None
+                )
+                
+                # Set department from position
+                if department_obj:
+                    department = schemas.DepartmentOut(
+                        id=department_obj.id,
+                        name=department_obj.name,
+                        code=department_obj.code
+                    )
+        
         result.append(schemas.UserWithRoles(
             id=user.id,
             full_name=user.full_name,
@@ -139,6 +178,8 @@ def search_users(
             phone=user.phone,
             is_active=user.is_active,
             roles=roles,
+            position=position,
+            department=department,
             created_at=user.created_at or datetime.now(),
             updated_at=user.updated_at
         ))
@@ -188,6 +229,45 @@ def get_users_by_role(role_code: str, db: Session = Depends(get_db)):
                         updated_at=role_obj.updated_at
                     ))
             
+            # Get user position
+            user_position = db.query(UserPosition).filter(
+                and_(
+                    UserPosition.user_id == user.id,
+                    UserPosition.valid_from <= date.today(),
+                    UserPosition.valid_to.is_(None) | (UserPosition.valid_to >= date.today())
+                )
+            ).first()
+            
+            position = None
+            department = None
+            
+            if user_position:
+                position_obj = db.query(Position).filter(Position.id == user_position.position_id).first()
+                if position_obj:
+                    # Get department for position
+                    department_obj = db.query(Department).filter(Department.id == position_obj.department_id).first()
+                    
+                    position = schemas.PositionOut(
+                        id=position_obj.id,
+                        department_id=position_obj.department_id,
+                        title=position_obj.title,
+                        description=position_obj.description,
+                        is_active=position_obj.is_active,
+                        department=schemas.DepartmentOut(
+                            id=department_obj.id,
+                            name=department_obj.name,
+                            code=department_obj.code
+                        ) if department_obj else None
+                    )
+                    
+                    # Set department from position
+                    if department_obj:
+                        department = schemas.DepartmentOut(
+                            id=department_obj.id,
+                            name=department_obj.name,
+                            code=department_obj.code
+                        )
+            
             result.append(schemas.UserWithRoles(
                 id=user.id,
                 full_name=user.full_name,
@@ -195,6 +275,8 @@ def get_users_by_role(role_code: str, db: Session = Depends(get_db)):
                 phone=user.phone,
                 is_active=user.is_active,
                 roles=roles,
+                position=position,
+                department=department,
                 created_at=user.created_at or datetime.now(),
                 updated_at=user.updated_at
             ))

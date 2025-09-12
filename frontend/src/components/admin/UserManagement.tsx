@@ -14,6 +14,7 @@ import { AdminService, UserWithRoles, UserSearchParams, UserCreate, UserUpdate }
 import { RoleService, Role } from '../../services/roleService';
 import { expenseArticleRoleService } from '../../services/expenseArticleRoleService';
 import { Position, Department } from '../../types';
+import { PositionService, PositionOut, DepartmentOut, UserPositionAssign } from '../../services/positionService';
 
 interface UserManagementProps {
   onBack: () => void;
@@ -53,8 +54,8 @@ export function UserManagement({ onBack }: UserManagementProps) {
   });
   const [showExpenseArticleDialog, setShowExpenseArticleDialog] = useState(false);
   const [selectedUserForExpenseArticle, setSelectedUserForExpenseArticle] = useState<UserWithRoles | null>(null);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [positions, setPositions] = useState<PositionOut[]>([]);
+  const [departments, setDepartments] = useState<DepartmentOut[]>([]);
   const [showPositionDialog, setShowPositionDialog] = useState(false);
   const [showDepartmentDialog, setShowDepartmentDialog] = useState(false);
   const [selectedUserForPosition, setSelectedUserForPosition] = useState<UserWithRoles | null>(null);
@@ -106,13 +107,8 @@ export function UserManagement({ onBack }: UserManagementProps) {
 
   const loadPositions = async () => {
     try {
-      // This would be replaced with actual API call
-      const mockPositions: Position[] = [
-        { id: '1', name: 'Менеджер по закупкам', code: 'PURCH_MGR', department_id: '1' },
-        { id: '2', name: 'Финансовый аналитик', code: 'FIN_ANALYST', department_id: '2' },
-        { id: '3', name: 'Регистратор', code: 'REGISTRAR', department_id: '3' }
-      ];
-      setPositions(mockPositions);
+      const data = await PositionService.getPositions();
+      setPositions(data);
     } catch (error) {
       console.error('Error loading positions:', error);
     }
@@ -120,13 +116,8 @@ export function UserManagement({ onBack }: UserManagementProps) {
 
   const loadDepartments = async () => {
     try {
-      // This would be replaced with actual API call
-      const mockDepartments: Department[] = [
-        { id: '1', name: 'Отдел закупок', code: 'PURCH' },
-        { id: '2', name: 'Финансовый отдел', code: 'FIN' },
-        { id: '3', name: 'Отдел регистрации', code: 'REG' }
-      ];
-      setDepartments(mockDepartments);
+      const data = await PositionService.getDepartments();
+      setDepartments(data);
     } catch (error) {
       console.error('Error loading departments:', error);
     }
@@ -256,18 +247,31 @@ export function UserManagement({ onBack }: UserManagementProps) {
     setShowPositionDialog(true);
   };
 
+  const handlePositionChange = (positionId: string) => {
+    const selectedPosition = positions.find(p => p.id === positionId);
+    setPositionForm(prev => ({
+      ...prev,
+      position_id: positionId,
+      department_id: selectedPosition?.department_id || 'none'
+    }));
+  };
+
   const handleAssignPosition = async () => {
     if (!selectedUserForPosition) return;
     
     try {
-      // Convert "none" values to null for API
-      const positionData = {
-        position_id: positionForm.position_id === 'none' ? null : positionForm.position_id,
-        department_id: positionForm.department_id === 'none' ? null : positionForm.department_id
-      };
+      // If a position is selected, assign user to position
+      if (positionForm.position_id !== 'none') {
+        const assignment: UserPositionAssign = {
+          user_id: selectedUserForPosition.id,
+          position_id: positionForm.position_id,
+          valid_from: new Date().toISOString().split('T')[0], // Today's date
+          valid_to: undefined // No end date
+        };
+        
+        await PositionService.assignUserToPosition(positionForm.position_id, assignment);
+      }
       
-      // This would be replaced with actual API call
-      console.log('Assigning position:', selectedUserForPosition.id, positionData);
       setShowPositionDialog(false);
       setSelectedUserForPosition(null);
       loadUsers();
@@ -352,7 +356,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
                     <SelectItem value="all">Все позиции</SelectItem>
                     {positions.map(position => (
                       <SelectItem key={position.id} value={position.id}>
-                        {position.name}
+                        {position.title} {position.department ? `(${position.department.name})` : ''}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -552,7 +556,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
                     <TableCell>
                       {user.position ? (
                         <Badge variant="outline">
-                          {user.position.name}
+                          {user.position.title}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground">Не назначена</span>
@@ -725,7 +729,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
           <div className="space-y-4">
             <div>
               <Label htmlFor="position-select">Позиция</Label>
-              <Select value={positionForm.position_id} onValueChange={(value) => setPositionForm(prev => ({ ...prev, position_id: value }))}>
+              <Select value={positionForm.position_id} onValueChange={handlePositionChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите позицию" />
                 </SelectTrigger>
@@ -733,7 +737,7 @@ export function UserManagement({ onBack }: UserManagementProps) {
                   <SelectItem value="none">Без позиции</SelectItem>
                   {positions.map(position => (
                     <SelectItem key={position.id} value={position.id}>
-                      {position.name} ({position.code})
+                      {position.title} {position.department ? `(${position.department.name})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -741,9 +745,9 @@ export function UserManagement({ onBack }: UserManagementProps) {
             </div>
             <div>
               <Label htmlFor="department-select">Департамент</Label>
-              <Select value={positionForm.department_id} onValueChange={(value) => setPositionForm(prev => ({ ...prev, department_id: value }))}>
+              <Select value={positionForm.department_id} onValueChange={(value) => setPositionForm(prev => ({ ...prev, department_id: value }))} disabled>
                 <SelectTrigger>
-                  <SelectValue placeholder="Выберите департамент" />
+                  <SelectValue placeholder="Автоматически привязан к позиции" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Без департамента</SelectItem>
@@ -754,6 +758,9 @@ export function UserManagement({ onBack }: UserManagementProps) {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-sm text-muted-foreground mt-1">
+                Департамент автоматически привязывается к выбранной позиции
+              </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowPositionDialog(false)}>
