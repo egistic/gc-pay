@@ -89,6 +89,7 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
             
             db.add(PaymentRequestLine(
                 request_id=req.id,
+                article_id=None,  # Not required at creation time
                 executor_position_id=line.executor_position_id,
                 registrar_position_id=registrar_position_id,
                 distributor_position_id=distributor_position_id,
@@ -703,7 +704,13 @@ def _get_request_with_lines(request_id: uuid.UUID, db: Session) -> schemas.Reque
         PaymentRequestLine.request_id == request_id
     ).all()
     
-    lines_data = [schemas.RequestLineOut.model_validate(line.__dict__) for line in lines]
+    lines_data = []
+    for line in lines:
+        line_dict = line.__dict__.copy()
+        # Ensure article_id is properly handled (can be None)
+        if 'article_id' not in line_dict or line_dict['article_id'] is None:
+            line_dict['article_id'] = None
+        lines_data.append(schemas.RequestLineOut.model_validate(line_dict))
     
     # Get request files
     from app.models import RequestFile

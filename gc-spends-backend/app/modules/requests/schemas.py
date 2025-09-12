@@ -53,7 +53,7 @@ class RequestUpdate(BaseModel):
 
 class RequestLineOut(BaseModel):
     id: uuid.UUID
-    article_id: uuid.UUID
+    article_id: uuid.UUID | None = None
     executor_position_id: uuid.UUID
     registrar_position_id: uuid.UUID
     distributor_position_id: uuid.UUID

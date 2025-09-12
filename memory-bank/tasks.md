@@ -25,6 +25,9 @@ This plan outlines the integration of real users, roles, and positions from the 
 - [x] **Updated OptimizedCreateRequestForm** to use authenticated user context
 - [x] **Updated AppRouter** to use authenticated user context
 - [x] **Updated ItemClassificationForm** to use authenticated user context
+- [x] **Fixed RequestLineOut schema** to make article_id optional
+- [x] **Updated request creation logic** to handle nullable article_id
+- [x] **Fixed _get_request_with_lines function** to properly handle None article_id
 
 ### Current Status
 - ✅ **Backend API**: Fully functional with position and department management
