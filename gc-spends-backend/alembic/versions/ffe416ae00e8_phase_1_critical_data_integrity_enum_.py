@@ -17,65 +17,45 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Phase 1.1: Create Enum Types (only if they don't exist)
-    # Check if payment_request_status exists, if not create it
+    # Phase 1.1: Drop and recreate enum types with new values
+    # Since we know the existing enums have different values, we'll drop and recreate them
+    
+    # Drop existing enum types (CASCADE will handle dependencies)
+    op.execute("DROP TYPE IF EXISTS payment_request_status CASCADE;")
+    op.execute("DROP TYPE IF EXISTS distribution_status CASCADE;")
+    op.execute("DROP TYPE IF EXISTS document_status CASCADE;")
+    op.execute("DROP TYPE IF EXISTS sub_registrar_assignment_status CASCADE;")
+    op.execute("DROP TYPE IF EXISTS contract_type CASCADE;")
+    
+    # Create new enum types with lowercase values
     op.execute("""
-        DO $$ 
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_request_status') THEN
-                CREATE TYPE payment_request_status AS ENUM (
-                    'draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled'
-                );
-            END IF;
-        END $$;
+        CREATE TYPE payment_request_status AS ENUM (
+            'draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled'
+        );
     """)
     
-    # Check if distribution_status exists, if not create it
     op.execute("""
-        DO $$ 
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'distribution_status') THEN
-                CREATE TYPE distribution_status AS ENUM (
-                    'pending', 'in_progress', 'completed', 'failed'
-                );
-            END IF;
-        END $$;
+        CREATE TYPE distribution_status AS ENUM (
+            'pending', 'in_progress', 'completed', 'failed'
+        );
     """)
     
-    # Check if document_status exists, if not create it
     op.execute("""
-        DO $$ 
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'document_status') THEN
-                CREATE TYPE document_status AS ENUM (
-                    'required', 'uploaded', 'verified', 'rejected'
-                );
-            END IF;
-        END $$;
+        CREATE TYPE document_status AS ENUM (
+            'required', 'uploaded', 'verified', 'rejected'
+        );
     """)
     
-    # Check if sub_registrar_assignment_status exists, if not create it
     op.execute("""
-        DO $$ 
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sub_registrar_assignment_status') THEN
-                CREATE TYPE sub_registrar_assignment_status AS ENUM (
-                    'assigned', 'in_progress', 'completed', 'rejected'
-                );
-            END IF;
-        END $$;
+        CREATE TYPE sub_registrar_assignment_status AS ENUM (
+            'assigned', 'in_progress', 'completed', 'rejected'
+        );
     """)
     
-    # Check if contract_type exists, if not create it
     op.execute("""
-        DO $$ 
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contract_type') THEN
-                CREATE TYPE contract_type AS ENUM (
-                    'general', 'export', 'service', 'supply'
-                );
-            END IF;
-        END $$;
+        CREATE TYPE contract_type AS ENUM (
+            'general', 'export', 'service', 'supply'
+        );
     """)
     
     # Phase 1.2: Create Exchange Rates Table

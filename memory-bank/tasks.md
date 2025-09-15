@@ -81,3 +81,40 @@
   - Status: ✅ COMPLETED
 
 ## Current Task
+
+- [x] [Level 1] Fix Alembic migration enum conflict (Completed: 2025-01-27)
+  - Task: Fix "type payment_request_status already exists" error in Alembic migration
+  - Problem: Migration was trying to create enum types that already exist on server with different values (uppercase vs lowercase)
+  - Root cause: Server has existing enums with uppercase values, but migration was trying to create new enums with lowercase values
+  - Solution implemented:
+    1. ✅ Updated migration to drop and recreate enum types with CASCADE
+    2. ✅ Added proper mapping from existing uppercase values to new lowercase enum values
+    3. ✅ Created standalone SQL script as backup option
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/ffe416ae00e8_phase_1_critical_data_integrity_enum_.py` - Updated migration logic
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_enum_migration.sql` - Created standalone SQL script
+  - Changes made:
+    - Changed approach to drop existing enum types with CASCADE before creating new ones
+    - Added comprehensive mapping from server's uppercase enum values to new lowercase values
+    - Mapped all 18 payment_request_status values from server to appropriate new values
+    - Mapped distribution_status, document_status, sub_registrar_assignment_status, and contract_type values
+    - Created standalone SQL script with same logic for direct server execution
+  - Expected result:
+    - Migration will run successfully on server without enum conflicts
+    - Existing data will be properly mapped from uppercase to lowercase enum values
+    - All enum types will be created with consistent lowercase values
+    - Database constraints and currency handling will be properly implemented
+  - Status mapping:
+    - DRAFT → draft
+    - SUBMITTED → submitted  
+    - CLASSIFIED/RETURNED → under_review
+    - APPROVED/APPROVED_ON_BEHALF/TO_PAY/IN_REGISTER/APPROVED_FOR_PAYMENT → approved
+    - PAID_FULL/PAID_PARTIAL/DISTRIBUTED/REPORT_PUBLISHED/EXPORT_LINKED → paid
+    - REJECTED → rejected
+    - CANCELLED/CLOSED/SPLITED → cancelled
+  - Backend verification:
+    - ✅ Migration file updated with DROP CASCADE approach
+    - ✅ Comprehensive value mapping implemented
+    - ✅ Standalone SQL script created as backup
+    - ✅ All enum types handled (payment_request_status, distribution_status, document_status, sub_registrar_assignment_status, contract_type)
+  - Status: ✅ COMPLETED
