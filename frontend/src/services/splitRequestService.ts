@@ -23,7 +23,7 @@ export class SplitRequestService {
    * Initialize API client with authentication token
    */
   private static initializeAuth(): void {
-    const token = localStorage.getItem('test_token');
+    const token = localStorage.getItem('auth_token');
     if (token) {
       this.apiClient.setAuthToken(token);
     }

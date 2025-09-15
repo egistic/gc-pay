@@ -42,7 +42,15 @@ export function useRequestHandling() {
         // Allow viewing any request for distributor
         dispatch(appActions.setViewMode('view'));
       }
-    } else if (state.currentRole === 'TREASURER') {
+        } else if (state.currentRole === 'SUB_REGISTRAR') {
+          dispatch(appActions.setCurrentPage('requests'));
+          if (request && request.status === 'classified') {
+            dispatch(appActions.setViewMode('sub-registrar-assignment')); // Use sub-registrar assignment form for classified requests
+          } else {
+            // Allow viewing any request for sub-registrar
+            dispatch(appActions.setViewMode('view'));
+          }
+        } else if (state.currentRole === 'TREASURER') {
       if (request && ['approved', 'in-register', 'approved-for-payment'].includes(request.status)) {
         dispatch(appActions.setCurrentPage('requests'));
         dispatch(appActions.setViewMode('treasurer-approve'));

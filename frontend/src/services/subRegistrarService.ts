@@ -15,7 +15,7 @@ export class SubRegistrarService {
   static async getAssignments(skip = 0, limit = 100): Promise<{ assignments: SubRegistrarAssignment[], total: number }> {
     const response = await fetch(`${API_BASE_URL}/sub-registrar/assignments?skip=${skip}&limit=${limit}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
     });
@@ -28,12 +28,31 @@ export class SubRegistrarService {
   }
 
   /**
+   * Get all sub-registrar assignments (for filtering purposes)
+   */
+  static async getAllAssignments(): Promise<SubRegistrarAssignment[]> {
+    const response = await fetch(`${API_BASE_URL}/sub-registrar/assignments/all`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get all assignments: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.assignments || [];
+  }
+
+  /**
    * Get sub-registrar report for a specific request
    */
   static async getReport(requestId: string): Promise<SubRegistrarReport> {
     const response = await fetch(`${API_BASE_URL}/sub-registrar/reports/${requestId}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
     });
@@ -52,7 +71,7 @@ export class SubRegistrarService {
     const response = await fetch(`${API_BASE_URL}/sub-registrar/save-draft`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -76,7 +95,7 @@ export class SubRegistrarService {
     const response = await fetch(`${API_BASE_URL}/sub-registrar/publish-report`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ request_id: requestId }),
@@ -96,7 +115,7 @@ export class SubRegistrarService {
     const response = await fetch(`${API_BASE_URL}/sub-registrar/closing-docs/${requestId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),

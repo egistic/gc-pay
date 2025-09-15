@@ -1,0 +1,3664 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "GC Spends API",
+    "version": "1.0.0",
+    "description": "GC Spends API - Система управления расходами и платежами\n\nЭто API для управления системой расходов и платежей, включающая в себя:\n\n* **Аутентификация и авторизация** - управление пользователями и ролями\n* **Управление запросами** - создание и обработка платежных запросов\n* **Справочники** - управление статьями расходов и другими справочными данными\n* **Регистрация** - ведение реестра документов\n* **Распределение** - управление распределением средств\n* **Экспорт контрактов** - работа с контрактными данными\n* **Файлы** - загрузка и управление файлами\n* **Приоритеты** - управление приоритетами платежных запросов\n* **Мониторинг** - мониторинг и наблюдение за системой\n* **Идемпотентность** - управление идемпотентными ключами\n\n### Аутентификация\nAPI использует JWT токены для аутентификации. Получите токен через `/api/v1/auth/login` и используйте его в заголовке `Authorization: Bearer <token>`.\n\n### Базовый URL\nВсе API endpoints доступны по адресу: `http://localhost:8000/api/v1/`",
+    "contact": {
+      "name": "GC Spends Team",
+      "email": "support@gcspends.com"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://gcback.openlayers.kz",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Аутентификация и авторизация пользователей"
+    },
+    {
+      "name": "users",
+      "description": "Управление пользователями системы"
+    },
+    {
+      "name": "roles",
+      "description": "Управление ролями и правами доступа"
+    },
+    {
+      "name": "requests",
+      "description": "Управление платежными запросами"
+    },
+    {
+      "name": "dictionaries",
+      "description": "Справочники системы (статьи расходов, категории и т.д.)"
+    },
+    {
+      "name": "files",
+      "description": "Загрузка и управление файлами"
+    },
+    {
+      "name": "registry",
+      "description": "Реестр документов"
+    },
+    {
+      "name": "distribution",
+      "description": "Распределение средств"
+    },
+    {
+      "name": "sub-registrar",
+      "description": "Функции суб-регистратора"
+    },
+    {
+      "name": "distributor",
+      "description": "Функции дистрибьютора"
+    },
+    {
+      "name": "export-contracts",
+      "description": "Экспортные контракты"
+    },
+    {
+      "name": "admin",
+      "description": "Административные функции системы"
+    },
+    {
+      "name": "idempotency",
+      "description": "Управление идемпотентными ключами для API запросов"
+    },
+    {
+      "name": "priority",
+      "description": "Управление приоритетами платежных запросов"
+    },
+    {
+      "name": "file-management",
+      "description": "Расширенное управление файлами с валидацией"
+    },
+    {
+      "name": "monitoring",
+      "description": "Мониторинг и наблюдение за системой"
+    },
+    {
+      "name": "health",
+      "description": "Проверка состояния системы"
+    },
+    {
+      "name": "positions",
+      "description": "Управление должностями и департаментами"
+    },
+    {
+      "name": "expense-article-roles",
+      "description": "Назначение ролей для статей расходов"
+    },
+    {
+      "name": "dictionaries-audit",
+      "description": "Аудит изменений справочников"
+    },
+    {
+      "name": "dictionaries-import-export",
+      "description": "Импорт и экспорт справочников"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Проверка состояния системы",
+        "description": "Проверка состояния API сервера. Возвращает статус \"ok\" если сервер работает корректно.",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Вход в систему",
+        "description": "Аутентификация пользователя в системе. Принимает email и пароль, возвращает JWT токен.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email пользователя"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Пароль пользователя"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешная аутентификация",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "description": "JWT токен для авторизации"
+                    },
+                    "token_type": {
+                      "type": "string",
+                      "example": "bearer"
+                    },
+                    "expires_in": {
+                      "type": "integer",
+                      "description": "Время жизни токена в секундах"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/UserOut"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Получить информацию о текущем пользователе",
+        "description": "Возвращает информацию о текущем аутентифицированном пользователе",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о пользователе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/v1/requests": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Создать платежный запрос",
+        "description": "Создает новый платежный запрос в системе",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Запрос успешно создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Получить список платежных запросов",
+        "description": "Возвращает список платежных запросов с возможностью фильтрации",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Роль пользователя для фильтрации",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXECUTOR",
+                "registrar",
+                "distributor",
+                "treasurer"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Статус запроса для фильтрации",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "submitted",
+                "registered",
+                "approved",
+                "in_registry",
+                "rejected"
+              ]
+            }
+          },
+          {
+            "name": "responsible_registrar_id",
+            "in": "query",
+            "description": "ID ответственного регистратора",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RequestListOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/requests/statistics": {
+      "get": {
+        "tags": [
+          "requests"
+        ],
+        "summary": "Получить статистику по запросам",
+        "description": "Возвращает статистику по платежным запросам с возможностью фильтрации по ролям",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Роль пользователя для фильтрации статистики",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXECUTOR",
+                "registrar",
+                "distributor",
+                "treasurer"
+              ]
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "ID пользователя для фильтрации",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика по запросам",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestStatistics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/file-management/upload/{request_id}": {
+      "post": {
+        "tags": [
+          "file-management"
+        ],
+        "summary": "Загрузить файл для запроса",
+        "description": "Загружает файл для платежного запроса с расширенной валидацией",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "description": "ID платежного запроса",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "file_type",
+            "in": "query",
+            "description": "Тип загружаемого файла",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "document",
+                "image",
+                "archive"
+              ],
+              "default": "document"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Файл для загрузки"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Файл успешно загружен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "filename": {
+                      "type": "string"
+                    },
+                    "mime_type": {
+                      "type": "string"
+                    },
+                    "storage_path": {
+                      "type": "string"
+                    },
+                    "file_type": {
+                      "type": "string"
+                    },
+                    "uploaded_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/priority/rules": {
+      "post": {
+        "tags": [
+          "priority"
+        ],
+        "summary": "Создать правило приоритета",
+        "description": "Создает новое правило для расчета приоритета платежных запросов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriorityRuleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Правило создано",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriorityRuleOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "priority"
+        ],
+        "summary": "Получить список правил приоритета",
+        "description": "Возвращает список правил для расчета приоритета",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "Показать только активные правила",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список правил",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PriorityRuleOut"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "skip": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monitoring/health": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "summary": "Проверка состояния системы",
+        "description": "Возвращает детальную информацию о состоянии системы, включая производительность, системные ресурсы и состояние базы данных",
+        "responses": {
+          "200": {
+            "description": "Состояние системы",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "healthy",
+                        "degraded",
+                        "unhealthy"
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "application": {
+                      "type": "object"
+                    },
+                    "database": {
+                      "type": "object"
+                    },
+                    "system": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/idempotency/generate-key": {
+      "post": {
+        "tags": [
+          "idempotency"
+        ],
+        "summary": "Сгенерировать ключ идемпотентности",
+        "description": "Генерирует новый ключ идемпотентности для API запросов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ключ идемпотентности сгенерирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "idempotency_key": {
+                      "type": "string",
+                      "description": "Сгенерированный ключ идемпотентности"
+                    },
+                    "expires_in_hours": {
+                      "type": "integer",
+                      "description": "Время жизни ключа в часах",
+                      "default": 24
+                    },
+                    "usage": {
+                      "type": "string",
+                      "description": "Инструкция по использованию ключа"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Создать пользователя",
+        "description": "Создает нового пользователя в системе (только для администраторов)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Пользователь создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Получить список пользователей",
+        "description": "Возвращает список всех пользователей с их ролями",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список пользователей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserWithRoles"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Получить пользователя",
+        "description": "Возвращает детальную информацию о пользователе",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "ID пользователя",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о пользователе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithRoles"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Обновить пользователя",
+        "description": "Обновляет информацию о пользователе",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "ID пользователя",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Пользователь обновлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Удалить пользователя",
+        "description": "Удаляет пользователя из системы",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "ID пользователя",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Пользователь удален"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/counterparties": {
+      "get": {
+        "tags": [
+          "dictionaries"
+        ],
+        "summary": "Получить список контрагентов",
+        "description": "Возвращает список контрагентов с возможностью фильтрации",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "Показать только активных контрагентов",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Поиск по названию или ИНН",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список контрагентов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CounterpartyOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dictionaries"
+        ],
+        "summary": "Создать контрагента",
+        "description": "Создает нового контрагента в справочнике",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounterpartyCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Контрагент создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CounterpartyOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/counterparties/statistics": {
+      "get": {
+        "tags": [
+          "dictionaries"
+        ],
+        "summary": "Статистика по контрагентам",
+        "description": "Возвращает статистику по контрагентам",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика контрагентов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalItems": {
+                      "type": "integer"
+                    },
+                    "activeItems": {
+                      "type": "integer"
+                    },
+                    "inactiveItems": {
+                      "type": "integer"
+                    },
+                    "recentlyUpdated": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/expense-articles": {
+      "get": {
+        "tags": [
+          "dictionaries"
+        ],
+        "summary": "Получить список статей расходов",
+        "description": "Возвращает список статей расходов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "Показать только активные статьи",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Поиск по названию или коду",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список статей расходов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseArticleOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "dictionaries"
+        ],
+        "summary": "Создать статью расходов",
+        "description": "Создает новую статью расходов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseArticleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Статья расходов создана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseArticleOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/upload": {
+      "post": {
+        "tags": [
+          "files"
+        ],
+        "summary": "Загрузить файл",
+        "description": "Загружает файл в систему",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "doc_type",
+            "in": "query",
+            "required": true,
+            "description": "Тип документа",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "f": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Файл для загрузки"
+                  }
+                },
+                "required": [
+                  "f"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Файл загружен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "file_name": {
+                      "type": "string"
+                    },
+                    "doc_type": {
+                      "type": "string"
+                    },
+                    "storage_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry": {
+      "get": {
+        "tags": [
+          "registry"
+        ],
+        "summary": "Получить реестр платежей",
+        "description": "Возвращает реестр платежных запросов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Фильтр по статусу",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Реестр платежей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistryEntryOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "registry"
+        ],
+        "summary": "Добавить запрос в реестр",
+        "description": "Добавляет платежный запрос в реестр",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistryEntryCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Запрос добавлен в реестр",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryEntryOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/statistics": {
+      "get": {
+        "tags": [
+          "registry"
+        ],
+        "summary": "Статистика реестра",
+        "description": "Возвращает статистику по реестру платежей",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика реестра",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryStatistics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/distribution/contract-status/{counterparty_id}": {
+      "get": {
+        "tags": [
+          "distribution"
+        ],
+        "summary": "Проверить статус контракта",
+        "description": "Проверяет наличие активного контракта у контрагента",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "counterparty_id",
+            "in": "path",
+            "required": true,
+            "description": "ID контрагента",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус контракта",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractStatusOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/statistics": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Системная статистика",
+        "description": "Возвращает системную статистику для администратора",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Системная статистика",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatistics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/activity-log": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Журнал активности",
+        "description": "Возвращает журнал активности системы",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Журнал активности",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityLog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "tags": [
+          "roles"
+        ],
+        "summary": "Получить список ролей",
+        "description": "Возвращает список всех ролей в системе",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список ролей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "roles"
+        ],
+        "summary": "Создать роль",
+        "description": "Создает новую роль в системе (только для администраторов)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Роль создана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictError"
+          }
+        }
+      }
+    },
+    "/api/v1/roles/{role_id}": {
+      "get": {
+        "tags": [
+          "roles"
+        ],
+        "summary": "Получить роль",
+        "description": "Возвращает детальную информацию о роли",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "description": "ID роли",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о роли",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "roles"
+        ],
+        "summary": "Обновить роль",
+        "description": "Обновляет информацию о роли",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "description": "ID роли",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Роль обновлена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "roles"
+        ],
+        "summary": "Удалить роль",
+        "description": "Удаляет роль из системы",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "description": "ID роли",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Роль удалена"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/positions/departments": {
+      "get": {
+        "tags": [
+          "positions"
+        ],
+        "summary": "Получить список департаментов",
+        "description": "Возвращает список всех департаментов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список департаментов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "positions"
+        ],
+        "summary": "Создать департамент",
+        "description": "Создает новый департамент (только для администраторов)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Департамент создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictError"
+          }
+        }
+      }
+    },
+    "/api/v1/positions": {
+      "get": {
+        "tags": [
+          "positions"
+        ],
+        "summary": "Получить список должностей",
+        "description": "Возвращает список всех должностей",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "department_id",
+            "in": "query",
+            "description": "Фильтр по департаменту",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список должностей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PositionOut"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "positions"
+        ],
+        "summary": "Создать должность",
+        "description": "Создает новую должность (только для администраторов)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Должность создана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/expense-article-roles/articles/{article_id}/assignments": {
+      "get": {
+        "tags": [
+          "expense-article-roles"
+        ],
+        "summary": "Получить назначения ролей для статьи расходов",
+        "description": "Возвращает все назначения ролей для конкретной статьи расходов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "article_id",
+            "in": "path",
+            "required": true,
+            "description": "ID статьи расходов",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список назначений ролей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseArticleRoleAssignmentOut"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/expense-article-roles/assignments": {
+      "post": {
+        "tags": [
+          "expense-article-roles"
+        ],
+        "summary": "Создать назначение роли для статьи расходов",
+        "description": "Создает новое назначение роли для статьи расходов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseArticleRoleAssignmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Назначение создано",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseArticleRoleAssignmentOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/audit/history/{dictionary_type}": {
+      "get": {
+        "tags": [
+          "dictionaries-audit"
+        ],
+        "summary": "Получить историю аудита справочника",
+        "description": "Возвращает историю изменений для конкретного типа справочника",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dictionary_type",
+            "in": "path",
+            "required": true,
+            "description": "Тип справочника",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Дата начала (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "Дата окончания (YYYY-MM-DD)",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "description": "Фильтр по типу действия",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "Фильтр по ID пользователя",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Номер страницы",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Количество записей на странице",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "История аудита",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditHistoryOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/audit/statistics/{dictionary_type}": {
+      "get": {
+        "tags": [
+          "dictionaries-audit"
+        ],
+        "summary": "Получить статистику аудита справочника",
+        "description": "Возвращает статистику изменений для конкретного типа справочника",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dictionary_type",
+            "in": "path",
+            "required": true,
+            "description": "Тип справочника",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика аудита",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditStatisticsOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/import-export/import/{dictionary_type}": {
+      "post": {
+        "tags": [
+          "dictionaries-import-export"
+        ],
+        "summary": "Импорт данных справочника",
+        "description": "Импортирует данные справочника из файла",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dictionary_type",
+            "in": "path",
+            "required": true,
+            "description": "Тип справочника",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "description": "Включить неактивные записи",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Файл для импорта (CSV, Excel, JSON)"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Результат импорта",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dictionaries/import-export/export/{dictionary_type}": {
+      "get": {
+        "tags": [
+          "dictionaries-import-export"
+        ],
+        "summary": "Экспорт данных справочника",
+        "description": "Экспортирует данные справочника в файл",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dictionary_type",
+            "in": "path",
+            "required": true,
+            "description": "Тип справочника",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Формат экспорта",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "csv",
+                "xlsx",
+                "json"
+              ],
+              "default": "csv"
+            }
+          },
+          {
+            "name": "include_inactive",
+            "in": "query",
+            "description": "Включить неактивные записи",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Файл экспорта",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sub-registrar/assignments": {
+      "get": {
+        "tags": [
+          "sub-registrar"
+        ],
+        "summary": "Получить назначения суб-регистратора",
+        "description": "Возвращает все назначения для текущего суб-регистратора",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список назначений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubRegistrarAssignmentListOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          }
+        }
+      }
+    },
+    "/api/v1/sub-registrar/reports/{request_id}": {
+      "get": {
+        "tags": [
+          "sub-registrar"
+        ],
+        "summary": "Получить отчет суб-регистратора",
+        "description": "Возвращает отчет суб-регистратора для конкретного запроса",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "description": "ID запроса",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Отчет суб-регистратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubRegistrarReportOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/distributor/requests": {
+      "get": {
+        "tags": [
+          "distributor"
+        ],
+        "summary": "Получить запросы дистрибьютора",
+        "description": "Возвращает все запросы для текущего дистрибьютора",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributorRequestListOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          }
+        }
+      }
+    },
+    "/api/v1/distributor/requests/{request_id}": {
+      "get": {
+        "tags": [
+          "distributor"
+        ],
+        "summary": "Получить запрос дистрибьютора",
+        "description": "Возвращает конкретный запрос дистрибьютора",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "description": "ID запроса",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Запрос дистрибьютора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributorRequestOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/v1/export-contracts": {
+      "get": {
+        "tags": [
+          "export-contracts"
+        ],
+        "summary": "Получить экспортные контракты",
+        "description": "Возвращает список экспортных контрактов",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Количество записей для пропуска",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Максимальное количество записей",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "description": "Фильтр по активности",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список контрактов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportContractListOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          }
+        }
+      }
+    },
+    "/api/v1/export-contracts/{contract_id}": {
+      "get": {
+        "tags": [
+          "export-contracts"
+        ],
+        "summary": "Получить экспортный контракт",
+        "description": "Возвращает конкретный экспортный контракт",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "path",
+            "required": true,
+            "description": "ID контракта",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Экспортный контракт",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportContractOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "loc": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "msg": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UserOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "RequestCreate": {
+        "type": "object",
+        "required": [
+          "counterparty_id",
+          "title",
+          "currency_code",
+          "due_date",
+          "lines"
+        ],
+        "properties": {
+          "counterparty_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "expense_article_text": {
+            "type": "string"
+          },
+          "doc_number": {
+            "type": "string"
+          },
+          "doc_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "doc_type": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RequestLineIn"
+            }
+          },
+          "paying_company": {
+            "type": "string"
+          },
+          "counterparty_category": {
+            "type": "string"
+          },
+          "vat_rate": {
+            "type": "string"
+          },
+          "product_service": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "string"
+          },
+          "price_rate": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          }
+        }
+      },
+      "RequestLineIn": {
+        "type": "object",
+        "required": [
+          "executor_position_id",
+          "quantity",
+          "amount_net",
+          "vat_rate_id",
+          "currency_code"
+        ],
+        "properties": {
+          "executor_position_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "amount_net": {
+            "type": "number",
+            "minimum": 0
+          },
+          "vat_rate_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "RequestOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "registered",
+              "approved",
+              "in_registry",
+              "rejected"
+            ]
+          },
+          "created_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "counterparty_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "amount_total": {
+            "type": "number"
+          },
+          "vat_total": {
+            "type": "number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "expense_article_text": {
+            "type": "string"
+          },
+          "doc_number": {
+            "type": "string"
+          },
+          "doc_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "doc_type": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsible_registrar_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RequestLineOut"
+            }
+          },
+          "paying_company": {
+            "type": "string"
+          },
+          "counterparty_category": {
+            "type": "string"
+          },
+          "vat_rate": {
+            "type": "string"
+          },
+          "product_service": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "string"
+          },
+          "price_rate": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "original_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "split_sequence": {
+            "type": "integer"
+          },
+          "is_split_request": {
+            "type": "boolean"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RequestListOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "registered",
+              "approved",
+              "in_registry",
+              "rejected"
+            ]
+          },
+          "created_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "counterparty_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "amount_total": {
+            "type": "number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "expense_article_text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsible_registrar_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paying_company": {
+            "type": "string"
+          },
+          "counterparty_category": {
+            "type": "string"
+          },
+          "vat_rate": {
+            "type": "string"
+          },
+          "product_service": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "string"
+          },
+          "price_rate": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "doc_number": {
+            "type": "string"
+          },
+          "doc_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "doc_type": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "original_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "split_sequence": {
+            "type": "integer"
+          },
+          "is_split_request": {
+            "type": "boolean"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RequestLineOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "executor_position_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrar_position_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "distributor_position_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "amount_net": {
+            "type": "number"
+          },
+          "vat_rate_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "RequestStatistics": {
+        "type": "object",
+        "properties": {
+          "total_requests": {
+            "type": "integer",
+            "description": "Общее количество запросов"
+          },
+          "draft": {
+            "type": "integer",
+            "description": "Количество черновиков"
+          },
+          "submitted": {
+            "type": "integer",
+            "description": "Количество отправленных запросов"
+          },
+          "classified": {
+            "type": "integer",
+            "description": "Количество классифицированных запросов"
+          },
+          "approved": {
+            "type": "integer",
+            "description": "Количество одобренных запросов"
+          },
+          "in_registry": {
+            "type": "integer",
+            "description": "Количество запросов в реестре"
+          },
+          "rejected": {
+            "type": "integer",
+            "description": "Количество отклоненных запросов"
+          },
+          "overdue": {
+            "type": "integer",
+            "description": "Количество просроченных запросов"
+          },
+          "expense_articles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PriorityRuleCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "priority",
+          "conditions"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high",
+              "urgent",
+              "critical"
+            ]
+          },
+          "conditions": {
+            "type": "object",
+            "description": "Условия для применения правила"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "PriorityRuleOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high",
+              "urgent",
+              "critical"
+            ]
+          },
+          "conditions": {
+            "type": "object"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "required": [
+          "full_name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          }
+        }
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserWithRoles": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserOut"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "roles": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RoleOut"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RoleOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CounterpartyOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "inn": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CounterpartyCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "inn",
+          "category"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "inn": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "ExpenseArticleOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExpenseArticleCreate": {
+        "type": "object",
+        "required": [
+          "code",
+          "name"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "RegistryEntryOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_number": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "counterparty_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_total": {
+            "type": "number"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string"
+          },
+          "added_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RegistryEntryCreate": {
+        "type": "object",
+        "required": [
+          "request_id"
+        ],
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "RegistryStatistics": {
+        "type": "object",
+        "properties": {
+          "total_entries": {
+            "type": "integer"
+          },
+          "total_amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "overdue_count": {
+            "type": "integer"
+          },
+          "due_today_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "ContractStatusOut": {
+        "type": "object",
+        "properties": {
+          "has_contract": {
+            "type": "boolean"
+          },
+          "contract_number": {
+            "type": "string"
+          },
+          "contract_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "contract_type": {
+            "type": "string"
+          },
+          "validity_period": {
+            "type": "string"
+          },
+          "rates": {
+            "type": "object"
+          },
+          "contract_info": {
+            "type": "string"
+          },
+          "contract_file_url": {
+            "type": "string"
+          }
+        }
+      },
+      "SystemStatistics": {
+        "type": "object",
+        "properties": {
+          "total_users": {
+            "type": "integer"
+          },
+          "active_users": {
+            "type": "integer"
+          },
+          "total_roles": {
+            "type": "integer"
+          },
+          "total_requests": {
+            "type": "integer"
+          },
+          "system_health": {
+            "type": "string",
+            "enum": [
+              "healthy",
+              "warning",
+              "critical"
+            ]
+          }
+        }
+      },
+      "ActivityLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_name": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ip_address": {
+            "type": "string"
+          }
+        }
+      },
+      "RoleCreate": {
+        "type": "object",
+        "required": [
+          "code",
+          "name"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Уникальный код роли"
+          },
+          "name": {
+            "type": "string",
+            "description": "Название роли"
+          }
+        }
+      },
+      "DepartmentOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "DepartmentCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "code"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "PositionOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "department_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PositionCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "code",
+          "department_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "department_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "ExpenseArticleRoleAssignmentOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_primary": {
+            "type": "boolean"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "valid_to": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "article": {
+            "type": "object"
+          },
+          "user": {
+            "type": "object"
+          },
+          "role": {
+            "type": "object"
+          }
+        }
+      },
+      "ExpenseArticleRoleAssignmentCreate": {
+        "type": "object",
+        "required": [
+          "article_id",
+          "user_id",
+          "role_id",
+          "valid_from"
+        ],
+        "properties": {
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_primary": {
+            "type": "boolean",
+            "default": false
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "valid_to": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "AuditHistoryOut": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          }
+        }
+      },
+      "AuditStatisticsOut": {
+        "type": "object",
+        "properties": {
+          "total_actions": {
+            "type": "integer"
+          },
+          "actions_by_type": {
+            "type": "object"
+          },
+          "actions_by_user": {
+            "type": "object"
+          },
+          "recent_activity": {
+            "type": "integer"
+          },
+          "data_integrity_issues": {
+            "type": "integer"
+          }
+        }
+      },
+      "ImportResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "imported_count": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SubRegistrarAssignmentListOut": {
+        "type": "object",
+        "properties": {
+          "assignments": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "SubRegistrarReportOut": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "report_data": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DistributorRequestListOut": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "DistributorRequestOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_data": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExportContractListOut": {
+        "type": "object",
+        "properties": {
+          "contracts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "ExportContractOut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_number": {
+            "type": "string"
+          },
+          "contract_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "contract_data": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFoundError": {
+        "description": "Ресурс не найден",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ConflictError": {
+        "description": "Конфликт ресурсов",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Не авторизован",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ForbiddenError": {
+        "description": "Доступ запрещен",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}

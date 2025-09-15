@@ -36,7 +36,7 @@ export const RequestStatus: React.FC<RequestStatusProps> = memo(({
     switch (status) {
       case 'classified':
         return <CheckCircle className="w-4 h-4 text-blue-600" />;
-      case 'allocated':
+      case 'distributed':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'returned':
         return <AlertCircle className="w-4 h-4 text-red-600" />;
@@ -53,7 +53,7 @@ export const RequestStatus: React.FC<RequestStatusProps> = memo(({
     switch (status) {
       case 'classified':
         return <Badge className="bg-blue-100 text-blue-800">Классифицирована</Badge>;
-      case 'allocated':
+      case 'distributed':
         return <Badge className="bg-green-100 text-green-800">Распределена</Badge>;
       case 'returned':
         return <Badge className="bg-red-100 text-red-800">Возвращена</Badge>;
@@ -81,7 +81,7 @@ export const getStatusIcon = (status: string) => {
   switch (status) {
     case 'classified':
       return <CheckCircle className="w-4 h-4 text-blue-600" />;
-    case 'allocated':
+    case 'distributed':
       return <CheckCircle className="w-4 h-4 text-green-600" />;
     case 'returned':
       return <AlertCircle className="w-4 h-4 text-red-600" />;
@@ -98,7 +98,7 @@ export const getStatusBadge = (status: string) => {
   switch (status) {
     case 'classified':
       return <Badge className="bg-blue-100 text-blue-800">Классифицирована</Badge>;
-    case 'allocated':
+    case 'distributed':
       return <Badge className="bg-green-100 text-green-800">Распределена</Badge>;
     case 'returned':
       return <Badge className="bg-red-100 text-red-800">Возвращена</Badge>;

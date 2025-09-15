@@ -38,26 +38,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize authentication state
   useEffect(() => {
+    let isMounted = true;
+    
     const initializeAuth = async () => {
-      const savedToken = localStorage.getItem('test_token');
-      
-      if (savedToken) {
+      // Check for existing token in localStorage
+      const savedToken = localStorage.getItem('auth_token');
+        
+      if (savedToken && isMounted) {
         setToken(savedToken);
         try {
           // Try to get current user with the saved token
           const currentUser = await UserService.getCurrentUser();
-          setUser(currentUser);
+          if (isMounted) {
+            setUser(currentUser);
+          }
         } catch (err) {
           console.error('Failed to load current user:', err);
           // Token might be expired, clear it
-          localStorage.removeItem('test_token');
-          setToken(null);
+          if (isMounted) {
+            localStorage.removeItem('auth_token');
+            setToken(null);
+          }
         }
       }
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     };
 
     initializeAuth();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -84,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Store token
       setToken(data.access_token);
-      localStorage.setItem('test_token', data.access_token);
+      localStorage.setItem('auth_token', data.access_token);
       
       // Get user data
       const userData = await UserService.getCurrentUser();
@@ -102,7 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('test_token');
+    localStorage.removeItem('auth_token');
     setError(null);
   };
 

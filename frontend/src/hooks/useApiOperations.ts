@@ -36,9 +36,7 @@ export function useApiOperations() {
   // Load requests for specific role
   const loadRequestsForRole = useCallback(async (role: UserRole) => {
     try {
-      console.log('Loading requests for role change:', role);
       const requests = await PaymentRequestService.getAll({ role });
-      console.log('Requests loaded for role:', role, requests.length);
       dispatch(appActions.setPaymentRequests(requests));
     } catch (error) {
       console.error('Failed to load requests for role:', role, error);

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { PaymentRequest, PaymentRequestStatus, UserRole } from '../../types';
 import { PaymentRequestService } from '../../services/api';
+import { SubRegistrarService } from '../../services/subRegistrarService';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -30,6 +31,7 @@ import { formatCurrency } from '../../utils/formatting';
 
 interface RequestsListProps {
   currentRole: UserRole;
+  currentUserId?: string;
   onCreateRequest?: () => void;
   onViewRequest?: (id: string) => void;
   dashboardFilter?: string | null;
@@ -37,7 +39,7 @@ interface RequestsListProps {
   paymentRequests?: PaymentRequest[];
 }
 
-export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dashboardFilter, onClearFilter, paymentRequests }: RequestsListProps) {
+export function RequestsList({ currentRole, currentUserId, onCreateRequest, onViewRequest, dashboardFilter, onClearFilter, paymentRequests }: RequestsListProps) {
 
   // Get dictionary data
   const { items: counterparties } = useDictionaries('counterparties');
@@ -50,6 +52,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [subRegistrarAssignments, setSubRegistrarAssignments] = useState<Map<string, string>>(new Map());
 
   // Load requests from API or use passed data
   useEffect(() => {
@@ -82,6 +85,31 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
 
     loadRequests();
   }, [currentRole, dashboardFilter, paymentRequests]);
+
+  // Load sub-registrar assignments for filtering
+  useEffect(() => {
+    const loadSubRegistrarAssignments = async () => {
+      if (currentRole === 'SUB_REGISTRAR' && currentUserId) {
+        try {
+          const assignments = await SubRegistrarService.getAllAssignments();
+          const assignmentMap = new Map<string, string>();
+          
+          assignments.forEach(assignment => {
+            if (assignment.request_id && assignment.sub_registrar_id) {
+              assignmentMap.set(assignment.request_id, assignment.sub_registrar_id);
+            }
+          });
+          
+          setSubRegistrarAssignments(assignmentMap);
+          console.log('Loaded sub-registrar assignments:', assignmentMap);
+        } catch (err) {
+          console.error('Error loading sub-registrar assignments:', err);
+        }
+      }
+    };
+
+    loadSubRegistrarAssignments();
+  }, [currentRole, currentUserId]);
 
   // Safe date handling functions
   const formatDateSafely = (dateString: string) => {
@@ -236,10 +264,10 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
       filteredRequests = filteredRequests.filter(req => {
         const counterparty = counterparties.find(cp => cp.id === req.counterpartyId);
         return (
-          req.docNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          req.docNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.requestNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          counterparty?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          counterparty?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           req.amount.toString().includes(searchTerm)
         );
       });
@@ -253,6 +281,40 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
     // Status filter
     if (statusFilter !== 'all') {
       filteredRequests = filteredRequests.filter(req => req.status === statusFilter);
+    }
+
+    // Hide original requests that have been split (show only split requests)
+    filteredRequests = filteredRequests.filter(req => {
+      // Hide requests with SPLITED status (original requests that were split)
+      if (req.status === 'splited') {
+        return false;
+      }
+      
+      // If this request has split requests, hide the original
+      const hasSplitRequests = requests.some(otherReq => 
+        otherReq.originalRequestId === req.id && otherReq.isSplitRequest
+      );
+      
+      // Show the request only if:
+      // 1. It's a split request (isSplitRequest = true), OR
+      // 2. It doesn't have any split requests (not split)
+      return req.isSplitRequest || !hasSplitRequests;
+    });
+
+    // For SUB_REGISTRAR role, filter by assigned sub-registrar
+    if (currentRole === 'SUB_REGISTRAR' && currentUserId) {
+      console.log('Filtering for SUB_REGISTRAR:', currentUserId);
+      console.log('Available assignments:', subRegistrarAssignments);
+      console.log('Requests before filtering:', filteredRequests.length);
+      
+      filteredRequests = filteredRequests.filter(req => {
+        // Check if this request is assigned to the current sub-registrar
+        const assignedSubRegistrarId = subRegistrarAssignments.get(req.id);
+        console.log(`Request ${req.id}: assigned to ${assignedSubRegistrarId}, current user: ${currentUserId}`);
+        return assignedSubRegistrarId === currentUserId;
+      });
+      
+      console.log('Requests after filtering:', filteredRequests.length);
     }
 
     return filteredRequests.sort((a, b) => {
@@ -279,7 +341,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
     return uniqueCounterpartyIds.map(id => {
       const counterparty = counterparties.find(cp => cp.id === id);
       return counterparty ? { id, name: counterparty.name } : { id, name: 'Неизвестен' };
-    }).sort((a, b) => a.name.localeCompare(b.name));
+    }).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   };
 
   const canCreateRequest = false; // No role can create requests from this component
@@ -289,7 +351,7 @@ export function RequestsList({ currentRole, onCreateRequest, onViewRequest, dash
       case 'submitted':
         return 'Регистратор';
       case 'classified':
-      case 'allocated':
+      case 'distributed':
         return 'Распорядитель';
       case 'approved':
       case 'approved-on-behalf':

@@ -128,3 +128,11 @@ def publish_sub_registrar_report(
     db.commit()
     db.refresh(db_report)
     return db_report
+
+def get_all_sub_registrar_assignments(
+    db: Session,
+    skip: int = 0, 
+    limit: int = 1000
+) -> List[SubRegistrarAssignment]:
+    """Get all sub-registrar assignments (for filtering purposes)"""
+    return db.query(SubRegistrarAssignment).offset(skip).limit(limit).all()

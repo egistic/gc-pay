@@ -30,6 +30,13 @@ export class DictionaryService {
     
     // Use real API for production
     const apiClient = new DictionaryApiClient(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1`);
+    
+    // Set authentication token
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      apiClient.setAuthToken(token);
+    }
+    
     this.api = new DictionaryApiEndpoints(apiClient);
     
     this.initializeHandlers();
@@ -47,6 +54,19 @@ export class DictionaryService {
   }
 
   /**
+   * Update authentication token
+   */
+  updateAuthToken(token: string | null): void {
+    if (this.api && this.api.client) {
+      if (token) {
+        this.api.client.setAuthToken(token);
+      } else {
+        this.api.client.setAuthToken('');
+      }
+    }
+  }
+
+  /**
    * Initialize handlers for each dictionary type
    */
   private initializeHandlers(): void {
@@ -55,7 +75,8 @@ export class DictionaryService {
       'expense-articles',
       'counterparties', 
       'currencies',
-      'vat-rates'
+      'vat-rates',
+      'users'
     ];
 
     supportedTypes.forEach(type => {
@@ -589,6 +610,13 @@ export class DictionaryService {
         createItem: (data: any) => this.api.createVatRate(data),
         updateItem: (id: string, data: any) => this.api.updateVatRate(id, data),
         deleteItem: (id: string) => this.api.deleteVatRate(id)
+      },
+      'users': {
+        getItems: () => this.api.getUsers(),
+        getItem: (id: string) => this.api.getUser(id),
+        createItem: (data: any) => this.api.createUser(data),
+        updateItem: (id: string, data: any) => this.api.updateUser(id, data),
+        deleteItem: (id: string) => this.api.deleteUser(id)
       }
     };
 

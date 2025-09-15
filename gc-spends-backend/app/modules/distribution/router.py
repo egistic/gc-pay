@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from app.core.db import get_db
-from app.models import PaymentRequest, ExpenseSplit, Contract, Counterparty, ExpenseArticle, User, UserRole, Role, SubRegistrarAssignment, DistributorRequest
+from app.models import PaymentRequest, ExpenseSplit, Contract, Counterparty, ExpenseArticle, User, UserRole, Role, SubRegistrarAssignment, DistributorRequest, RegistrarAssignment
 from app.common.enums import RequestStatus, RoleCode
 from app.modules.users.schemas import UserOut
 from app.core.security import get_current_user
@@ -10,6 +10,9 @@ from . import schemas
 import uuid
 from datetime import date, datetime
 from typing import List, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/distribution", tags=["distribution"])
 
@@ -31,7 +34,7 @@ def get_contract_status(counterparty_id: uuid.UUID, db: Session = Depends(get_db
         and_(
             Contract.counterparty_id == counterparty_id,
             Contract.is_active == True,
-            Contract.contract_type.in_(["elevator", "service_provider"])
+            Contract.contract_type.in_(["service", "supply"])
         )
     ).first()
     
@@ -50,16 +53,41 @@ def get_contract_status(counterparty_id: uuid.UUID, db: Session = Depends(get_db
         return schemas.ContractStatusOut(has_contract=False)
 
 @router.get("/sub-registrars", response_model=List[UserOut])
-def get_sub_registrars(db: Session = Depends(get_db)):
+def get_sub_registrars(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Get all users with SUB_REGISTRAR role"""
     
+    # Check if current user has REGISTRAR or ADMIN role
+    user_roles = db.query(UserRole).filter(
+        and_(
+            UserRole.user_id == current_user.id,
+            UserRole.valid_from <= date.today(),
+            UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+        )
+    ).all()
+    
+    user_role_codes = []
+    for user_role in user_roles:
+        role = db.query(Role).filter(Role.id == user_role.role_id).first()
+        if role:
+            user_role_codes.append(role.code)
+    
+    # Only allow REGISTRAR and ADMIN roles to access sub-registrars list
+    if not any(role_code in ["REGISTRAR", "ADMIN"] for role_code in user_role_codes):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied. REGISTRAR or ADMIN role required."
+        )
+    
     # Get SUB_REGISTRAR role
-    sub_registrar_role = db.query(Role).filter(Role.code == RoleCode.SUB_REGISTRAR.value).first()
+    sub_registrar_role = db.query(Role).filter(Role.code == "SUB_REGISTRAR").first()
     if not sub_registrar_role:
         return []
     
     # Get users with SUB_REGISTRAR role
-    user_roles = db.query(UserRole).filter(
+    sub_registrar_user_roles = db.query(UserRole).filter(
         and_(
             UserRole.role_id == sub_registrar_role.id,
             UserRole.valid_from <= date.today(),
@@ -67,7 +95,7 @@ def get_sub_registrars(db: Session = Depends(get_db)):
         )
     ).all()
     
-    user_ids = [ur.user_id for ur in user_roles]
+    user_ids = [ur.user_id for ur in sub_registrar_user_roles]
     users = db.query(User).filter(User.id.in_(user_ids)).all()
     
     return [UserOut.model_validate(user.__dict__) for user in users]
@@ -82,9 +110,9 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
         raise HTTPException(status_code=404, detail="Request not found")
     
     print(f"DEBUG: Request {request.id} has status: {request.status}")
-    print(f"DEBUG: Allowed statuses: {[RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]}")
+    print(f"DEBUG: Allowed statuses: {[RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value, RequestStatus.SUBMITTED.value]}")
     
-    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]:
+    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value, RequestStatus.SUBMITTED.value]:
         raise HTTPException(
             status_code=400, 
             detail=f"Request must be approved, registered, or submitted to be classified. Current status: {request.status}"
@@ -145,7 +173,7 @@ def classify_request(payload: schemas.DistributionCreate, db: Session = Depends(
     
     # Update request with responsible registrar
     request.responsible_registrar_id = payload.responsible_registrar_id
-    request.status = RequestStatus.IN_REGISTRY.value
+    request.status = RequestStatus.CLASSIFIED.value
     
     # Create request event
     from app.models import RequestEvent
@@ -185,7 +213,7 @@ def return_request(payload: schemas.ReturnRequestCreate, db: Session = Depends(g
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
     
-    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.IN_REGISTRY.value]:
+    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value, RequestStatus.IN_REGISTER.value]:
         raise HTTPException(
             status_code=400,
             detail="Request cannot be returned in current status"
@@ -246,7 +274,7 @@ def get_pending_requests(
         PaymentRequest.deleted == False
     ).filter(
         and_(
-            PaymentRequest.status.in_([RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]),
+            PaymentRequest.status.in_([RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value]),
             PaymentRequest.distribution_status == "PENDING"
         )
     ).offset(skip).limit(limit).all()
@@ -292,7 +320,7 @@ def send_requests_parallel(
             raise HTTPException(status_code=404, detail="Request not found")
     
     # Validate request status
-    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value]:
+    if request.status not in [RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value]:
         raise HTTPException(
             status_code=400, 
             detail="Request must be approved or registered to be distributed"
@@ -344,7 +372,7 @@ def send_requests_parallel(
                 counterparty_id=request.counterparty_id,
                 created_by_user_id=request.created_by_user_id,
                 status=RequestStatus.SUBMITTED.value,
-                distribution_status="DISTRIBUTED",
+                distribution_status="completed",
                 # Copy all required fields from original request
                 due_date=request.due_date,
                 vat_total=request.vat_total,
@@ -384,7 +412,7 @@ def send_requests_parallel(
         sub_registrar_assignment = SubRegistrarAssignment(
             request_id=assignment_request_id,
             sub_registrar_id=payload.sub_registrar_id,
-            status="ASSIGNED"
+            status="assigned"
         )
         db.add(sub_registrar_assignment)
         
@@ -411,8 +439,8 @@ def send_requests_parallel(
         
         # Update request status
         if not is_split_request:
-            request.distribution_status = "DISTRIBUTED"
-            request.status = RequestStatus.IN_REGISTRY.value
+            request.distribution_status = "completed"
+            request.status = RequestStatus.IN_REGISTER.value
         
         # Create request event
         from app.models import RequestEvent
@@ -420,7 +448,7 @@ def send_requests_parallel(
         event_request_id = payload.request_id if is_split_request else request.id
         event = RequestEvent(
             request_id=event_request_id,
-            event_type="DISTRIBUTED",
+            event_type="completed",
             actor_user_id=current_user.id,
             payload=f"Request distributed to sub-registrar and distributor. Total amount: {total_amount}"
         )
@@ -434,7 +462,7 @@ def send_requests_parallel(
             sub_registrar_assignment_id=sub_registrar_assignment.id,
             distributor_request_ids=distributor_request_ids,
             total_amount=total_amount,
-            status="DISTRIBUTED"
+            status="completed"
         )
         
     except Exception as e:
@@ -481,16 +509,17 @@ def split_request_by_articles(
         raise HTTPException(status_code=404, detail="Original request not found")
     
     # Validate original request status
-    if original_request.status not in [RequestStatus.APPROVED.value, RequestStatus.REGISTERED.value, RequestStatus.SUBMITTED.value]:
+    if original_request.status not in [RequestStatus.APPROVED.value, RequestStatus.CLASSIFIED.value, RequestStatus.SUBMITTED.value]:
         raise HTTPException(
             status_code=400, 
             detail="Original request must be approved, registered, or submitted to be split"
         )
     
-    # Validate sub-registrar exists and has correct role
-    sub_registrar = db.query(User).filter(User.id == payload.sub_registrar_id).first()
-    if not sub_registrar:
-        raise HTTPException(status_code=404, detail="Sub-registrar not found")
+    # Validate sub-registrar exists and has correct role (only if provided)
+    if payload.sub_registrar_id:
+        sub_registrar = db.query(User).filter(User.id == payload.sub_registrar_id).first()
+        if not sub_registrar:
+            raise HTTPException(status_code=404, detail="Sub-registrar not found")
     
     # Validate distributor exists and has correct role
     distributor = db.query(User).filter(User.id == payload.distributor_id).first()
@@ -503,6 +532,13 @@ def split_request_by_articles(
     if len(existing_items) != len(expense_item_ids):
         raise HTTPException(status_code=400, detail="One or more expense items not found")
     
+    # Validate individual sub-registrar assignments in expense splits
+    sub_registrar_ids = [split.sub_registrar_id for split in payload.expense_splits if split.sub_registrar_id]
+    if sub_registrar_ids:
+        existing_sub_registrars = db.query(User).filter(User.id.in_(sub_registrar_ids)).all()
+        if len(existing_sub_registrars) != len(sub_registrar_ids):
+            raise HTTPException(status_code=400, detail="One or more sub-registrars not found")
+    
     # Validate total amount matches original request
     total_amount = sum(split.amount for split in payload.expense_splits)
     if abs(total_amount - float(original_request.amount_total)) > 0.01:
@@ -512,10 +548,9 @@ def split_request_by_articles(
         )
     
     try:
-        # Mark original request as deleted (soft delete)
-        original_request.deleted = True
-        original_request.status = RequestStatus.CANCELLED.value
-        original_request.distribution_status = "SPLIT"
+        # Update original request status to indicate it's been split (but keep it active for tracking)
+        original_request.status = RequestStatus.SPLITED.value
+        original_request.distribution_status = "completed"
         
         # Create split requests - one for each expense article
         split_requests = []
@@ -532,8 +567,8 @@ def split_request_by_articles(
                 currency_code=original_request.currency_code,
                 counterparty_id=original_request.counterparty_id,
                 created_by_user_id=original_request.created_by_user_id,
-                status=RequestStatus.REGISTERED.value,
-                distribution_status="DISTRIBUTED",
+                status=RequestStatus.CLASSIFIED.value,
+                distribution_status="completed",
                 # Copy all informational fields from original request
                 due_date=original_request.due_date,
                 vat_total=original_request.vat_total,
@@ -573,13 +608,53 @@ def split_request_by_articles(
             )
             db.add(expense_split)
         
+        # Create Registrar Assignments for each split request (NEW INTEGRATION)
+        registrar_assignments = []
+        for i, (split_request, split_data) in enumerate(zip(split_requests, payload.expense_splits)):
+            # Use individual sub_registrar_id from expense split, fallback to payload.sub_registrar_id
+            assigned_sub_registrar_id = split_data.sub_registrar_id or payload.sub_registrar_id
+            
+            # Debug logging
+            print(f"Split {i+1}: Individual ID: {split_data.sub_registrar_id}, Payload ID: {payload.sub_registrar_id}, Assigned: {assigned_sub_registrar_id}")
+            
+            # Ensure we have a valid sub-registrar ID
+            if not assigned_sub_registrar_id:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Sub-registrar ID is required for expense split {i+1}. Individual ID: {split_data.sub_registrar_id}, Payload ID: {payload.sub_registrar_id}"
+                )
+            
+            registrar_assignment = RegistrarAssignment(
+                request_id=split_request.id,
+                assigned_sub_registrar_id=assigned_sub_registrar_id,
+                expense_article_id=split_data.expense_item_id,
+                assigned_amount=split_data.amount,
+                registrar_comments=split_data.comment or f"Заявка {i+1} из {len(split_requests)} - разделена регистратором",
+                registrar_id=current_user.id
+            )
+            db.add(registrar_assignment)
+            registrar_assignments.append(registrar_assignment)
+        
         # Create sub-registrar assignments for each split request
         sub_registrar_assignments = []
-        for split_request in split_requests:
+        for i, (split_request, split_data) in enumerate(zip(split_requests, payload.expense_splits)):
+            # Use individual sub_registrar_id from expense split, fallback to payload.sub_registrar_id
+            assigned_sub_registrar_id = split_data.sub_registrar_id or payload.sub_registrar_id
+            
+            # Debug logging
+            print(f"Sub-registrar assignment {i+1}: Individual ID: {split_data.sub_registrar_id}, Payload ID: {payload.sub_registrar_id}, Assigned: {assigned_sub_registrar_id}")
+            
+            # Ensure we have a valid sub-registrar ID
+            if not assigned_sub_registrar_id:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Sub-registrar ID is required for expense split. Individual ID: {split_data.sub_registrar_id}, Payload ID: {payload.sub_registrar_id}"
+                )
+            
             assignment = SubRegistrarAssignment(
                 request_id=split_request.id,
-                sub_registrar_id=payload.sub_registrar_id,
-                status="ASSIGNED"
+                sub_registrar_id=assigned_sub_registrar_id,
+                status="assigned"
             )
             db.add(assignment)
             sub_registrar_assignments.append(assignment)
@@ -597,7 +672,7 @@ def split_request_by_articles(
             db.add(distributor_request)
             distributor_requests.append(distributor_request)
         
-        # Original request status already updated above (marked as deleted)
+        # Original request status already updated above (marked as split)
         
         # Create request events for original request and each split
         from app.models import RequestEvent
@@ -605,9 +680,9 @@ def split_request_by_articles(
         # Event for original request
         original_event = RequestEvent(
             request_id=original_request.id,
-            event_type="SPLIT_AND_DELETED",
+            event_type="SPLIT_INTO_MULTIPLE",
             actor_user_id=current_user.id,
-            payload=f"Request split into {len(split_requests)} separate requests and marked as deleted. Total amount: {total_amount}"
+            payload=f"Request split into {len(split_requests)} separate requests. Total amount: {total_amount}"
         )
         db.add(original_event)
         
@@ -630,7 +705,7 @@ def split_request_by_articles(
             original_request_id=original_request.id,
             split_requests=split_request_ids,
             total_amount=total_amount,
-            status="SPLIT"
+            status="completed"
         )
         
     except Exception as e:
@@ -676,4 +751,69 @@ def get_split_requests(
     ).order_by(PaymentRequest.split_sequence).all()
     
     return split_requests
+
+
+@router.post("/distribute/{request_id}", response_model=schemas.DistributionOut)
+def distribute_request(
+    request_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Distribute request - changes status from classified to distributed"""
+    
+    # Get the request
+    request = db.query(PaymentRequest).filter(
+        and_(PaymentRequest.id == request_id, PaymentRequest.deleted == False)
+    ).first()
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Check if request is in classified status
+    if request.status != RequestStatus.CLASSIFIED.value:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Request must be in classified status to be distributed. Current status: {request.status}"
+        )
+    
+    # Check if user has DISTRIBUTOR role
+    distributor_role = db.query(Role).filter(Role.code == RoleCode.DISTRIBUTOR.value).first()
+    if distributor_role:
+        user_role = db.query(UserRole).filter(
+            and_(
+                UserRole.user_id == current_user.id,
+                UserRole.role_id == distributor_role.id,
+                UserRole.valid_from <= date.today(),
+                UserRole.valid_to.is_(None) | (UserRole.valid_to >= date.today())
+            )
+        ).first()
+        if not user_role:
+            raise HTTPException(
+                status_code=400,
+                detail="User does not have DISTRIBUTOR role"
+            )
+    
+    # Update request status to distributed
+    request.status = RequestStatus.DISTRIBUTED.value
+    request.updated_at = datetime.utcnow()
+    
+    # Create request event
+    from app.models import RequestEvent
+    event = RequestEvent(
+        request_id=request_id,
+        event_type="DISTRIBUTED",
+        actor_user_id=current_user.id,
+        payload=f"Request distributed by distributor"
+    )
+    db.add(event)
+    
+    db.commit()
+    db.refresh(request)
+    
+    return schemas.DistributionOut(
+        request_id=request.id,
+        responsible_registrar_id=request.responsible_registrar_id,
+        expense_splits=[],
+        comment="Request distributed"
+    )
 

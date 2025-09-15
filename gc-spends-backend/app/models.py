@@ -2,9 +2,17 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime  # <-- use Python type for annotations
-from sqlalchemy import String, Boolean, Date as SA_Date, DateTime as SA_DateTime, ForeignKey, Numeric, text, JSON
+from sqlalchemy import String, Boolean, Date as SA_Date, DateTime as SA_DateTime, ForeignKey, Numeric, text, JSON, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
+from app.common.enums import (
+    PaymentRequestStatus, 
+    DistributionStatus, 
+    DocumentStatus, 
+    SubRegistrarAssignmentStatus, 
+    ContractType,
+    PaymentPriority
+)
 
 # Users / Org / RBAC
 class User(Base):
@@ -106,6 +114,13 @@ class VatRate(Base):
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
 
+class ExchangeRate(Base):
+    __tablename__ = "exchange_rates"
+    date: Mapped[date] = mapped_column(SA_Date, primary_key=True)
+    currency_code: Mapped[str] = mapped_column(String(3), primary_key=True)
+    rate: Mapped[float] = mapped_column(Numeric(10, 6))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
 # Expense Articles
 class ExpenseArticle(Base):
     __tablename__ = "expense_articles"
@@ -159,10 +174,13 @@ class PaymentRequest(Base):
     created_by_user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     counterparty_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("counterparties.id"))
     title: Mapped[str] = mapped_column(String(255))
-    status: Mapped[str] = mapped_column(String(32), server_default=text("'DRAFT'"))
+    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
     currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"))
     amount_total: Mapped[float] = mapped_column(Numeric(18, 2), default=0)
     vat_total: Mapped[float] = mapped_column(Numeric(18, 2), default=0)
+    # Base currency support
+    amount_base_currency: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    base_currency_code: Mapped[str | None] = mapped_column(String(3), nullable=True, server_default=text("'USD'"))
     due_date: Mapped[date] = mapped_column(SA_Date)
     expense_article_text: Mapped[str | None] = mapped_column(String(255), nullable=True)  # Text field for expense article
     doc_number: Mapped[str | None] = mapped_column(String(128), nullable=True)  # Document number (separate from request number)
@@ -177,7 +195,10 @@ class PaymentRequest(Base):
     price_rate: Mapped[str | None] = mapped_column(String(128), nullable=True)
     period: Mapped[str | None] = mapped_column(String(128), nullable=True)
     responsible_registrar_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    distribution_status: Mapped[str] = mapped_column(String(32), server_default=text("'PENDING'"))
+    distribution_status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
+    # Phase 2: Priority management
+    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'normal'"))
+    priority_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)  # Calculated priority score
     # Split request fields
     original_request_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("payment_requests.id"), nullable=True)  # Reference to original request if this is a split
     split_sequence: Mapped[int | None] = mapped_column(nullable=True)  # Sequence number for split requests (1, 2, 3, etc.)
@@ -202,7 +223,7 @@ class PaymentRequestLine(Base):
     amount_net: Mapped[float] = mapped_column(Numeric(18, 2))
     vat_rate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("vat_rates.id"))
     currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"))
-    status: Mapped[str] = mapped_column(String(32), server_default=text("'DRAFT'"))
+    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
     note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
 class LineRequiredDoc(Base):
@@ -260,7 +281,7 @@ class Contract(Base):
     counterparty_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("counterparties.id"))
     contract_number: Mapped[str] = mapped_column(String(128))
     contract_date: Mapped[date] = mapped_column(SA_Date)
-    contract_type: Mapped[str] = mapped_column(String(64))  # elevator, service_provider
+    contract_type: Mapped[ContractType] = mapped_column(SQLEnum(ContractType, values_callable=lambda obj: [e.value for e in obj]))  # general, export, service, supply
     validity_period: Mapped[str | None] = mapped_column(String(128), nullable=True)  # Срок действия
     rates: Mapped[str | None] = mapped_column(String(1000), nullable=True)  # Тарифы
     contract_info: Mapped[str | None] = mapped_column(String(2000), nullable=True)  # Информация по договору
@@ -271,14 +292,70 @@ class Contract(Base):
 
 # New Workflow Models for REGISTRAR/SUB_REGISTRAR/DISTRIBUTOR
 
+class RegistrarAssignment(Base):
+    """Registrar classification assignment data"""
+    __tablename__ = "registrar_assignments"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"), unique=True)
+    registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    assigned_sub_registrar_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    expense_article_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("expense_articles.id"), nullable=True)
+    assigned_amount: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    registrar_comments: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    classification_date: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    
+    # Relationships
+    request: Mapped["PaymentRequest"] = relationship("PaymentRequest")
+    registrar: Mapped["User"] = relationship("User", foreign_keys=[registrar_id])
+    assigned_sub_registrar: Mapped["User | None"] = relationship("User", foreign_keys=[assigned_sub_registrar_id])
+    expense_article: Mapped["ExpenseArticle | None"] = relationship("ExpenseArticle")
+
 class SubRegistrarAssignment(Base):
+    """Sub-registrar assignment tracking"""
     __tablename__ = "sub_registrar_assignments"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
     sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     assigned_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    status: Mapped[str] = mapped_column(String(32), server_default=text("'ASSIGNED'"))
+    status: Mapped[SubRegistrarAssignmentStatus] = mapped_column(SQLEnum(SubRegistrarAssignmentStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'assigned'"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+class SubRegistrarAssignmentData(Base):
+    """Sub-registrar enrichment data"""
+    __tablename__ = "sub_registrar_assignment_data"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"), unique=True)
+    sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    
+    # Document information
+    document_type: Mapped[str | None] = mapped_column(String(64), nullable=True)  # АВР, Другое, Инвойс, УПД, ЭСФ, АО
+    document_number: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    document_date: Mapped[date | None] = mapped_column(SA_Date, nullable=True)
+    
+    # Financial information
+    amount_without_vat: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    vat_amount: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    currency_code: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    
+    # Document status
+    original_document_status: Mapped[str | None] = mapped_column(String(64), nullable=True)  # not_received, fully_received, partially_received
+    
+    # Comments
+    sub_registrar_comments: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    
+    # Status tracking
+    is_draft: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    is_published: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    published_at: Mapped[datetime | None] = mapped_column(SA_DateTime, nullable=True)
+    
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    
+    # Relationships
+    request: Mapped["PaymentRequest"] = relationship("PaymentRequest")
+    sub_registrar: Mapped["User"] = relationship("User")
 
 class DistributorRequest(Base):
     __tablename__ = "distributor_requests"
@@ -287,7 +364,7 @@ class DistributorRequest(Base):
     expense_article_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("expense_articles.id"))
     amount: Mapped[float] = mapped_column(Numeric(18, 2))
     distributor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str] = mapped_column(String(32), server_default=text("'PENDING'"))
+    status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 class SubRegistrarReport(Base):
@@ -295,7 +372,7 @@ class SubRegistrarReport(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
     sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    document_status: Mapped[str] = mapped_column(String(50))  # Не получены/Получены в полном объёме/Частично получены
+    document_status: Mapped[DocumentStatus] = mapped_column(SQLEnum(DocumentStatus, values_callable=lambda obj: [e.value for e in obj]))  # required, uploaded, verified, rejected
     report_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(32), server_default=text("'DRAFT'"))
     published_at: Mapped[datetime | None] = mapped_column(SA_DateTime, nullable=True)
@@ -319,3 +396,52 @@ class DistributorExportLink(Base):
     export_contract_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("export_contracts.id"))
     linked_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
     linked_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+
+# Phase 2: API Enhancement Models
+
+class IdempotencyKey(Base):
+    __tablename__ = "idempotency_keys"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    key: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    request_hash: Mapped[str] = mapped_column(String(64), index=True)  # SHA-256 hash of request body
+    response_data: Mapped[dict] = mapped_column(JSON)
+    status_code: Mapped[int] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    expires_at: Mapped[datetime] = mapped_column(SA_DateTime)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    
+    # Relationships
+    user: Mapped["User"] = relationship("User")
+
+class PaymentPriorityRule(Base):
+    __tablename__ = "payment_priority_rules"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, values_callable=lambda obj: [e.value for e in obj]))
+    conditions: Mapped[dict] = mapped_column(JSON)  # JSON conditions for priority calculation
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    
+    # Relationships
+    creator: Mapped["User"] = relationship("User")
+
+class FileValidationRule(Base):
+    __tablename__ = "file_validation_rules"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    file_type: Mapped[str] = mapped_column(String(50))  # e.g., "document", "image", "archive"
+    allowed_extensions: Mapped[list[str]] = mapped_column(JSON)  # List of allowed file extensions
+    max_size_mb: Mapped[int] = mapped_column()  # Maximum file size in MB
+    mime_types: Mapped[list[str]] = mapped_column(JSON)  # Allowed MIME types
+    is_required: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"), onupdate=text("CURRENT_TIMESTAMP"))
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    
+    # Relationships
+    creator: Mapped["User"] = relationship("User")

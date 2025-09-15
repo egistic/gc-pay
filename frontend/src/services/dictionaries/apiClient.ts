@@ -325,21 +325,30 @@ export class DictionaryApiEndpoints {
   deletePriority = (id: string): Promise<void> => 
     Promise.reject(new Error('Priorities dictionary is not supported'));
 
-  // Users (Not supported - return empty data)
-  getUsers = (): Promise<DictionaryItem[]> => 
-    Promise.resolve([]);
+  // Users
+  getUsers = async (): Promise<DictionaryItem[]> => {
+    const response = await this.apiClient.get('/users');
+    // Map backend response to frontend format
+    return response.map((item: any) => ({
+      id: item.id,
+      name: item.full_name,
+      fullName: item.full_name,
+      email: item.email,
+      phone: item.phone
+    }));
+  };
 
   getUser = (id: string): Promise<DictionaryItem> => 
-    Promise.reject(new Error('Users dictionary is not supported'));
+    this.apiClient.get(`/users/${id}`);
 
   createUser = (data: any): Promise<DictionaryItem> => 
-    Promise.reject(new Error('Users dictionary is not supported'));
+    this.apiClient.post('/users', data);
 
   updateUser = (id: string, data: any): Promise<DictionaryItem> => 
-    Promise.reject(new Error('Users dictionary is not supported'));
+    this.apiClient.put(`/users/${id}`, data);
 
   deleteUser = (id: string): Promise<void> => 
-    Promise.reject(new Error('Users dictionary is not supported'));
+    this.apiClient.delete(`/users/${id}`);
 
   // Currencies
   getCurrencies = async (): Promise<DictionaryItem[]> => {

@@ -24,6 +24,7 @@ export type PaymentRequestStatus =
   | 'rejected'
   | 'cancelled'
   | 'distributed'
+  | 'splited'
   | 'report_published'
   | 'export_linked';
 
@@ -74,11 +75,11 @@ export interface PaymentRequest {
   expenseSplits: ExpenseSplit[];
   paymentAllocations?: PaymentAllocation[];
   paymentExecution?: PaymentExecution;
-  attachments?: FileAttachment[];
   // Split request fields
+  isSplitRequest?: boolean;
   originalRequestId?: string;
   splitSequence?: number;
-  isSplitRequest?: boolean;
+  attachments?: FileAttachment[];
   deleted?: boolean;
 }
 

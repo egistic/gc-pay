@@ -26,12 +26,14 @@ import { isOverdue } from '../../features/payment-requests/lib/isOverdue';
 import { getReviewerByStatus, STATUS_MAP } from '../../features/payment-requests/constants/status-map';
 
 interface ExecutorRequestsListProps {
+  currentRole?: string;
+  currentUserId?: string;
   onCreateRequest?: () => void;
   onViewRequest?: (id: string) => void;
   onEditRequest?: (id: string) => void;
 }
 
-export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditRequest }: ExecutorRequestsListProps) {
+export function ExecutorRequestsList({ currentRole, currentUserId, onCreateRequest, onViewRequest, onEditRequest }: ExecutorRequestsListProps) {
   // Get dictionary data
   const { items: counterparties } = useDictionaryData('counterparties');
   
@@ -99,6 +101,24 @@ export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditReq
       filtered = filtered.filter(req => req.status === statusFilter);
     }
     
+        // Hide original requests that have been split (show only split requests)
+        filtered = filtered.filter(req => {
+          // Hide requests with SPLITED status (original requests that were split)
+          if (req.status === 'splited') {
+            return false;
+          }
+          
+          // If this request has split requests, hide the original
+          const hasSplitRequests = requests.some(otherReq => 
+            otherReq.originalRequestId === req.id && otherReq.isSplitRequest
+          );
+          
+          // Show the request only if:
+          // 1. It's a split request (isSplitRequest = true), OR
+          // 2. It doesn't have any split requests (not split)
+          return req.isSplitRequest || !hasSplitRequests;
+        });
+    
     return filtered.sort((a, b) => {
       try {
         const dateA = new Date(a.createdAt);
@@ -120,14 +140,27 @@ export function ExecutorRequestsList({ onCreateRequest, onViewRequest, onEditReq
   const getStatusOptions = () => {
     const statusLabels: Record<string, string> = {
       'draft': 'Черновик',
-      'submitted': 'В работе',
-      'in-register': 'Согласовано',
-      'rejected': 'Отклонено',
-      'to-pay': 'Оплачено'
+      'submitted': 'Новая',
+      'classified': 'Классифицирована',
+      'approved': 'Утверждена',
+      'in-register': 'В реестре',
+      'to-pay': 'К оплате',
+      'approved-for-payment': 'Утверждена к оплате',
+      'paid-full': 'Оплачена полностью',
+      'paid-partial': 'Оплачена частично',
+      'rejected': 'Отклонена',
+      'declined': 'Отклонена',
+      'returned': 'Возвращена',
+      'cancelled': 'Аннулирована',
+      'closed': 'Закрыта'
     };
     
-    // Use all possible statuses, not just from current requests
-    const allStatuses = ['draft', 'submitted', 'in-register', 'rejected', 'to-pay'];
+    // Use all possible statuses according to documentation
+    const allStatuses = [
+      'draft', 'submitted', 'classified', 'approved', 'in-register', 
+      'to-pay', 'approved-for-payment', 'paid-full', 'paid-partial',
+      'rejected', 'declined', 'returned', 'cancelled', 'closed'
+    ];
     
     const statuses = [
       { value: 'all', label: 'Все статусы' },

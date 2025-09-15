@@ -47,9 +47,10 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
     loading: requestsLoading, 
     error: requestsError 
   } = useExecutorRequests({
-    status: currentFilter && currentFilter !== 'total' ? currentFilter : undefined,
-    page: currentPage,
-    limit: itemsPerPage
+    // Don't pass status filter - we'll filter on client side
+    // Load more requests to ensure we have enough for filtering
+    page: 1,
+    limit: 100
   });
 
   const { 
@@ -65,26 +66,29 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
   const filteredRequests = useMemo(() => {
     let filtered = [...requests];
     
+    // Hide requests with 'splited' status for EXECUTOR role
+    filtered = filtered.filter(r => r.status !== 'splited');
+    
     // Apply status filter
     if (currentFilter) {
       switch (currentFilter) {
         case 'draft':
           filtered = filtered.filter(r => r.status === 'draft');
           break;
-        case 'submitted':
-          filtered = filtered.filter(r => r.status === 'submitted');
+        case 'in-progress':
+          filtered = filtered.filter(r => r.status === 'submitted' || r.status === 'classified');
           break;
-        case 'in-register':
-          filtered = filtered.filter(r => r.status === 'in-register');
+        case 'approved':
+          filtered = filtered.filter(r => r.status === 'approved' || r.status === 'in-register' || r.status === 'to-pay' || r.status === 'approved-for-payment');
           break;
-        case 'to-pay':
-          filtered = filtered.filter(r => r.status === 'to-pay');
+        case 'paid':
+          filtered = filtered.filter(r => r.status === 'paid-full' || r.status === 'paid-partial');
           break;
         case 'rejected':
-          filtered = filtered.filter(r => r.status === 'rejected');
+          filtered = filtered.filter(r => r.status === 'rejected' || r.status === 'declined');
           break;
         case 'total':
-          // Show all requests
+          // Show all requests (except splited)
           break;
       }
     }
@@ -126,10 +130,10 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
     
     return {
       total: statistics.totalRequests || 0,
-      inProgress: statistics.submittedCount || 0, // Только submitted
-      approvedNotPaid: statistics.inRegistryCount || 0, // Только in-register
+      inProgress: (statistics.submittedCount || 0) + (statistics.classifiedCount || 0), // submitted + classified
+      approvedNotPaid: (statistics.approvedCount || 0) + (statistics.inRegistryCount || 0) + (statistics.toPayCount || 0) + (statistics.approvedForPaymentCount || 0), // approved + in-register + to-pay + approved-for-payment
       paid: (statistics.paidFullCount || 0) + (statistics.paidPartialCount || 0),
-      declined: statistics.rejectedCount || 0,
+      declined: (statistics.rejectedCount || 0) + (statistics.declinedCount || 0), // rejected + declined
       draft: statistics.draftCount || 0,
       totalAmount: statistics.totalAmount || 0
     };
@@ -243,9 +247,9 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
             
             <div 
               className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
-                currentFilter === 'submitted' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+                currentFilter === 'in-progress' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
               }`}
-              onClick={() => handleFilterClick('submitted')}
+              onClick={() => handleFilterClick('in-progress')}
             >
               <div className="flex items-center gap-2 mb-1">
                 <Clock className="h-3 w-3 text-orange-500" />
@@ -256,9 +260,9 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
             
             <div 
               className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
-                currentFilter === 'in-register' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+                currentFilter === 'approved' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
               }`}
-              onClick={() => handleFilterClick('in-register')}
+              onClick={() => handleFilterClick('approved')}
             >
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle className="h-3 w-3 text-blue-500" />
@@ -269,9 +273,9 @@ function ExecutorDashboard({ onViewRequest, onCreateRequest }: ExecutorDashboard
             
             <div 
               className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
-                currentFilter === 'to-pay' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+                currentFilter === 'paid' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
               }`}
-              onClick={() => handleFilterClick('to-pay')}
+              onClick={() => handleFilterClick('paid')}
             >
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle className="h-3 w-3 text-green-500" />

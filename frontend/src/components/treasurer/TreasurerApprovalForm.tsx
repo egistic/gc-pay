@@ -109,7 +109,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
       case 'approved-for-payment': return 'bg-green-100 text-green-800';
       case 'paid-full': return 'bg-emerald-100 text-emerald-800';
       case 'paid-partial': return 'bg-yellow-100 text-yellow-800';
-      case 'declined': return 'bg-red-100 text-red-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
       case 'cancelled': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -122,7 +122,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
       case 'approved-for-payment': return 'Утверждена к оплате';
       case 'paid-full': return 'Оплачена полностью';
       case 'paid-partial': return 'Оплачена частично';
-      case 'declined': return 'Отклонена';
+      case 'rejected': return 'Отклонена';
       case 'cancelled': return 'Аннулирована';
       default: return 'Неизвестен';
     }
@@ -442,7 +442,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
           
           <Button
             variant="destructive"
-            onClick={() => setActionType('declined')}
+            onClick={() => setActionType('rejected')}
           >
             <XCircle className="h-4 w-4 mr-2" />
             Отклонить
@@ -465,7 +465,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
             <CardTitle className="flex items-center gap-2">
               {actionType === 'in-register' && <CheckCircle className="h-4 w-4 text-purple-500" />}
               {(actionType === 'paid-full' || actionType === 'paid-partial') && <CheckCircle className="h-4 w-4 text-green-500" />}
-              {(actionType === 'declined' || actionType === 'cancelled') && <XCircle className="h-4 w-4 text-red-500" />}
+              {(actionType === 'rejected' || actionType === 'cancelled') && <XCircle className="h-4 w-4 text-red-500" />}
               Подтверждение действия
             </CardTitle>
           </CardHeader>
@@ -474,7 +474,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
               {actionType === 'in-register' && 'Платеж будет включен в реестр на оплату.'}
               {actionType === 'paid-full' && 'Платеж будет помечен как оплаченный полностью.'}
               {actionType === 'paid-partial' && 'Платеж будет помечен как частично оплаченный.'}
-              {actionType === 'declined' && 'Платеж будет отклонен.'}
+              {actionType === 'rejected' && 'Платеж будет отклонен.'}
               {actionType === 'cancelled' && 'Платеж будет аннулирован.'}
             </p>
             
@@ -567,7 +567,7 @@ export function TreasurerApprovalForm({ request, onUpdateStatus, onCancel }: Tre
                   (actionType === 'paid-full' || actionType === 'paid-partial') && 
                   (!actualAmount || !executionDate)
                 }
-                variant={actionType === 'declined' || actionType === 'cancelled' ? 'destructive' : 'default'}
+                variant={actionType === 'rejected' || actionType === 'cancelled' ? 'destructive' : 'default'}
               >
                 <Send className="h-4 w-4 mr-2" />
                 Подтвердить

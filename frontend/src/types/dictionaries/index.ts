@@ -136,7 +136,8 @@ export type DictionaryType =
   | 'expense-articles'
   | 'counterparties'
   | 'currencies'
-  | 'vat-rates';
+  | 'vat-rates'
+  | 'users';
 
 /**
  * Dictionary Item Types

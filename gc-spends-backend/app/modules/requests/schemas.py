@@ -92,6 +92,9 @@ class RequestOut(BaseModel):
     volume: str | None = None
     price_rate: str | None = None
     period: str | None = None
+    # Document fields for frontend compatibility
+    doc_file_url: str | None = None
+    file_name: str | None = None
     # Split request fields
     original_request_id: uuid.UUID | None = None
     split_sequence: int | None = None
@@ -174,7 +177,17 @@ class RequestStatistics(BaseModel):
     classified: int
     approved: int
     in_registry: int
+    to_pay: int = 0
+    approved_for_payment: int = 0
+    paid_full: int = 0
+    paid_partial: int = 0
     rejected: int
+    returned: int = 0
+    cancelled: int = 0
+    closed: int = 0
+    distributed: int = 0
+    report_published: int = 0
+    export_linked: int = 0
     overdue: int
     expense_articles: List[ExpenseArticleInfo] = []
 

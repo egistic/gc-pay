@@ -21,6 +21,14 @@ from app.modules.sub_registrar.router import router as sub_registrar_router
 from app.modules.distributor.router import router as distributor_router
 from app.modules.export_contracts.router import router as export_contracts_router
 from app.modules.admin.router import router as admin_router
+from app.modules.idempotency.router import router as idempotency_router
+from app.modules.priority.router import router as priority_router
+from app.modules.file_management.router import router as file_management_router
+from app.modules.monitoring.router import router as monitoring_router
+from app.modules.registrar_assignment import router as registrar_assignment_router
+from app.modules.sub_registrar_assignment_data import router as sub_registrar_assignment_data_router
+from app.core.idempotency import IdempotencyMiddleware
+from app.core.monitoring import monitoring_middleware
 
 app = FastAPI(
     title="GC Spends API",
@@ -111,6 +119,30 @@ app = FastAPI(
             "description": "Административные функции системы"
         },
         {
+            "name": "idempotency",
+            "description": "Управление идемпотентными ключами для API запросов"
+        },
+        {
+            "name": "priority",
+            "description": "Управление приоритетами платежных запросов"
+        },
+        {
+            "name": "file-management",
+            "description": "Расширенное управление файлами с валидацией"
+        },
+        {
+            "name": "monitoring",
+            "description": "Мониторинг и наблюдение за системой"
+        },
+        {
+            "name": "registrar-assignments",
+            "description": "Назначения регистратора для классификации заявок"
+        },
+        {
+            "name": "sub-registrar-assignment-data",
+            "description": "Данные суб-регистратора для обогащения заявок"
+        },
+        {
             "name": "health",
             "description": "Проверка состояния системы"
         }
@@ -189,6 +221,12 @@ app.add_middleware(
     minimum_size=1000  # Only compress responses > 1KB
 )
 
+# Add idempotency middleware
+app.add_middleware(IdempotencyMiddleware, expire_hours=24)
+
+# Add monitoring middleware
+app.middleware("http")(monitoring_middleware)
+
 # Add custom security headers middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -244,8 +282,6 @@ async def options_handler(path: str):
         }
     )
 
-app.mount(settings.api_prefix, api)
-
 # Include all routers
 api.include_router(auth_router)
 api.include_router(users_router)
@@ -263,6 +299,14 @@ api.include_router(sub_registrar_router)
 api.include_router(distributor_router)
 api.include_router(export_contracts_router)
 api.include_router(admin_router)
+api.include_router(idempotency_router)
+api.include_router(priority_router)
+api.include_router(file_management_router)
+api.include_router(monitoring_router)
+api.include_router(registrar_assignment_router)
+api.include_router(sub_registrar_assignment_data_router)
+
+app.mount(settings.api_prefix, api)
 
 @app.options("/{path:path}")
 async def app_options_handler(path: str):

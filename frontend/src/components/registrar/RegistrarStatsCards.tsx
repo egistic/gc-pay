@@ -86,13 +86,13 @@ export function RegistrarStatsCards({
       tooltip: 'Заявки, возвращенные на доработку исполнителю'
     },
     {
-      id: 'declined',
+      id: 'rejected',
       title: 'Отклонено',
-      value: filteredRequests.filter(r => r.status === 'declined').length,
+      value: filteredRequests.filter(r => r.status === 'rejected').length,
       icon: <FileText className="h-4 w-4 text-red-600" />,
       color: 'text-red-600',
       isClickable: true,
-      filterType: 'declined',
+      filterType: 'rejected',
       tooltip: 'Отклоненные заявки'
     }
   ];

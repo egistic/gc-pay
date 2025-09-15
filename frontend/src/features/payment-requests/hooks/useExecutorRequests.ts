@@ -50,25 +50,6 @@ export const useExecutorRequests = (options: UseExecutorRequestsOptions = {}): U
       setLoading(true);
       setError(null);
 
-      // Build query parameters
-      const queryParams = new URLSearchParams();
-      queryParams.append('role', 'EXECUTOR');
-      
-      if (status && status !== 'all') {
-        queryParams.append('status', status);
-      }
-      
-      if (searchTerm) {
-        queryParams.append('search', searchTerm);
-      }
-      
-      if (counterpartyFilter && counterpartyFilter !== 'all') {
-        queryParams.append('counterparty_id', counterpartyFilter);
-      }
-      
-      queryParams.append('page', page.toString());
-      queryParams.append('limit', limit.toString());
-
       // Fetch data from API (already normalized by service)
       const response = await PaymentRequestService.getAll({
         role: 'EXECUTOR',

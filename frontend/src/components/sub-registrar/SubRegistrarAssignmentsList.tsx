@@ -1,340 +1,450 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Label } from '../ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Loader2, FileText, Save, Send, Eye, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { SubRegistrarService } from '../../services/subRegistrarService';
-import { PaymentRequestService } from '../../services/paymentRequestService';
-import { NotificationService } from '../../services/notificationService';
-import { WorkflowStateService } from '../../services/workflowStateService';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { StatusBadge } from '../common/StatusBadge';
 import { 
-  SubRegistrarAssignment, 
-  SubRegistrarReport, 
-  PaymentRequest,
-  DocumentStatus,
-  ReportStatus 
-} from '../../types';
-import { toast } from 'sonner';
+  Search, 
+  Filter, 
+  Calendar,
+  Building,
+  DollarSign,
+  Download,
+  Edit,
+  AlertTriangle
+} from 'lucide-react';
+import { useDictionaryData } from '../../hooks/useDictionaryData';
+import { formatCurrency } from '../../utils/formatting';
+import { formatDateSafe } from '../../features/payment-requests/lib/formatDateSafe';
+import { isOverdue } from '../../features/payment-requests/lib/isOverdue';
+import { getReviewerByStatus } from '../../features/payment-requests/constants/status-map';
+import { PaymentRequestService } from '../../services/paymentRequestService';
+import { useAuth } from '../../context/AuthContext';
 
-interface SubRegistrarAssignmentsListProps {
-  onReportUpdate?: () => void;
+interface SubRegistrarRequestsListProps {
+  onViewRequest?: (id: string) => void;
+  onEditRequest?: (id: string) => void;
 }
 
-export const SubRegistrarAssignmentsList: React.FC<SubRegistrarAssignmentsListProps> = ({
-  onReportUpdate
-}) => {
-  const [assignments, setAssignments] = useState<SubRegistrarAssignment[]>([]);
-  const [reports, setReports] = useState<Map<string, SubRegistrarReport>>(new Map());
-  const [requests, setRequests] = useState<Map<string, PaymentRequest>>(new Map());
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<SubRegistrarAssignment | null>(null);
-  const [documentStatus, setDocumentStatus] = useState<DocumentStatus>('Не получены');
-  const [reportData, setReportData] = useState<string>('');
+function SubRegistrarRequestsList({ onViewRequest, onEditRequest }: SubRegistrarRequestsListProps) {
+  // Get dictionary data
+  const { items: counterparties } = useDictionaryData('counterparties');
+  
+  // Get current user
+  const { user } = useAuth();
+  
+  // State for filtering
+  const [searchTerm, setSearchTerm] = useState('');
+  const [counterpartyFilter, setCounterpartyFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAssignments();
-  }, []);
-
-  const loadAssignments = async () => {
-    try {
-      setIsLoading(true);
-      const response = await SubRegistrarService.getAssignments();
-      setAssignments(response.assignments);
+  // Load requests assigned to this sub-registrar
+  React.useEffect(() => {
+    const loadRequests = async () => {
+      if (!user?.id) return;
       
-      // Load reports for each assignment
-      const reportsMap = new Map<string, SubRegistrarReport>();
-      const requestsMap = new Map<string, PaymentRequest>();
-      
-      for (const assignment of response.assignments) {
-        try {
-          // Load report if exists
-          const report = await SubRegistrarService.getReport(assignment.requestId);
-          reportsMap.set(assignment.requestId, report);
-        } catch (error) {
-          // Report doesn't exist yet, that's okay
-        }
+      try {
+        setLoading(true);
+        setError(null);
         
-        try {
-          // Load request details
-          const request = await PaymentRequestService.getById(assignment.requestId);
-          if (request) {
-            requestsMap.set(assignment.requestId, request);
-          }
-        } catch (error) {
-          console.error('Error loading request:', error);
+        // Get requests for sub-registrar (all SUBMITTED and CLASSIFIED requests)
+        const data = await PaymentRequestService.getAll({ 
+          role: 'SUB_REGISTRAR'
+        });
+        
+        setRequests(data);
+      } catch (err) {
+        console.error('Error loading sub-registrar requests:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load requests');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRequests();
+  }, [user?.id]);
+
+  // Get unique counterparties from user's requests
+  const availableCounterparties = useMemo(() => {
+    const counterpartyIds = [...new Set(requests.map(req => req.counterpartyId))];
+    return counterparties.filter(cp => counterpartyIds.includes(cp.id));
+  }, [requests, counterparties]);
+
+  // Filter requests based on filters
+  const filteredRequests = useMemo(() => {
+    let filtered = [...requests];
+    
+    // SUB_REGISTRAR only sees 'classified' requests
+    filtered = filtered.filter(req => req.status === 'classified');
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(req => {
+        const counterparty = counterparties.find(cp => cp.id === req.counterpartyId);
+        return (
+          req.docNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          req.requestNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          req.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          counterparty?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          req.amount.toString().includes(searchTerm)
+        );
+      });
+    }
+    
+    // Apply counterparty filter
+    if (counterpartyFilter !== 'all') {
+      filtered = filtered.filter(req => req.counterpartyId === counterpartyFilter);
+    }
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(req => req.status === statusFilter);
+    }
+    
+    return filtered.sort((a, b) => {
+      try {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+          return 0;
         }
+        return dateB.getTime() - dateA.getTime(); // Newest first
+      } catch (error) {
+        return 0;
       }
-      
-      setReports(reportsMap);
-      setRequests(requestsMap);
-    } catch (error) {
-      console.error('Error loading assignments:', error);
-      toast.error('Ошибка загрузки назначений');
-    } finally {
-      setIsLoading(false);
-    }
+    });
+  }, [requests, searchTerm, counterpartyFilter, statusFilter, counterparties]);
+
+  const getCounterpartyName = (id: string) => {
+    return counterparties.find(cp => cp.id === id)?.name || 'Неизвестен';
   };
 
-  const handleSaveDraft = async (assignment: SubRegistrarAssignment) => {
-    try {
-      setIsSaving(true);
-      
-      const reportData = {
-        requestId: assignment.requestId,
-        documentStatus,
-        reportData: reportData ? JSON.parse(reportData) : undefined
-      };
-      
-      await SubRegistrarService.saveDraftReport(reportData);
-      toast.success('Отчёт сохранён как черновик');
-      
-      // Reload assignments to get updated data
-      await loadAssignments();
-      
-      if (onReportUpdate) {
-        onReportUpdate();
-      }
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast.error('Ошибка сохранения черновика');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handlePublishReport = async (assignment: SubRegistrarAssignment) => {
-    try {
-      setIsPublishing(true);
-      
-      await SubRegistrarService.publishReport(assignment.requestId);
-      
-      // Send notifications
-      const request = requests.get(assignment.requestId);
-      if (request) {
-        NotificationService.notifyReportPublished(assignment.requestId, request.requestNumber || 'Без номера');
-      }
-      
-      toast.success('Отчёт опубликован');
-      
-      // Reload assignments to get updated data
-      await loadAssignments();
-      
-      if (onReportUpdate) {
-        onReportUpdate();
-      }
-    } catch (error) {
-      console.error('Error publishing report:', error);
-      toast.error('Ошибка публикации отчёта');
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  const getStatusBadge = (assignment: SubRegistrarAssignment) => {
-    const report = reports.get(assignment.requestId);
+  const getStatusOptions = () => {
+    const statusLabels: Record<string, string> = {
+      'classified': 'Классифицирована',
+      'returned': 'Возвращена',
+      'approved': 'Утверждена',
+      'in-register': 'В реестре',
+      'to-pay': 'К оплате',
+      'approved-for-payment': 'Утверждена к оплате',
+      'paid-full': 'Оплачена полностью',
+      'paid-partial': 'Оплачена частично',
+      'rejected': 'Отклонена',
+      'declined': 'Отклонена',
+      'cancelled': 'Аннулирована',
+      'closed': 'Закрыта'
+    };
     
-    if (!report) {
-      return <Badge variant="outline">Новый</Badge>;
-    }
+    // Use statuses relevant for sub-registrar (excluding submitted/new)
+    const subRegistrarStatuses = [
+      'classified', 'returned', 'approved', 'in-register', 
+      'to-pay', 'approved-for-payment', 'paid-full', 'paid-partial',
+      'rejected', 'declined', 'cancelled', 'closed'
+    ];
     
-    if (report.status === 'draft') {
-      return <Badge variant="secondary">Черновик</Badge>;
-    }
+    const statuses = [
+      { value: 'all', label: 'Все статусы' },
+      ...subRegistrarStatuses.map(status => ({
+        value: status,
+        label: statusLabels[status] || status
+      }))
+    ];
     
-    if (report.status === 'published') {
-      return <Badge variant="default">Опубликован</Badge>;
-    }
-    
-    return <Badge variant="outline">{assignment.status}</Badge>;
+    return statuses;
   };
 
-  const getDocumentStatusIcon = (status: DocumentStatus) => {
-    switch (status) {
-      case 'Не получены':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'Получены в полном объёме':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'Частично получены':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const getDocumentStatusColor = (status: DocumentStatus) => {
-    switch (status) {
-      case 'Не получены':
-        return 'text-red-600';
-      case 'Получены в полном объёме':
-        return 'text-green-600';
-      case 'Частично получены':
-        return 'text-yellow-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Загрузка назначений...</span>
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-muted-foreground">Загрузка заявок...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (assignments.length === 0) {
+  if (error) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Нет назначений</h3>
-          <p className="text-muted-foreground">
-            У вас пока нет назначенных заявок для обработки
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <p className="text-red-500 mb-2">Ошибка загрузки заявок</p>
+            <p className="text-muted-foreground text-sm">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline"
+              className="mt-4"
+            >
+              Попробовать снова
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Заявки на оплату</h2>
+          <p className="text-muted-foreground">
+            Все ваши заявки, отсортированные от новых к старым
+          </p>
+        </div>
+      </div>
+
+      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Мои назначения
+            <Filter className="h-4 w-4" />
+            Фильтры
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {assignments.map((assignment) => {
-              const request = requests.get(assignment.requestId);
-              const report = reports.get(assignment.requestId);
-              
-              return (
-                <Card key={assignment.id} className="border-l-4 border-l-blue-500">
-                  <CardContent className="pt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* Request Info */}
-                      <div className="space-y-2">
-                        <h4 className="font-medium">
-                          {request?.requestNumber || `Заявка ${assignment.requestId.slice(0, 8)}`}
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {request?.description || 'Описание недоступно'}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Сумма:</span>
-                          <span className="text-sm">
-                            {request?.amount} {request?.currency}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Статус:</span>
-                          {getStatusBadge(assignment)}
-                        </div>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Поиск по номеру, описанию..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-                      {/* Document Status */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Статус документов</Label>
-                        <div className="flex items-center gap-2">
-                          {getDocumentStatusIcon(documentStatus)}
-                          <span className={`text-sm ${getDocumentStatusColor(documentStatus)}`}>
-                            {documentStatus}
-                          </span>
-                        </div>
-                        
-                        <Select
-                          value={documentStatus}
-                          onValueChange={(value: DocumentStatus) => setDocumentStatus(value)}
+            <Select value={counterpartyFilter} onValueChange={setCounterpartyFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder={`Контрагент (${availableCounterparties.length})`} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все контрагенты ({availableCounterparties.length})</SelectItem>
+                {availableCounterparties.map(cp => (
+                  <SelectItem key={cp.id} value={cp.id}>
+                    {cp.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Статус" />
+              </SelectTrigger>
+              <SelectContent>
+                {getStatusOptions().map(status => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-blue-500" />
+              <div>
+                <p className="text-sm text-muted-foreground">Всего заявок</p>
+                <p className="text-xl font-semibold">{filteredRequests.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Building className="h-4 w-4 text-orange-500" />
+              <div>
+                <p className="text-sm text-muted-foreground">Контрагентов</p>
+                <p className="text-xl font-semibold">
+                  {new Set(filteredRequests.map(r => r.counterpartyId)).size}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-500" />
+              <div>
+                <p className="text-sm text-muted-foreground">Общая сумма</p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(filteredRequests.reduce((sum, r) => sum + r.amount, 0), 'KZT')}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-red-500" />
+              <div>
+                <p className="text-sm text-muted-foreground">Просрочено</p>
+                <p className="text-xl font-semibold">
+                  {filteredRequests.filter(r => isOverdue(r.dueDate)).length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Requests table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>
+            Заявки ({filteredRequests.length})
+          </CardTitle>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Экспорт xlsx
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <Table className="table-fixed w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-32">№ заявки</TableHead>
+                  <TableHead className="w-40">Контрагент</TableHead>
+                  <TableHead className="w-24">Сумма</TableHead>
+                  <TableHead className="w-28">Срок оплаты</TableHead>
+                  <TableHead className="w-32">Статус</TableHead>
+                  <TableHead className="w-36">У кого на рассмотрении</TableHead>
+                  <TableHead className="w-28">Создана</TableHead>
+                  <TableHead className="w-16">Действия</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRequests.map((request) => (
+                  <TableRow 
+                    key={request.id}
+                    className="hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => onViewRequest?.(request.id)}
+                  >
+                    <TableCell className="font-medium w-32">
+                      <div className="flex flex-col">
+                        <span 
+                          className="truncate text-ellipsis overflow-hidden" 
+                          title={request.requestNumber || request.docNumber}
+                          style={{ maxWidth: '128px' }}
                         >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Не получены">Не получены</SelectItem>
-                            <SelectItem value="Получены в полном объёме">Получены в полном объёме</SelectItem>
-                            <SelectItem value="Частично получены">Частично получены</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleSaveDraft(assignment)}
-                            disabled={isSaving}
-                            className="flex items-center gap-1"
+                          {request.requestNumber || request.docNumber}
+                        </span>
+                        {request.requestNumber && (
+                          <span 
+                            className="text-xs text-muted-foreground truncate text-ellipsis overflow-hidden" 
+                            title={request.docNumber}
+                            style={{ maxWidth: '128px' }}
                           >
-                            {isSaving ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              <Save className="h-3 w-3" />
-                            )}
-                            Сохранить в работе
-                          </Button>
-                          
-                          <Button
-                            size="sm"
-                            onClick={() => handlePublishReport(assignment)}
-                            disabled={isPublishing || !report}
-                            className="flex items-center gap-1"
-                          >
-                            {isPublishing ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              <Send className="h-3 w-3" />
-                            )}
-                            Опубликовать отчёт
-                          </Button>
-                        </div>
-                        
-                        {report && (
-                          <div className="text-xs text-muted-foreground">
-                            {report.status === 'draft' ? (
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                Черновик от {new Date(report.createdAt).toLocaleDateString()}
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1">
-                                <CheckCircle className="h-3 w-3" />
-                                Опубликован {report.publishedAt && new Date(report.publishedAt).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
+                            {request.docNumber}
+                          </span>
                         )}
                       </div>
-                    </div>
-
-                    {/* Report Data */}
-                    <div className="mt-4 space-y-2">
-                      <Label className="text-sm font-medium">Данные отчёта (JSON)</Label>
-                      <textarea
-                        value={reportData}
-                        onChange={(e) => setReportData(e.target.value)}
-                        placeholder="Введите данные отчёта в формате JSON (необязательно)"
-                        className="w-full px-3 py-2 border border-input rounded-md text-sm"
-                        rows={3}
+                    </TableCell>
+                    <TableCell className="w-40">
+                      <span 
+                        className="truncate block text-ellipsis overflow-hidden" 
+                        title={getCounterpartyName(request.counterpartyId)}
+                        style={{ maxWidth: '160px' }}
+                      >
+                        {getCounterpartyName(request.counterpartyId)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="w-24">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate">{formatCurrency(request.amount, request.currency)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-28">
+                      <div className={`flex items-center gap-2 ${isOverdue(request.dueDate) ? 'text-red-600' : ''}`}>
+                        <span className="truncate">{formatDateSafe(request.dueDate)}</span>
+                        {isOverdue(request.dueDate) && (
+                          <Badge variant="destructive" className="text-xs">
+                            Просрочено
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-32">
+                      <StatusBadge 
+                        status={request.status}
+                        showTooltip={true}
+                        responsible={getReviewerByStatus(request.status)}
+                        statusTime={formatDateSafe(request.updatedAt || request.createdAt)}
                       />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground w-36">
+                      <span 
+                        className="truncate block text-ellipsis overflow-hidden" 
+                        title={getReviewerByStatus(request.status)}
+                        style={{ maxWidth: '144px' }}
+                      >
+                        {getReviewerByStatus(request.status)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground w-28">
+                      <span className="truncate block">{formatDateSafe(request.createdAt)}</span>
+                    </TableCell>
+                    <TableCell className="w-16">
+                      <div className="flex items-center justify-end gap-1">
+                        {request.status === 'returned' && onEditRequest && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              onEditRequest(request.id);
+                            }}
+                            title="Редактировать"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            
+            {filteredRequests.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                Заявки не найдены
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
+}
+
+// Export as default and named export for compatibility
+export default SubRegistrarRequestsList;
+export { SubRegistrarRequestsList };
+export { SubRegistrarRequestsList as SubRegistrarAssignmentsList };

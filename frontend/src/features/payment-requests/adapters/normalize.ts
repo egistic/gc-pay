@@ -53,7 +53,11 @@ export const toFrontendRequest = (backendRequest: BackendRequestOut): FrontendPa
     expenseSplits: [], // Not provided by backend
     paymentAllocations: [], // Not provided by backend
     paymentExecution: undefined, // Not provided by backend
-    attachments: backendRequest.files || []
+    attachments: backendRequest.files || [],
+    // Split request fields
+    isSplitRequest: backendRequest.is_split_request || false,
+    originalRequestId: backendRequest.original_request_id,
+    splitSequence: backendRequest.split_sequence
   };
 };
 
@@ -93,7 +97,11 @@ export const toFrontendListItem = (backendRequest: BackendRequestListOut): Front
     expenseSplits: [], // Not provided by backend
     paymentAllocations: [], // Not provided by backend
     paymentExecution: undefined, // Not provided by backend
-    attachments: backendRequest.files || []
+    attachments: backendRequest.files || [],
+    // Split request fields
+    isSplitRequest: backendRequest.is_split_request || false,
+    originalRequestId: backendRequest.original_request_id,
+    splitSequence: backendRequest.split_sequence
   };
 };
 
@@ -110,9 +118,15 @@ export const toFrontendStatistics = (backendStats: BackendStatistics): FrontendS
     classifiedCount: backendStats.classified,
     approvedCount: backendStats.approved,
     inRegistryCount: backendStats.in_registry,
-    paidFullCount: backendStats.paid_full,
-    paidPartialCount: backendStats.paid_partial,
+    toPayCount: backendStats.to_pay || 0,
+    approvedForPaymentCount: backendStats.approved_for_payment || 0,
+    paidFullCount: backendStats.paid_full || 0,
+    paidPartialCount: backendStats.paid_partial || 0,
     rejectedCount: backendStats.rejected,
+    declinedCount: backendStats.declined || 0,
+    returnedCount: backendStats.returned || 0,
+    cancelledCount: backendStats.cancelled || 0,
+    closedCount: backendStats.closed || 0,
     totalAmount: backendStats.total_amount,
     totalVat: backendStats.total_vat
   };

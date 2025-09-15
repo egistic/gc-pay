@@ -190,7 +190,7 @@ export function PaymentRegister({ onBack, onUpdateRequest }: PaymentRegisterProp
     } else if (actualAmount > 0 && actualAmount < originalAmount) {
       return 'paid-partial';
     } else {
-      return 'declined';
+      return 'rejected';
     }
   };
 
@@ -201,7 +201,7 @@ export function PaymentRegister({ onBack, onUpdateRequest }: PaymentRegisterProp
     const paymentInfo = getPaymentData(requestId);
     
     // Automatically determine status based on amount
-    const determinedStatus = paymentInfo.actualAmount === 0 ? 'declined' : 
+    const determinedStatus = paymentInfo.actualAmount === 0 ? 'rejected' : 
                             determinePaymentStatus(request.amount, paymentInfo.actualAmount);
 
     const updatedRequest = {
@@ -241,7 +241,7 @@ export function PaymentRegister({ onBack, onUpdateRequest }: PaymentRegisterProp
 
     processableRequests.forEach(request => {
       const paymentInfo = getPaymentData(request.id);
-      const determinedStatus = paymentInfo.actualAmount === 0 ? 'declined' : 
+      const determinedStatus = paymentInfo.actualAmount === 0 ? 'rejected' : 
                               determinePaymentStatus(request.amount, paymentInfo.actualAmount);
 
       const updatedRequest = {
@@ -611,7 +611,7 @@ export function PaymentRegister({ onBack, onUpdateRequest }: PaymentRegisterProp
                   .map(request => {
                     const currentPaymentData = getPaymentData(request.id);
                     const priority = getPriorityInfo(request.priority);
-                    const futureStatus = currentPaymentData.actualAmount === 0 ? 'declined' : 
+                    const futureStatus = currentPaymentData.actualAmount === 0 ? 'rejected' : 
                                        determinePaymentStatus(request.amount, currentPaymentData.actualAmount);
                     
                     return (
@@ -710,12 +710,12 @@ export function PaymentRegister({ onBack, onUpdateRequest }: PaymentRegisterProp
                             <div className="flex justify-end">
                               <Button 
                                 onClick={() => handleProcessPayment(request.id)}
-                                disabled={!currentPaymentData.actualAmount && futureStatus !== 'declined'}
-                                variant={futureStatus === 'declined' ? 'destructive' : 'default'}
+                                disabled={!currentPaymentData.actualAmount && futureStatus !== 'rejected'}
+                                variant={futureStatus === 'rejected' ? 'destructive' : 'default'}
                               >
                                 {futureStatus === 'paid-full' && <CheckCircle className="h-4 w-4 mr-2" />}
                                 {futureStatus === 'paid-partial' && <Clock className="h-4 w-4 mr-2" />}
-                                {futureStatus === 'declined' && <XCircle className="h-4 w-4 mr-2" />}
+                                {futureStatus === 'rejected' && <XCircle className="h-4 w-4 mr-2" />}
                                 
                                 {futureStatus === 'paid-full' ? 'Отметить как оплаченный полностью' :
                                  futureStatus === 'paid-partial' ? 'Отметить как частично оплаченный' :

@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
  * Hook for managing dictionary state and operations
  */
 export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user, token } = useAuth();
   
   const [state, setState] = useState<DictionaryState>({
     currentDictionary: type,
@@ -36,6 +36,13 @@ export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) 
 
   const service = DictionaryService.getInstance();
   const handler = useMemo(() => service.getHandler<T>(type), [service, type]);
+
+  // Update authentication token when it changes
+  useEffect(() => {
+    if (token) {
+      service.updateAuthToken(token);
+    }
+  }, [token, service]);
 
   /**
    * Load items from service
@@ -364,11 +371,7 @@ export function useDictionaries<T extends DictionaryItem>(type: DictionaryType) 
 
   // Load data on mount
   useEffect(() => {
-    // Skip loading counterparties for EXECUTOR role
-    if (type === 'counterparties' && user?.roles?.some(role => role.code === 'EXECUTOR')) {
-      return;
-    }
-    
+    // Load items for all roles - EXECUTOR needs counterparties for request details
     loadItems();
     // Only load statistics for admin users
     if (isAdmin) {

@@ -10,6 +10,7 @@ class ExpenseSplitCreate(BaseModel):
     comment: Optional[str] = None
     contract_id: Optional[str] = None
     priority: Optional[str] = "medium"
+    sub_registrar_id: Optional[uuid.UUID] = None
 
 class ExpenseSplitOut(BaseModel):
     id: uuid.UUID
@@ -77,7 +78,7 @@ class ParallelDistributionOut(BaseModel):
 class SplitRequestCreate(BaseModel):
     original_request_id: uuid.UUID
     expense_splits: List[ExpenseSplitCreate]
-    sub_registrar_id: uuid.UUID
+    sub_registrar_id: Optional[uuid.UUID] = None
     distributor_id: uuid.UUID
     comment: Optional[str] = None
 

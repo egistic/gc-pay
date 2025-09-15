@@ -16,7 +16,7 @@ interface TreasurerStatsCardsProps {
 export function TreasurerStatsCards({ paymentRequests, onFilterChange, currentFilter }: TreasurerStatsCardsProps) {
   // Filter treasurer requests (received from distributor)
   const treasurerRequests = paymentRequests.filter(r => 
-    ['approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'declined', 'returned'].includes(r.status)
+    ['approved', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'rejected', 'returned'].includes(r.status)
   );
 
   // New requests (not reviewed by treasurer)

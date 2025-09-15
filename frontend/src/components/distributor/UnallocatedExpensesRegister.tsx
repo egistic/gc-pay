@@ -26,11 +26,11 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { toast } from 'sonner@2.0.3';
 
-interface UnallocatedExpensesRegisterProps {
+interface UndistributedExpensesRegisterProps {
   onViewRequest?: (requestId: string) => void;
 }
 
-export function UnallocatedExpensesRegister({ onViewRequest }: UnallocatedExpensesRegisterProps) {
+export function UndistributedExpensesRegister({ onViewRequest }: UndistributedExpensesRegisterProps) {
 
   // Get dictionary data
   const { items: counterparties } = useDictionaries('counterparties');
@@ -44,27 +44,27 @@ export function UnallocatedExpensesRegister({ onViewRequest }: UnallocatedExpens
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
-    loadUnallocatedRequests();
+    loadUndistributedRequests();
   }, []);
 
   useEffect(() => {
     filterAndSortRequests();
   }, [requests, searchQuery, statusFilter, sortBy, sortOrder]);
 
-  const loadUnallocatedRequests = async () => {
+  const loadUndistributedRequests = async () => {
     try {
       setIsLoading(true);
       const allRequests = await PaymentRequestService.getAll({ role: 'distributor' });
       
       // Фильтруем заявки, которые имеют allocations с contractId = 'outside-deals'
-      const unallocatedRequests = allRequests.filter(request => 
+      const undistributedRequests = allRequests.filter(request => 
         request.paymentAllocations && 
         request.paymentAllocations.some(allocation => allocation.contractId === 'outside-deals')
       );
       
-      setRequests(unallocatedRequests);
+      setRequests(undistributedRequests);
     } catch (error) {
-      console.error('Failed to load unallocated requests:', error);
+      console.error('Failed to load undistributed requests:', error);
       toast.error('Ошибка загрузки нераспределенных расходов');
     } finally {
       setIsLoading(false);
@@ -121,7 +121,7 @@ export function UnallocatedExpensesRegister({ onViewRequest }: UnallocatedExpens
     return item ? `${item.code} - ${item.name}` : 'Неизвестно';
   };
 
-  const getTotalUnallocatedAmount = () => {
+  const getTotalUndistributedAmount = () => {
     return filteredRequests.reduce((sum, request) => sum + request.amount, 0);
   };
 
@@ -177,7 +177,7 @@ export function UnallocatedExpensesRegister({ onViewRequest }: UnallocatedExpens
             Заявки, по которым в "Назначении платежа" указано "Вне сделок"
           </p>
         </div>
-        <Button variant="outline" onClick={loadUnallocatedRequests}>
+        <Button variant="outline" onClick={loadUndistributedRequests}>
           Обновить
         </Button>
       </div>
@@ -203,7 +203,7 @@ export function UnallocatedExpensesRegister({ onViewRequest }: UnallocatedExpens
               <div>
                 <p className="text-sm text-muted-foreground">Общая сумма</p>
                 <p className="text-2xl font-semibold">
-                  {getTotalUnallocatedAmount().toLocaleString()} ₸
+                  {getTotalUndistributedAmount().toLocaleString()} ₸
                 </p>
               </div>
             </div>

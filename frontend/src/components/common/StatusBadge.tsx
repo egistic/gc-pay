@@ -26,7 +26,7 @@ const statusConfig: Record<PaymentRequestStatus, { label: string; variant: strin
     variant: 'secondary',
     className: 'bg-yellow-100 text-yellow-800'
   },
-  allocated: {
+  distributed: {
     label: 'Распределена',
     variant: 'secondary',
     className: 'bg-purple-100 text-purple-800'

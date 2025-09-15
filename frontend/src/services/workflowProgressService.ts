@@ -124,14 +124,13 @@ export class WorkflowProgressService {
       'draft': 0,
       'submitted': 1,
       'classified': 2,
-      'allocated': 2,
+      'distributed': 4,
       'returned': 1,
       'approved': 3,
       'approved-on-behalf': 3,
       'to-pay': 3,
       'in-register': 3,
       'approved-for-payment': 3,
-      'distributed': 4,
       'report_published': 6,
       'export_linked': 7,
       'paid-full': 9,
@@ -179,7 +178,7 @@ export class WorkflowProgressService {
   private static canProceedToNextStep(currentStatus: PaymentRequestStatus, distributionStatus: DistributionStatus): boolean {
     // Check if current status allows progression
     const canProceedStatuses: PaymentRequestStatus[] = [
-      'submitted', 'classified', 'allocated', 'approved', 'approved-on-behalf', 
+      'submitted', 'classified', 'distributed', 'approved', 'approved-on-behalf', 
       'to-pay', 'in-register', 'approved-for-payment', 'distributed', 'report_published'
     ];
 
@@ -194,14 +193,13 @@ export class WorkflowProgressService {
       'draft': 'EXECUTOR',
       'submitted': 'registrar',
       'classified': 'distributor',
-      'allocated': 'distributor',
+      'distributed': 'sub_registrar',
       'returned': 'EXECUTOR',
       'approved': 'registrar',
       'approved-on-behalf': 'registrar',
       'to-pay': 'registrar',
       'in-register': 'registrar',
       'approved-for-payment': 'registrar',
-      'distributed': 'sub_registrar',
       'report_published': 'distributor',
       'export_linked': 'treasurer',
       'paid-full': undefined,

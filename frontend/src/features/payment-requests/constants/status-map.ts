@@ -15,9 +15,30 @@ export const STATUS_MAP = {
   PAID_FULL: 'paid-full',
   PAID_PARTIAL: 'paid-partial',
   REJECTED: 'rejected',
-  DECLINED: 'declined',
   RETURNED: 'returned',
   CANCELLED: 'cancelled',
+  DISTRIBUTED: 'distributed',
+  SPLITED: 'splited',
+  REPORT_PUBLISHED: 'report_published',
+  EXPORT_LINKED: 'export_linked',
+  // Add lowercase mappings for backend compatibility
+  draft: 'draft',
+  submitted: 'submitted',
+  classified: 'classified',
+  approved: 'approved',
+  'approved-on-behalf': 'approved-on-behalf',
+  'to-pay': 'to-pay',
+  'in-register': 'in-register',
+  'approved-for-payment': 'approved-for-payment',
+  'paid-full': 'paid-full',
+  'paid-partial': 'paid-partial',
+  rejected: 'rejected',
+  returned: 'returned',
+  cancelled: 'cancelled',
+  distributed: 'distributed',
+  splited: 'splited',
+  report_published: 'report_published',
+  export_linked: 'export_linked',
 } as const;
 
 export type BackendStatus = keyof typeof STATUS_MAP;
@@ -28,7 +49,12 @@ export type FrontendStatus = typeof STATUS_MAP[BackendStatus];
  */
 export const toFrontendStatus = (backendStatus: string): FrontendStatus => {
   const mappedStatus = STATUS_MAP[backendStatus as BackendStatus];
-  return mappedStatus || backendStatus.toLowerCase() as FrontendStatus;
+  if (mappedStatus) {
+    return mappedStatus;
+  }
+  
+  // Fallback: return the status as-is if it's already in the correct format
+  return backendStatus as FrontendStatus;
 };
 
 /**
@@ -55,9 +81,11 @@ export const getReviewerByStatus = (status: FrontendStatus): string => {
     'paid-full': 'Оплачено полностью',
     'paid-partial': 'Оплачено частично',
     'rejected': 'Отклонено',
-    'declined': 'Отклонено',
     'returned': 'Возвращено',
     'cancelled': 'Отменено',
+    'distributed': 'Распределено',
+    'report_published': 'Отчет опубликован',
+    'export_linked': 'Экспорт связан',
   };
   
   return reviewerMap[status] || 'Неизвестно';

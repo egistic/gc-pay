@@ -7,6 +7,7 @@ export { FileService } from './fileService';
 export { DistributorService } from './distributorService';
 export { DistributionService } from './distributionService';
 export { SubRegistrarService } from './subRegistrarService';
+export { RegistrarAssignmentService } from './registrarAssignmentService';
 export { DistributorWorkflowService } from './distributorWorkflowService';
 export { ExportContractsService } from './exportContractsService';
 export { WorkflowStateService } from './workflowStateService';

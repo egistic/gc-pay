@@ -44,20 +44,7 @@ export class DistributionService {
       comment: data.comment
     };
 
-    const response = await fetch(`${API_BASE_URL}/distribution/classify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(apiData),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to classify request: ${errorData.detail || response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.post('/api/v1/distribution/classify', apiData);
   }
 
   /**
@@ -70,51 +57,21 @@ export class DistributionService {
       comment: data.comment
     };
 
-    const response = await fetch(`${API_BASE_URL}/distribution/return`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(apiData),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to return request: ${errorData.detail || response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.post('/api/v1/distribution/return', apiData);
   }
 
   /**
    * Get expense splits for a request
    */
   static async getExpenseSplits(requestId: string): Promise<any[]> {
-    const response = await fetch(`${API_BASE_URL}/distribution/expense-splits/${requestId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get expense splits: ${response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.get(`/api/v1/distribution/expense-splits/${requestId}`);
   }
 
   /**
    * Get requests pending distribution
    */
   static async getPendingRequests(skip = 0, limit = 100): Promise<PendingRequest[]> {
-    const response = await fetch(`${API_BASE_URL}/distribution/pending-requests?skip=${skip}&limit=${limit}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get pending requests: ${response.statusText}`);
-    }
-    
-    return response.json();
+    return await httpClient.get(`/api/v1/distribution/pending-requests?skip=${skip}&limit=${limit}`);
   }
 
   /**
@@ -147,31 +104,27 @@ export class DistributionService {
    * Split request by expense articles for distributor
    */
   static async splitRequestByArticles(data: ParallelDistributionCreate): Promise<ParallelDistributionOut> {
-    const response = await fetch(`${API_BASE_URL}/distribution/split-request`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        request_id: data.requestId,
-        sub_registrar_id: data.subRegistrarId,
-        distributor_id: data.distributorId,
-        expense_splits: data.expenseSplits.map(split => ({
-          expense_item_id: split.expenseItemId,
-          amount: split.amount,
-          comment: split.comment,
-          contract_id: split.contractId,
-          priority: split.priority
-        })),
-        comment: data.comment
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to split request: ${response.statusText}`);
-    }
-    
-    return response.json();
+    const payload = {
+      request_id: data.requestId,
+      sub_registrar_id: data.subRegistrarId,
+      distributor_id: data.distributorId,
+      expense_splits: data.expenseSplits.map(split => ({
+        expense_item_id: split.expenseItemId,
+        amount: split.amount,
+        comment: split.comment,
+        contract_id: split.contractId,
+        priority: split.priority
+      })),
+      comment: data.comment
+    };
+
+    return await httpClient.post('/api/v1/distribution/split-request', payload);
+  }
+
+  /**
+   * Distribute request - changes status from classified to distributed
+   */
+  static async distributeRequest(requestId: string): Promise<DistributionOut> {
+    return await httpClient.post(`/api/v1/distribution/distribute/${requestId}`);
   }
 }

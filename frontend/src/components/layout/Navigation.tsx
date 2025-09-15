@@ -46,14 +46,7 @@ export const navItems: NavItem[] = [
     id: 'requests',
     label: 'Заявки',
     icon: <FileText className="h-4 w-4" />,
-    roles: ['EXECUTOR', 'REGISTRAR', 'SUB_REGISTRAR', 'DISTRIBUTOR', 'TREASURER'],
-    badge: '5'
-  },
-  {
-    id: 'sub-registrar-assignments',
-    label: 'Мои назначения',
-    icon: <FileText className="h-4 w-4" />,
-    roles: ['SUB_REGISTRAR']
+    roles: ['EXECUTOR', 'REGISTRAR', 'SUB_REGISTRAR', 'DISTRIBUTOR', 'TREASURER']
   },
   {
     id: 'distributor-workflow',
@@ -74,7 +67,7 @@ export const navItems: NavItem[] = [
     roles: ['TREASURER']
   },
   {
-    id: 'unallocated',
+    id: 'undistributed',
     label: 'Реестр нераспределенных расходов',
     icon: <FolderX className="h-4 w-4" />,
     roles: ['DISTRIBUTOR']
@@ -132,6 +125,8 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
         badge = (statistics.draftCount + statistics.submittedCount + statistics.classifiedCount + statistics.approvedCount + statistics.inRegistryCount).toString();
       } else if (currentRole === 'REGISTRAR') {
         badge = (statistics.submittedCount + statistics.classifiedCount).toString();
+      } else if (currentRole === 'SUB_REGISTRAR') {
+        badge = (statistics.submittedCount + statistics.classifiedCount).toString();
       } else if (currentRole === 'DISTRIBUTOR') {
         badge = statistics.approvedCount.toString();
       } else if (currentRole === 'TREASURER') {
@@ -155,7 +150,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
         underReview: 0,
         returnedForRevision: 0,
         paid: 0,
-        declined: 0,
+        rejected: 0,
         inWork: 0,
         registered: 0,
         overdue: 0
@@ -172,7 +167,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
         underReview: (statistics.submittedCount || 0) + (statistics.classifiedCount || 0) + (statistics.approvedCount || 0) + (statistics.inRegistryCount || 0),
         returnedForRevision: statistics.rejectedCount || 0,
         paid: 0, // Not tracked in current API
-        declined: statistics.rejectedCount || 0
+        rejected: statistics.rejectedCount || 0
       };
     }
 
@@ -182,7 +177,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
         registered: statistics.classifiedCount || 0,
         overdue: statistics.overdue || 0,
         returnedForRevision: statistics.rejectedCount || 0,
-        declined: statistics.rejectedCount || 0
+        rejected: statistics.rejectedCount || 0
       };
     }
 
@@ -253,7 +248,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
             variant={currentPage === item.id ? "secondary" : "ghost"}
             className={cn(
               "w-full justify-start gap-3",
-              item.id === 'unallocated' ? "h-auto py-2 min-h-[2.5rem]" : "h-10",
+              item.id === 'undistributed' ? "h-auto py-2 min-h-[2.5rem]" : "h-10",
               currentPage === item.id && "bg-accent",
               isCreatingRequest && "opacity-50 cursor-not-allowed"
             )}
@@ -261,7 +256,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
             disabled={isCreatingRequest}
           >
             {item.icon}
-            <span className={item.id === 'unallocated' ? 'whitespace-normal break-words' : ''}>{item.label}</span>
+            <span className={item.id === 'undistributed' ? 'whitespace-normal break-words' : ''}>{item.label}</span>
             {item.badge && (
               <span className="ml-auto bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
                 {item.badge}
@@ -298,7 +293,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
               </div>
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-3 w-3 text-red-600" />
-                <span>{(roleStats as any).declined || 0} отклонен</span>
+                <span>{(roleStats as any).rejected || 0} отклонен</span>
               </div>
             </>
           )}
@@ -328,7 +323,7 @@ export function Navigation({ currentPage, onPageChange, currentRole, currentUser
               </div>
               <div className="flex items-center gap-2">
                 <FolderX className="h-3 w-3 text-red-600" />
-                <span>{(roleStats as any).declined || 0} отклонено</span>
+                <span>{(roleStats as any).rejected || 0} отклонено</span>
               </div>
             </>
           )}

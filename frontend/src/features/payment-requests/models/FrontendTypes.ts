@@ -97,9 +97,17 @@ export interface FrontendStatistics {
   classifiedCount: number;
   approvedCount: number;
   inRegistryCount: number;
+  toPayCount: number;
+  approvedForPaymentCount: number;
   paidFullCount: number;
   paidPartialCount: number;
   rejectedCount: number;
+  returnedCount: number;
+  cancelledCount: number;
+  closedCount: number;
+  distributedCount: number;
+  reportPublishedCount: number;
+  exportLinkedCount: number;
   totalAmount: number;
   totalVat: number;
 }

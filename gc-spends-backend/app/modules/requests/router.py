@@ -6,7 +6,7 @@ from datetime import date, datetime
 from typing import List, Optional
 from app.core.db import get_db
 from app.core.security import get_current_user_id
-from app.models import PaymentRequest, PaymentRequestLine, User
+from app.models import PaymentRequest, PaymentRequestLine, User, SubRegistrarAssignment
 from . import schemas
 from app.common.enums import RequestStatus
 
@@ -107,12 +107,17 @@ def create_request(payload: schemas.RequestCreate, db: Session = Depends(get_db)
         # Handle file uploads if provided
         if payload.files:
             from app.models import RequestFile
+            from app.core.file_management import sanitize_filename
             for file_data in payload.files:
+                # Sanitize filename to comply with database constraints
+                original_filename = file_data.get('name', '')
+                sanitized_filename = sanitize_filename(original_filename)
+                
                 # Create RequestFile record for each uploaded file
                 request_file = RequestFile(
                     request_id=req.id,
-                    file_name=file_data.get('name', ''),
-                    mime_type=file_data.get('mimeType', 'application/octet-stream'),
+                    file_name=sanitized_filename,
+                    mime_type=file_data.get('mimeType', 'application/octet-stream'),                                                                        
                     storage_path=file_data.get('url', ''),
                     doc_type=file_data.get('docType', ''),
                     uploaded_by=current_user.id
@@ -152,19 +157,30 @@ def get_request_statistics(
     """Get request statistics based on role and user"""
     query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
-    # Apply role-based filtering
-    if role == "EXECUTOR":
+    # Apply role-based filtering (handle both uppercase and lowercase)
+    if role in ["EXECUTOR", "executor"]:
         # For executor role, show only requests created by current user
-        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
-    elif role == "registrar":
-        # Registrar sees submitted and registered requests
-        query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
-    elif role == "distributor":
+        query = query.filter(PaymentRequest.created_by_user_id == uuid.UUID(current_user_id))
+    elif role in ["REGISTRAR", "registrar"]:
+        # Registrar sees submitted, registered, approved, in_registry, and rejected requests
+        query = query.filter(PaymentRequest.status.in_([
+            RequestStatus.SUBMITTED.value, 
+            RequestStatus.CLASSIFIED.value,
+            RequestStatus.CLASSIFIED.value,
+            RequestStatus.IN_REGISTER.value,
+            RequestStatus.REJECTED.value
+        ]))
+    elif role in ["SUB_REGISTRAR", "sub_registrar"]:
+        # For sub-registrar role, only show requests assigned to this specific sub-registrar
+        query = query.join(SubRegistrarAssignment, PaymentRequest.id == SubRegistrarAssignment.request_id)\
+                    .filter(SubRegistrarAssignment.sub_registrar_id == uuid.UUID(current_user_id))\
+                    .filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.CLASSIFIED.value]))
+    elif role in ["DISTRIBUTOR", "distributor"]:
         # Distributor sees approved requests
-        query = query.filter(PaymentRequest.status == RequestStatus.APPROVED.value)
-    elif role == "treasurer":
+        query = query.filter(PaymentRequest.status == RequestStatus.CLASSIFIED.value)
+    elif role in ["TREASURER", "treasurer"]:
         # Treasurer sees requests in registry
-        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTRY.value)
+        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTER.value)
     
     # Get all requests for statistics
     all_requests = query.all()
@@ -173,10 +189,20 @@ def get_request_statistics(
     total_requests = len(all_requests)
     draft = len([r for r in all_requests if r.status == RequestStatus.DRAFT.value])
     submitted = len([r for r in all_requests if r.status == RequestStatus.SUBMITTED.value])
-    classified = len([r for r in all_requests if r.status == RequestStatus.REGISTERED.value])
-    approved = len([r for r in all_requests if r.status == RequestStatus.APPROVED.value])
-    in_registry = len([r for r in all_requests if r.status == RequestStatus.IN_REGISTRY.value])
+    classified = len([r for r in all_requests if r.status == RequestStatus.CLASSIFIED.value])
+    approved = len([r for r in all_requests if r.status == RequestStatus.CLASSIFIED.value])
+    in_registry = len([r for r in all_requests if r.status == RequestStatus.IN_REGISTER.value])
+    to_pay = len([r for r in all_requests if r.status == RequestStatus.TO_PAY.value])
+    approved_for_payment = len([r for r in all_requests if r.status == RequestStatus.APPROVED_FOR_PAYMENT.value])
+    paid_full = len([r for r in all_requests if r.status == RequestStatus.PAID_FULL.value])
+    paid_partial = len([r for r in all_requests if r.status == RequestStatus.PAID_PARTIAL.value])
     rejected = len([r for r in all_requests if r.status == RequestStatus.REJECTED.value])
+    returned = len([r for r in all_requests if r.status == RequestStatus.RETURNED.value])
+    cancelled = len([r for r in all_requests if r.status == RequestStatus.CANCELLED.value])
+    closed = len([r for r in all_requests if r.status == RequestStatus.CLOSED.value])
+    distributed = len([r for r in all_requests if r.status == RequestStatus.DISTRIBUTED.value])
+    report_published = len([r for r in all_requests if r.status == RequestStatus.REPORT_PUBLISHED.value])
+    export_linked = len([r for r in all_requests if r.status == RequestStatus.EXPORT_LINKED.value])
     
     # Calculate overdue requests (submitted more than 5 hours ago)
     overdue = 0  # Simplified for now
@@ -190,21 +216,30 @@ def get_request_statistics(
     )
     
     # Apply same role filtering to expense articles
-    if role == "EXECUTOR":
+    if role in ["EXECUTOR", "executor"]:
         expense_articles_query = expense_articles_query.filter(
-            PaymentRequest.created_by_user_id == current_user_id
+            PaymentRequest.created_by_user_id == uuid.UUID(current_user_id)
         )
-    elif role == "registrar":
+    elif role in ["REGISTRAR", "registrar"]:
         expense_articles_query = expense_articles_query.filter(
-            PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value])
+            PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.CLASSIFIED.value])
         )
-    elif role == "distributor":
-        expense_articles_query = expense_articles_query.filter(
-            PaymentRequest.status == RequestStatus.APPROVED.value
+    elif role in ["SUB_REGISTRAR", "sub_registrar"]:
+        # For sub-registrar role, only show expense articles from requests assigned to this specific sub-registrar
+        expense_articles_query = expense_articles_query.join(
+            SubRegistrarAssignment, PaymentRequest.id == SubRegistrarAssignment.request_id
+        ).filter(
+            SubRegistrarAssignment.sub_registrar_id == uuid.UUID(current_user_id)
+        ).filter(
+            PaymentRequest.status == RequestStatus.CLASSIFIED.value
         )
-    elif role == "treasurer":
+    elif role in ["DISTRIBUTOR", "distributor"]:
         expense_articles_query = expense_articles_query.filter(
-            PaymentRequest.status == RequestStatus.IN_REGISTRY.value
+            PaymentRequest.status == RequestStatus.CLASSIFIED.value
+        )
+    elif role in ["TREASURER", "treasurer"]:
+        expense_articles_query = expense_articles_query.filter(
+            PaymentRequest.status == RequestStatus.IN_REGISTER.value
         )
     
     # Get only active expense articles that are actually used in requests
@@ -219,7 +254,17 @@ def get_request_statistics(
         classified=classified,
         approved=approved,
         in_registry=in_registry,
+        to_pay=to_pay,
+        approved_for_payment=approved_for_payment,
+        paid_full=paid_full,
+        paid_partial=paid_partial,
         rejected=rejected,
+        returned=returned,
+        cancelled=cancelled,
+        closed=closed,
+        distributed=distributed,
+        report_published=report_published,
+        export_linked=export_linked,
         overdue=overdue,
         expense_articles=[{
             "id": str(article.id),
@@ -241,15 +286,20 @@ def get_requests(
     query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
     # Apply role-based filtering
-    if role == "EXECUTOR":
+    if role in ["EXECUTOR", "executor"]:
         # For executor role, show only requests created by current user
-        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
-    elif role == "registrar":
-        query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
-    elif role == "distributor":
-        query = query.filter(PaymentRequest.status == RequestStatus.APPROVED.value)
-    elif role == "treasurer":
-        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTRY.value)
+        query = query.filter(PaymentRequest.created_by_user_id == uuid.UUID(current_user_id))
+    elif role in ["REGISTRAR", "registrar"]:
+        query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.CLASSIFIED.value]))
+    elif role in ["SUB_REGISTRAR", "sub_registrar"]:
+        # For sub-registrar role, only show requests assigned to this specific sub-registrar
+        query = query.join(SubRegistrarAssignment, PaymentRequest.id == SubRegistrarAssignment.request_id)\
+                    .filter(SubRegistrarAssignment.sub_registrar_id == uuid.UUID(current_user_id))\
+                    .filter(PaymentRequest.status == RequestStatus.CLASSIFIED.value)
+    elif role in ["DISTRIBUTOR", "distributor"]:
+        query = query.filter(PaymentRequest.status == RequestStatus.CLASSIFIED.value)
+    elif role in ["TREASURER", "treasurer"]:
+        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTER.value)
     
     # Apply status filter
     if status:
@@ -310,15 +360,20 @@ def get_dashboard_metrics(
     query = db.query(PaymentRequest).filter(PaymentRequest.deleted == False)
     
     # Apply role-based filtering for recent requests
-    if role == "EXECUTOR":
+    if role in ["EXECUTOR", "executor"]:
         # For executor role, show only requests created by current user
-        query = query.filter(PaymentRequest.created_by_user_id == current_user_id)
-    elif role == "registrar":
-        query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]))
-    elif role == "distributor":
-        query = query.filter(PaymentRequest.status == RequestStatus.APPROVED.value)
-    elif role == "treasurer":
-        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTRY.value)
+        query = query.filter(PaymentRequest.created_by_user_id == uuid.UUID(current_user_id))
+    elif role in ["REGISTRAR", "registrar"]:
+        query = query.filter(PaymentRequest.status.in_([RequestStatus.SUBMITTED.value, RequestStatus.CLASSIFIED.value]))
+    elif role in ["SUB_REGISTRAR", "sub_registrar"]:
+        # For sub-registrar role, only show requests assigned to this specific sub-registrar
+        query = query.join(SubRegistrarAssignment, PaymentRequest.id == SubRegistrarAssignment.request_id)\
+                    .filter(SubRegistrarAssignment.sub_registrar_id == uuid.UUID(current_user_id))\
+                    .filter(PaymentRequest.status == RequestStatus.CLASSIFIED.value)
+    elif role in ["DISTRIBUTOR", "distributor"]:
+        query = query.filter(PaymentRequest.status == RequestStatus.CLASSIFIED.value)
+    elif role in ["TREASURER", "treasurer"]:
+        query = query.filter(PaymentRequest.status == RequestStatus.IN_REGISTER.value)
     
     recent_requests = query.order_by(PaymentRequest.number.desc()).limit(10).all()
     recent_requests_data = [schemas.RequestListOut.model_validate(req.__dict__) for req in recent_requests]
@@ -563,14 +618,14 @@ def classify_request(
                 amount_net=split.amount,
                 vat_rate_id=default_vat_rate.id,
                 currency_code=req.currency_code,
-                status=RequestStatus.REGISTERED.value,
+                status=RequestStatus.CLASSIFIED.value,
                 note=split.comment
             ))
             total += float(split.amount)
         
         req.amount_total = total
     
-    req.status = RequestStatus.REGISTERED.value
+    req.status = RequestStatus.CLASSIFIED.value
     db.commit()
     db.refresh(req)
     return _get_request_with_lines(request_id, db)
@@ -584,10 +639,10 @@ def approve_request(
     req = db.get(PaymentRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
-    if req.status != RequestStatus.REGISTERED.value:
+    if req.status != RequestStatus.CLASSIFIED.value:
         raise HTTPException(status_code=409, detail="Only CLASSIFIED requests can be approved")
     
-    req.status = RequestStatus.APPROVED.value
+    req.status = RequestStatus.CLASSIFIED.value
     db.commit()
     db.refresh(req)
     return _get_request_with_lines(request_id, db)
@@ -601,7 +656,7 @@ def reject_request(
     req = db.get(PaymentRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
-    if req.status not in [RequestStatus.SUBMITTED.value, RequestStatus.REGISTERED.value]:
+    if req.status not in [RequestStatus.SUBMITTED.value, RequestStatus.CLASSIFIED.value]:
         raise HTTPException(status_code=409, detail="Only SUBMITTED or REGISTERED requests can be rejected")
     
     req.status = RequestStatus.REJECTED.value
@@ -629,10 +684,10 @@ def add_to_registry(
     req = db.get(PaymentRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
-    if req.status != RequestStatus.APPROVED.value:
+    if req.status != RequestStatus.CLASSIFIED.value:
         raise HTTPException(status_code=409, detail="Only APPROVED requests can be added to registry")
     
-    req.status = RequestStatus.IN_REGISTRY.value
+    req.status = RequestStatus.IN_REGISTER.value
     db.commit()
     db.refresh(req)
     return _get_request_with_lines(request_id, db)
@@ -647,11 +702,11 @@ def send_to_distributor(
     req = db.get(PaymentRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
-    if req.status != RequestStatus.REGISTERED.value:
+    if req.status != RequestStatus.CLASSIFIED.value:
         raise HTTPException(status_code=409, detail="Only REGISTERED requests can be sent to distributor")
     
     # Update status to approved (ready for distributor)
-    req.status = RequestStatus.APPROVED.value
+    req.status = RequestStatus.CLASSIFIED.value
     
     # TODO: Here we would add logic for:
     # 1. Contract validation
@@ -673,7 +728,7 @@ def distributor_action(
     req = db.get(PaymentRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
-    if req.status != RequestStatus.APPROVED.value:
+    if req.status != RequestStatus.CLASSIFIED.value:
         raise HTTPException(status_code=409, detail="Only APPROVED requests can be processed by distributor")
     
     if payload.action == "approve":
@@ -729,4 +784,14 @@ def _get_request_with_lines(request_id: uuid.UUID, db: Session) -> schemas.Reque
     request_data = req.__dict__.copy()
     request_data['lines'] = lines_data
     request_data['files'] = files_data
+    
+    # Add document fields for frontend compatibility
+    if files_data:
+        # Use the first file as the main document
+        request_data['doc_file_url'] = files_data[0]['url']
+        request_data['file_name'] = files_data[0]['name']
+    else:
+        request_data['doc_file_url'] = None
+        request_data['file_name'] = None
+    
     return schemas.RequestOut.model_validate(request_data)

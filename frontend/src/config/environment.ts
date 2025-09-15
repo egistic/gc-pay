@@ -59,7 +59,3 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
 // Export current configuration
 export const ENV_CONFIG = getEnvironmentConfig();
 
-// Log configuration in development
-if (isDevelopment) {
-  console.log('🌍 Environment Configuration:', ENV_CONFIG);
-}

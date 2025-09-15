@@ -44,7 +44,7 @@ export interface ApiConfig {
     deleteFile: string;
     
     // Distribution
-    getUnallocatedRequests: string;
+    getUndistributedRequests: string;
     getDistributionLines: string;
     createDistributionLine: string;
     updateDistributionLine: string;
@@ -59,6 +59,24 @@ export interface ApiConfig {
     createRegistryEntry: string;
     updateRegistryEntry: string;
     deleteRegistryEntry: string;
+    
+        // Sub-registrar assignments
+        updateSubRegistrarAssignment: string;
+        publishSubRegistrarAssignment: string;
+        getSubRegistrarAssignment: string;
+        
+        // Registrar assignments
+        createRegistrarAssignment: string;
+        getRegistrarAssignment: string;
+        updateRegistrarAssignment: string;
+        listRegistrarAssignments: string;
+        
+        // Sub-registrar assignment data
+        createSubRegistrarAssignmentData: string;
+        getSubRegistrarAssignmentData: string;
+        updateSubRegistrarAssignmentData: string;
+        publishSubRegistrarAssignmentData: string;
+        listSubRegistrarAssignmentData: string;
   };
 }
 
@@ -116,7 +134,7 @@ export const API_CONFIG: ApiConfig = {
     deleteFile: '/api/v1/files/delete',
     
     // Distribution
-    getUnallocatedRequests: '/api/v1/distribution/unallocated-requests',
+    getUndistributedRequests: '/api/v1/distribution/undistributed-requests',
     getDistributionLines: '/api/v1/distribution/lines',
     createDistributionLine: '/api/v1/distribution/lines/create',
     updateDistributionLine: '/api/v1/distribution/lines/update',
@@ -131,6 +149,24 @@ export const API_CONFIG: ApiConfig = {
     createRegistryEntry: '/api/v1/registry/entries/create',
     updateRegistryEntry: '/api/v1/registry/entries/update',
     deleteRegistryEntry: '/api/v1/registry/entries/delete',
+    
+        // Sub-registrar assignments
+        updateSubRegistrarAssignment: '/api/v1/requests/:id/sub-registrar-assignment',
+        publishSubRegistrarAssignment: '/api/v1/requests/:id/sub-registrar-assignment/publish',
+        getSubRegistrarAssignment: '/api/v1/requests/:id/sub-registrar-assignment',
+        
+        // Registrar assignments
+        createRegistrarAssignment: '/api/v1/registrar-assignments',
+        getRegistrarAssignment: '/api/v1/registrar-assignments/:id',
+        updateRegistrarAssignment: '/api/v1/registrar-assignments/:id',
+        listRegistrarAssignments: '/api/v1/registrar-assignments',
+        
+        // Sub-registrar assignment data
+        createSubRegistrarAssignmentData: '/api/v1/sub-registrar-assignment-data',
+        getSubRegistrarAssignmentData: '/api/v1/sub-registrar-assignment-data/:id',
+        updateSubRegistrarAssignmentData: '/api/v1/sub-registrar-assignment-data/:id',
+        publishSubRegistrarAssignmentData: '/api/v1/sub-registrar-assignment-data/:id/publish',
+        listSubRegistrarAssignmentData: '/api/v1/sub-registrar-assignment-data',
   },
 };
 
@@ -142,7 +178,7 @@ class HttpClient {
   }
 
   private getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem('test_token');
+    const token = localStorage.getItem('auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
@@ -160,7 +196,7 @@ class HttpClient {
     if (!response.ok) {
       if (response.status === 401) {
         // Clear invalid token and redirect to login
-        localStorage.removeItem('test_token');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login';
         throw new Error('Unauthorized - please login again');
       }
@@ -185,7 +221,7 @@ class HttpClient {
     if (!response.ok) {
       if (response.status === 401) {
         // Clear invalid token and redirect to login
-        localStorage.removeItem('test_token');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login';
         throw new Error('Unauthorized - please login again');
       }
@@ -210,7 +246,7 @@ class HttpClient {
     if (!response.ok) {
       if (response.status === 401) {
         // Clear invalid token and redirect to login
-        localStorage.removeItem('test_token');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login';
         throw new Error('Unauthorized - please login again');
       }
@@ -235,9 +271,43 @@ class HttpClient {
     if (!response.ok) {
       if (response.status === 401) {
         // Clear invalid token and redirect to login
-        localStorage.removeItem('test_token');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login';
         throw new Error('Unauthorized - please login again');
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Handle 204 No Content response
+    if (response.status === 204) {
+      return;
+    }
+
+    return response.json();
+  }
+
+  // Special method for getting data that might not exist (like sub-registrar assignment data)
+  async getOptional(url: string, options: RequestInit = {}): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      ...options,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Clear invalid token and redirect to login
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+        throw new Error('Unauthorized - please login again');
+      }
+      if (response.status === 404) {
+        // Return null for 404 errors instead of throwing
+        return null;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }

@@ -8,6 +8,7 @@ import { StatusProgress } from '../common/StatusProgress';
 import { RequestInformationCard } from '../common/RequestInformationCard';
 import { PaymentRequest } from '../../types';
 import { PaymentRequestService } from '../../services/api';
+import { RegistrarAssignmentService } from '../../services/registrarAssignmentService';
 import { useDictionaries } from '../../hooks/useDictionaries';
 import { toast } from 'sonner';
 import { OptimizedCreateRequestForm } from './OptimizedCreateRequestForm';
@@ -28,9 +29,11 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
   const { items: counterparties } = useDictionaries('counterparties');
   const { items: expenseitems } = useDictionaries('expense-articles');
   const { items: vatRates } = useDictionaries('vat-rates');
+  const { items: users } = useDictionaries('users');
   const [request, setRequest] = useState<PaymentRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [registrarAssignment, setRegistrarAssignment] = useState<any>(null);
 
   useEffect(() => {
     const loadRequest = async () => {
@@ -38,6 +41,17 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
         setIsLoading(true);
         const data = await PaymentRequestService.getById(requestId);
         setRequest(data);
+        
+        // Load registrar assignment data if available
+        try {
+          const assignmentData = await RegistrarAssignmentService.getRegistrarAssignment(requestId);
+          console.log('Registrar assignment data:', assignmentData);
+          setRegistrarAssignment(assignmentData);
+        } catch (error) {
+          // Registrar assignment not found, this is normal for some requests
+          console.log('No registrar assignment found for request:', requestId);
+          setRegistrarAssignment(null);
+        }
       } catch (error) {
         console.error('Failed to load request:', error);
         toast.error('Ошибка загрузки заявки');
@@ -52,33 +66,39 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
   }, [requestId]);
 
   // Helper function to get counterparty name
-  const getCounterpartyName = (counterpartyId: string) => {
-    const counterparty = counterparties.find(cp => cp.id === counterpartyId);
+  const getCounterpartyName = (counterpartyId: string): string => {
+    const counterparty = counterparties.find(cp => cp.id === counterpartyId) as any;
     return counterparty ? counterparty.name : 'Неизвестный контрагент';
   };
 
   // Helper function to get counterparty category
-  const getCounterpartyCategory = (counterpartyId: string) => {
-    const counterparty = counterparties.find(cp => cp.id === counterpartyId);
-    return counterparty ? counterparty.category : 'Не указано';
+  const getCounterpartyCategory = (counterpartyId: string): string => {
+    const counterparty = counterparties.find(cp => cp.id === counterpartyId) as any;
+    return counterparty ? (counterparty.category || 'Не указано') : 'Не указано';
   };
 
   // Helper function to get VAT rate
-  const getVatRate = (vatRateName: string | undefined) => {
+  const getVatRate = (vatRateName: string | undefined): string => {
     if (!vatRateName) return 'Не указано';
     // Since vatRate is stored as name in the form, we can return it directly
     // or find by name if needed for validation
-    const vatRate = vatRates.find(vr => vr.name === vatRateName);
+    const vatRate = vatRates.find(vr => vr.name === vatRateName) as any;
     return vatRate ? vatRate.name : vatRateName;
   };
 
   // Helper function to generate document name using shared utility
   const generateDocumentName = (request: PaymentRequest) => {
+    // Check if there are files in the request
+    if (request.files && request.files.length > 0) {
+      return request.files[0].name || request.files[0].originalName || 'Документ';
+    }
+    
+    // Fallback to fileName if available
     if (request.fileName) {
       return request.fileName;
     }
     
-    const counterparty = counterparties.find(cp => cp.id === request.counterpartyId);
+    const counterparty = counterparties.find(cp => cp.id === request.counterpartyId) as any;
     const counterpartyName = counterparty?.abbreviation || counterparty?.name || 'Unknown';
     
     return buildDocumentFileName({
@@ -149,8 +169,23 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
   };
 
   const getExpenseItemName = (id: string) => {
-    const item = expenseitems.find(item => item.id === id);
+    const item = expenseitems.find(item => item.id === id) as any;
     return item ? `${item.code} - ${item.name}` : id || 'Неизвестно';
+  };
+
+  // Helper function to get expense article name for registrar assignment
+  const getExpenseArticleName = (id: string) => {
+    console.log('Looking for expense article ID:', id);
+    console.log('Available expense items:', expenseitems);
+    const article = expenseitems.find(item => item.id === id) as any;
+    console.log('Found article:', article);
+    return article ? article.name : 'Неизвестная статья';
+  };
+
+  // Helper function to get user name for registrar assignment
+  const getUserName = (id: string) => {
+    const user = users.find(u => u.id === id) as any;
+    return user ? user.fullName || user.name : 'Неизвестный пользователь';
   };
 
   // Если режим редактирования, показываем форму редактирования
@@ -241,53 +276,79 @@ export function RequestViewForm({ requestId, onCancel, onRequestUpdate }: Reques
         getCounterpartyName={getCounterpartyName}
         getCounterpartyCategory={getCounterpartyCategory}
         getVatRate={getVatRate}
-        onViewDocument={() => handleDownloadFile({ name: generateDocumentName(request), url: request.docFileUrl })}
-        onDownloadDocument={() => handleDownloadFile({ name: generateDocumentName(request), url: request.docFileUrl })}
+        onViewDocument={() => {
+          if (request.files && request.files.length > 0) {
+            handleViewFile(request.files[0]);
+          } else if (request.docFileUrl) {
+            handleViewFile({ name: generateDocumentName(request), url: request.docFileUrl });
+          } else {
+            toast.info('Документ не прикреплен');
+          }
+        }}
+        onDownloadDocument={() => {
+          if (request.files && request.files.length > 0) {
+            handleDownloadMultipleFile(request.files[0]);
+          } else if (request.docFileUrl) {
+            handleDownloadFile({ name: generateDocumentName(request), url: request.docFileUrl });
+          } else {
+            toast.info('Документ не прикреплен');
+          }
+        }}
         showDocumentActions={true}
       />
 
-      {/* Classification Info */}
-      {request.expenseSplits && request.expenseSplits.length > 0 && (
+      {/* Registrar Assignment Info */}
+      {registrarAssignment && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Распределение по статьям расходов
-              </div>
-              <Badge variant="default">
-                Итого: {formatCurrency(request.expenseSplits.reduce((sum, split) => sum + split.amount, 0), request.currency)}
-              </Badge>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-500" />
+              Назначение суб-регистратора
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {request.expenseSplits.map((split, index) => (
-                <div key={index} className="flex justify-between items-start p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{getExpenseItemName(split.expenseItemId)}</p>
-                    {split.comment && (
-                      <div className="mt-1">
-                        <p className="text-xs text-muted-foreground">Комментарий регистратора:</p>
-                        <p className="text-sm text-muted-foreground italic">{split.comment}</p>
-                      </div>
-                    )}
-                  </div>
-                  <Badge variant="secondary">
-                    {formatCurrency(split.amount, request.currency)}
-                  </Badge>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Статья расходов</label>
+                <p className="text-sm font-medium">
+                  {registrarAssignment.expense_article_id ? getExpenseArticleName(registrarAssignment.expense_article_id) : 'Не назначена'}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Назначенная сумма</label>
+                <p className="text-sm font-medium">
+                  {registrarAssignment.assigned_amount ? formatCurrency(registrarAssignment.assigned_amount, request.currency) : 'Не указана'}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Назначенный суб-регистратор</label>
+                <p className="text-sm font-medium">
+                  {registrarAssignment.assigned_sub_registrar_id ? getUserName(registrarAssignment.assigned_sub_registrar_id) : 'Не назначен'}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Дата назначения</label>
+                <p className="text-sm font-medium">
+                  {registrarAssignment.classification_date ? formatDateSafe(registrarAssignment.classification_date) : 'Не указана'}
+                </p>
+              </div>
             </div>
+            {registrarAssignment.registrar_comments && (
+              <div className="mt-4 space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Комментарии регистратора</label>
+                <p className="text-sm bg-muted p-3 rounded-md">{registrarAssignment.registrar_comments}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
+
 
       {/* Distribution Form for Registrar */}
       {request.status === 'approved' && (
         <ExpenseSplitForm
           request={request}
-          expenseItems={expenseitems}
+          expenseItems={expenseitems as any[]}
           onSplitsChange={(splits) => {
             // Handle splits change if needed
           }}

@@ -125,3 +125,23 @@ def publish_report(
         )
     
     return published_report
+
+@router.get("/assignments/all", response_model=schemas.SubRegistrarAssignmentListOut)
+def get_all_assignments(
+    skip: int = 0,
+    limit: int = 1000,
+    db: Session = Depends(get_db),
+    current_user: UserOut = Depends(get_current_user)
+):
+    """Get all sub-registrar assignments (for filtering purposes)"""
+    # This endpoint can be used by any authenticated user for filtering
+    assignments = crud.get_all_sub_registrar_assignments(
+        db=db,
+        skip=skip, 
+        limit=limit
+    )
+    
+    return schemas.SubRegistrarAssignmentListOut(
+        assignments=assignments,
+        total=len(assignments)
+    )

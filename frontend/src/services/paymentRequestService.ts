@@ -363,4 +363,63 @@ export class PaymentRequestService {
     const endpoint = API_CONFIG.endpoints.getRequestEvents.replace(':id', requestId);
     return httpClient.get<any[]>(endpoint);
   }
+
+  // Sub-registrar assignment methods (legacy - for backward compatibility)
+  static async updateSubRegistrarAssignment(requestId: string, assignmentData: any): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.updateSubRegistrarAssignment.replace(':id', requestId);
+    return httpClient.put(endpoint, assignmentData);
+  }
+
+  static async publishSubRegistrarAssignment(requestId: string, assignmentData: any): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.publishSubRegistrarAssignment.replace(':id', requestId);
+    return httpClient.post(endpoint, assignmentData);
+  }
+
+  static async getSubRegistrarAssignment(requestId: string): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.getSubRegistrarAssignment.replace(':id', requestId);
+    return httpClient.get(endpoint);
+  }
+
+  // Registrar assignment methods
+  static async createRegistrarAssignment(assignmentData: any): Promise<any> {
+    return httpClient.post(API_CONFIG.endpoints.createRegistrarAssignment, assignmentData);
+  }
+
+  static async getRegistrarAssignment(requestId: string): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.getRegistrarAssignment.replace(':id', requestId);
+    return httpClient.get(endpoint);
+  }
+
+  static async updateRegistrarAssignment(requestId: string, assignmentData: any): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.updateRegistrarAssignment.replace(':id', requestId);
+    return httpClient.put(endpoint, assignmentData);
+  }
+
+  static async listRegistrarAssignments(skip: number = 0, limit: number = 100): Promise<any> {
+    return httpClient.get(`${API_CONFIG.endpoints.listRegistrarAssignments}?skip=${skip}&limit=${limit}`);
+  }
+
+  // Sub-registrar assignment data methods
+  static async createSubRegistrarAssignmentData(assignmentData: any): Promise<any> {
+    return httpClient.post(API_CONFIG.endpoints.createSubRegistrarAssignmentData, assignmentData);
+  }
+
+  static async getSubRegistrarAssignmentData(requestId: string): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.getSubRegistrarAssignmentData.replace(':id', requestId);
+    return await httpClient.getOptional(endpoint);
+  }
+
+  static async updateSubRegistrarAssignmentData(requestId: string, assignmentData: any): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.updateSubRegistrarAssignmentData.replace(':id', requestId);
+    return httpClient.put(endpoint, assignmentData);
+  }
+
+  static async publishSubRegistrarAssignmentData(requestId: string): Promise<any> {
+    const endpoint = API_CONFIG.endpoints.publishSubRegistrarAssignmentData.replace(':id', requestId);
+    return httpClient.post(endpoint);
+  }
+
+  static async listSubRegistrarAssignmentData(skip: number = 0, limit: number = 100): Promise<any> {
+    return httpClient.get(`${API_CONFIG.endpoints.listSubRegistrarAssignmentData}?skip=${skip}&limit=${limit}`);
+  }
 }

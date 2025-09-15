@@ -19,11 +19,6 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-### Docker запуск
-```bash
-cp .env.example .env
-docker compose up --build
-```
 
 ### Инициализация данных
 ```bash
@@ -33,18 +28,8 @@ python manage.py seed  # optional XLSX seeding if files are present
 ## 📚 Документация API
 
 ### Онлайн документация
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
 - **Health Check**: http://localhost:8000/health
 
-### Статическая документация
-- **HTML документация**: http://localhost:8080/docs.html
-- **Автономная документация**: `published_docs/standalone.html`
-- **Архив для публикации**: `gc-spends-api-docs.zip`
-- **Директория**: `published_docs/`
-
-> **Примечание**: Статическая документация использует локальные файлы Swagger UI для совместимости с CSP политикой. Подробности в [CSP_FIX_README.md](CSP_FIX_README.md)
 
 ### Публикация документации
 ```bash
@@ -124,7 +109,5 @@ curl -X GET "http://localhost:8000/api/v1/auth/me" \
 
 ## 📞 Поддержка
 
-- **Документация**: [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-- **Swagger UI**: http://localhost:8000/docs
 - **Email**: support@gcspends.com
 

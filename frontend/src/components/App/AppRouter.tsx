@@ -13,7 +13,8 @@ import { RequestViewForm } from '../executor/RequestViewForm';
 import { ExecutorRequestsList } from '../executor/ExecutorRequestsList';
 import { ItemClassificationForm } from '../registrar/ItemClassificationForm';
 import { SubRegistrarDashboard } from '../sub-registrar/SubRegistrarDashboard';
-import { SubRegistrarAssignmentsList } from '../sub-registrar/SubRegistrarAssignmentsList';
+import SubRegistrarAssignmentsList from '../sub-registrar/SubRegistrarAssignmentsList';
+import SubRegistrarAssignmentForm from '../sub-registrar/SubRegistrarAssignmentForm';
 import { RegistrarAssignments } from '../admin/RegistrarAssignments';
 import { DistributorRequestsList } from '../distributor/DistributorRequestsList';
 import { DistributorWorkflowRequestsList } from '../distributor/DistributorWorkflowRequestsList';
@@ -21,7 +22,7 @@ import { ExportContractSelector } from '../distributor/ExportContractSelector';
 import { EnhancedApprovalForm } from '../distributor/EnhancedApprovalForm';
 import { WorkflowDashboard } from '../common/WorkflowDashboard';
 import { DistributorRouting } from '../treasurer/DistributorRouting';
-import { UnallocatedExpensesRegister } from '../distributor/UnallocatedExpensesRegister';
+import { UndistributedExpensesRegister } from '../distributor/UnallocatedExpensesRegister';
 import { PaymentRegister } from '../treasurer/PaymentRegister';
 import { TreasurerApprovalForm } from '../treasurer/TreasurerApprovalForm';
 import { AdminDashboard } from '../admin/AdminDashboard';
@@ -175,6 +176,28 @@ export function AppRouter() {
         }
       }
 
+      if (state.currentPage === 'requests' && state.viewMode === 'sub-registrar-assignment' && state.selectedRequestId) {
+        return (
+          <SubRegistrarAssignmentForm
+            requestId={state.selectedRequestId}
+            onBack={() => {
+              dispatch(appActions.setViewMode('list'));
+              dispatch(appActions.setSelectedRequestId(null));
+            }}
+            onSave={(assignmentData) => {
+              console.log('Assignment saved:', assignmentData);
+              // Optionally refresh the request list or show success message
+            }}
+            onPublish={(assignmentData) => {
+              console.log('Assignment published:', assignmentData);
+              // Optionally refresh the request list or show success message
+              dispatch(appActions.setViewMode('list'));
+              dispatch(appActions.setSelectedRequestId(null));
+            }}
+          />
+        );
+      }
+
       if (state.currentPage === 'requests' && state.viewMode === 'approve' && state.selectedRequestId) {
         const request = state.paymentRequests.find(r => r.id === state.selectedRequestId);
         if (request) {
@@ -235,9 +258,10 @@ export function AppRouter() {
           // Only show SubRegistrarDashboard for SUB_REGISTRAR role specifically
           if (state.currentRole === 'SUB_REGISTRAR') {
             return (
-              <RoleBasedRouter userRole={state.currentRole} currentPage="sub-registrar-assignments">
+              <RoleBasedRouter userRole={state.currentRole} currentPage="dashboard">
                 <SubRegistrarDashboard
-                  currentUserId={user?.id || ''} // Use authenticated user ID
+                  onViewRequest={handleViewRequest}
+                  onCreateRequest={handleCreateRequest}
                 />
               </RoleBasedRouter>
             );
@@ -297,12 +321,14 @@ export function AppRouter() {
                   paymentRequests={state.paymentRequests}
                 />
               ) : state.currentRole === 'SUB_REGISTRAR' ? (
-                <SubRegistrarDashboard
-                  currentUserId={user?.id || ''} // Use authenticated user ID
+                <SubRegistrarAssignmentsList
+                  onViewRequest={handleViewRequest}
+                  onCreateRequest={handleCreateRequest}
                 />
               ) : (
                 <RequestsList
                   currentRole={state.currentRole}
+                  currentUserId={user?.id}
                   onCreateRequest={handleCreateRequest}
                   onViewRequest={handleViewRequest}
                   dashboardFilter={state.dashboardFilter}
@@ -395,10 +421,10 @@ export function AppRouter() {
             </RoleBasedRouter>
           );
         
-        case 'unallocated':
+        case 'undistributed':
           return (
-            <RoleBasedRouter userRole={state.currentRole} currentPage="unallocated">
-              <UnallocatedExpensesRegister 
+            <RoleBasedRouter userRole={state.currentRole} currentPage="undistributed">
+              <UndistributedExpensesRegister 
                 onViewRequest={handleViewRequest}
               />
             </RoleBasedRouter>

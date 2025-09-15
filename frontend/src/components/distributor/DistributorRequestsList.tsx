@@ -95,6 +95,24 @@ export function DistributorRequestsList({ onViewRequest, paymentRequests }: Dist
       filtered = filtered.filter(request => request.createdAt <= dateTo);
     }
 
+        // Hide original requests that have been split (show only split requests)
+        filtered = filtered.filter(request => {
+          // Hide requests with SPLITED status (original requests that were split)
+          if (request.status === 'splited') {
+            return false;
+          }
+          
+          // If this request has split requests, hide the original
+          const hasSplitRequests = requests.some(otherReq => 
+            otherReq.originalRequestId === request.id && otherReq.isSplitRequest
+          );
+          
+          // Show the request only if:
+          // 1. It's a split request (isSplitRequest = true), OR
+          // 2. It doesn't have any split requests (not split)
+          return request.isSplitRequest || !hasSplitRequests;
+        });
+
     setFilteredRequests(filtered);
   };
 

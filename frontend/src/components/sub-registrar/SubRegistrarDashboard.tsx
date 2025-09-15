@@ -1,169 +1,214 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
+import { StatusBadge } from '../common/StatusBadge';
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '../ui/table';
-import { 
-  Eye, 
-  Search, 
-  Filter,
-  CheckCircle,
-  Clock,
-  AlertCircle
+  Clock, 
+  CheckCircle, 
+  AlertTriangle,
+  FileText,
+  Loader2
 } from 'lucide-react';
-import { PaymentRequest, ClosingDocumentData } from '../../types';
-import { formatCurrency } from '../../utils/formatting';
 import { useDictionaries } from '../../hooks/useDictionaries';
-import { SubRegistrarRequestView } from './SubRegistrarRequestView';
-import { getStatusIcon, getStatusBadge } from '../common/RequestStatus';
-import { getCounterpartyName } from '../../utils/counterparty';
+import { formatCurrency } from '../../utils/formatting';
+import { useRoleStatistics } from '../../hooks/useStatistics';
+import { formatDateSafe } from '../../features/payment-requests/lib/formatDateSafe';
+import { isOverdue } from '../../features/payment-requests/lib/isOverdue';
+import { getReviewerByStatus } from '../../features/payment-requests/constants/status-map';
 import { PaymentRequestService } from '../../services/paymentRequestService';
-import { SubRegistrarService } from '../../services/subRegistrarService';
-import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 
 interface SubRegistrarDashboardProps {
-  currentUserId: string;
+  onViewRequest?: (id: string) => void;
 }
 
-export function SubRegistrarDashboard({ currentUserId }: SubRegistrarDashboardProps) {
-  const [requests, setRequests] = useState<PaymentRequest[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<PaymentRequest[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(null);
+function SubRegistrarDashboard({ onViewRequest }: SubRegistrarDashboardProps) {
+  // State for filtering and pagination
+  const [currentFilter, setCurrentFilter] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageInput, setPageInput] = useState('');
+  const itemsPerPage = 5;
+  
+  // Get dictionary data
+  const { items: counterparties } = useDictionaries('counterparties');
+  
+  // Get current user
+  const { user } = useAuth();
+  
+  // State for requests
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { items: counterparties, state: counterpartiesState } = useDictionaries('counterparties');
-  const { items: expenseItems, state: expenseItemsState } = useDictionaries('expense-articles');
-
-  // Simple date formatting function
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Load assigned requests
+  // Load requests assigned to this sub-registrar
   useEffect(() => {
-    const loadAssignedRequests = async () => {
+    const loadRequests = async () => {
+      if (!user?.id) return;
+      
       try {
-        setIsLoading(true);
+        setLoading(true);
+        setError(null);
         
-        // Get requests assigned to this sub-registrar
-        const data = await PaymentRequestService.getAll({ responsibleRegistrarId: currentUserId });
+        // Get requests for sub-registrar (all SUBMITTED and CLASSIFIED requests)
+        const data = await PaymentRequestService.getAll({ 
+          role: 'SUB_REGISTRAR'
+        });
         
-        // Transform backend data to frontend format
-        const transformedRequests: PaymentRequest[] = data.map((req: any) => ({
-          id: req.id,
-          requestNumber: req.number,
-          createdAt: req.created_at,
-          dueDate: req.due_date,
-          counterpartyId: req.counterparty_id,
-          amount: req.amount_total,
-          currency: req.currency_code,
-          description: req.title,
-          status: req.status,
-          responsibleRegistrarId: req.responsible_registrar_id,
-          files: req.files || [],
-          docType: req.doc_type,
-          docNumber: req.doc_number,
-          docDate: req.doc_date,
-          payingCompany: req.paying_company,
-          vatRate: req.vat_rate
-        }));
-        
-        setRequests(transformedRequests);
-        setFilteredRequests(transformedRequests);
-      } catch (error) {
-        console.error('Error loading assigned requests:', error);
-        setRequests([]);
-        setFilteredRequests([]);
+        setRequests(data);
+      } catch (err) {
+        console.error('Error loading sub-registrar requests:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load requests');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    loadAssignedRequests();
-  }, [currentUserId]);
+    loadRequests();
+  }, [user?.id]);
 
-  // Filter requests
-  useEffect(() => {
-    let filtered = requests;
+  const { 
+    statistics, 
+    loading: statisticsLoading, 
+    error: statisticsError 
+  } = useRoleStatistics('SUB_REGISTRAR', user?.id);
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(request => 
-        request.requestNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getCounterpartyName(counterparties, request.counterpartyId).toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(request => request.status === statusFilter);
-    }
-
-    setFilteredRequests(filtered);
-  }, [requests, searchTerm, statusFilter]);
-
-
-  const handleViewRequest = (request: PaymentRequest) => {
-    setSelectedRequest(request);
-  };
-
-  const handleBackToList = () => {
-    setSelectedRequest(null);
-  };
-
-  const handleSaveClosingDocument = async (data: ClosingDocumentData) => {
-    try {
-      if (!selectedRequest) {
-        throw new Error('No request selected');
+  const isLoading = loading || statisticsLoading;
+  const hasError = error || statisticsError;
+  
+  // Filter requests based on current filter
+  const filteredRequests = useMemo(() => {
+    let filtered = [...requests];
+    
+    // SUB_REGISTRAR only sees 'classified' requests
+    filtered = filtered.filter(r => r.status === 'classified');
+    
+    // Apply status filter
+    if (currentFilter) {
+      switch (currentFilter) {
+        case 'classified':
+          filtered = filtered.filter(r => r.status === 'classified');
+          break;
+        case 'returned':
+          filtered = filtered.filter(r => r.status === 'returned');
+          break;
+        case 'total':
+          // Show all requests (excluding submitted)
+          break;
       }
-      
-      await SubRegistrarService.saveClosingDocs(selectedRequest.id, data);
-      toast.success('Закрывающие документы успешно сохранены');
-    } catch (error) {
-      console.error('Error saving closing document:', error);
-      toast.error('Ошибка при сохранении закрывающих документов');
-      throw error;
     }
-  };
+    
+    return filtered.sort((a, b) => {
+      try {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+          return 0;
+        }
+        return dateB.getTime() - dateA.getTime();
+      } catch (error) {
+        return 0;
+      }
+    });
+  }, [requests, currentFilter]);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+  
+  
+  // Calculate metrics from statistics
+  const metrics = useMemo(() => {
+    if (!statistics) {
+      return {
+        total: 0,
+        submitted: 0,
+        classified: 0,
+        returned: 0,
+        totalAmount: 0
+      };
+    }
+    
+    return {
+      total: statistics.totalRequests || 0,
+      submitted: statistics.submittedCount || 0,
+      classified: statistics.classifiedCount || 0,
+      returned: statistics.returnedCount || 0,
+      totalAmount: statistics.totalAmount || 0
+    };
+  }, [statistics]);
+  
+  const getCounterpartyName = useCallback((id: string) => {
+    return counterparties.find(cp => cp.id === id)?.name || 'Неизвестен';
+  }, [counterparties]);
 
+  const handleFilterClick = useCallback((filterType: string) => {
+    // Toggle filter - if same filter is clicked, clear it
+    const newFilter = currentFilter === filterType ? null : filterType;
+    setCurrentFilter(newFilter);
+    setCurrentPage(1); // Reset to first page when filter changes
+  }, [currentFilter]);
 
+  const handlePageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPageInput(e.target.value);
+  }, []);
+
+  const handlePageInputSubmit = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const page = parseInt(pageInput);
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+        setPageInput('');
+      }
+    }
+  }, [pageInput, totalPages]);
+
+  // Show loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Загрузка заявок...</p>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-semibold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Обзор системы управления платежами
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="text-muted-foreground">Загрузка данных заявок...</span>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Show request view if a request is selected
-  if (selectedRequest) {
+  // Show error state
+  if (hasError) {
     return (
-      <SubRegistrarRequestView
-        request={selectedRequest}
-        onBack={handleBackToList}
-        onSave={handleSaveClosingDocument}
-      />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-semibold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Обзор системы управления платежами
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Ошибка загрузки данных</h3>
+            <p className="text-muted-foreground mb-4">{hasError}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline"
+            >
+              Попробовать снова
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -172,167 +217,267 @@ export function SubRegistrarDashboard({ currentUserId }: SubRegistrarDashboardPr
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Мои заявки</h2>
+          <h1 className="text-3xl font-semibold">Dashboard</h1>
           <p className="text-muted-foreground">
-            Заявки, назначенные вам как ответственному регистратору
+            Обзор системы управления платежами
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge className="bg-emerald-100 text-emerald-800">
-            Суб-Регистратор
-          </Badge>
+      </div>
+
+      {/* Filter tiles */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-medium mb-3">Фильтры заявок</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div 
+              className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
+                currentFilter === 'classified' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => handleFilterClick('classified')}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle className="h-3 w-3 text-green-500" />
+                <span className="text-xs font-medium">Классифицированы</span>
+              </div>
+              <div className="text-lg font-semibold">{metrics.classified}</div>
+            </div>
+            
+            <div 
+              className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
+                currentFilter === 'returned' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => handleFilterClick('returned')}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <AlertTriangle className="h-3 w-3 text-red-500" />
+                <span className="text-xs font-medium">Возвращены</span>
+              </div>
+              <div className="text-lg font-semibold">{metrics.returned}</div>
+            </div>
+            
+            <div 
+              className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
+                currentFilter === 'total' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50'
+              }`}
+              onClick={() => handleFilterClick('total')}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <FileText className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs font-medium">Всего</span>
+              </div>
+              <div className="text-lg font-semibold">{metrics.total}</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <div className="ml-2">
-                <p className="text-sm font-medium text-muted-foreground">Всего заявок</p>
-                <p className="text-2xl font-bold">{requests.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <div className="ml-2">
-                <p className="text-sm font-medium text-muted-foreground">Классифицированы</p>
-                <p className="text-2xl font-bold">
-                  {requests.filter(r => r.status === 'classified').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <div className="ml-2">
-                <p className="text-sm font-medium text-muted-foreground">Возвращены</p>
-                <p className="text-2xl font-bold">
-                  {requests.filter(r => r.status === 'returned').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <div className="ml-2">
-                <p className="text-sm font-medium text-muted-foreground">Общая сумма</p>
-                <p className="text-2xl font-bold">
-                  {formatCurrency(requests.reduce((sum, r) => sum + r.amount, 0), 'KZT')}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
+      {/* Recent requests with pagination */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Поиск по номеру, описанию или контрагенту..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">Все статусы</option>
-                <option value="classified">Классифицированы</option>
-                <option value="allocated">Распределены</option>
-                <option value="returned">Возвращены</option>
-              </select>
-            </div>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Последние заявки</CardTitle>
+          <div className="text-sm text-muted-foreground">
+            {filteredRequests.length > 0 && (
+              <span>Показано {startIndex + 1}-{Math.min(endIndex, filteredRequests.length)} из {filteredRequests.length}</span>                                                                   
+            )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Requests Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Список заявок ({filteredRequests.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredRequests.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Нет заявок для отображения</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Номер</TableHead>
-                  <TableHead>Контрагент</TableHead>
-                  <TableHead>Сумма</TableHead>
-                  <TableHead>Статус</TableHead>
-                  <TableHead>Дата создания</TableHead>
-                  <TableHead>Срок</TableHead>
-                  <TableHead>Действия</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell className="font-medium">
-                      {request.requestNumber}
-                    </TableCell>
-                    <TableCell>
-                      {getCounterpartyName(counterparties, request.counterpartyId)}
-                    </TableCell>
-                    <TableCell>
-                      {formatCurrency(request.amount, request.currency)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(request.status)}
-                        {getStatusBadge(request.status)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(request.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(request.dueDate)}
-                    </TableCell>
-                    <TableCell>
+          <div className="space-y-3">
+            {paginatedRequests.map(request => (
+              <div 
+                key={request.id} 
+                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => onViewRequest?.(request.id)}
+              >
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="font-medium">{request.requestNumber}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {getCounterpartyName(request.counterpartyId)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-medium">{formatCurrency(request.amount, request.currency)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDateSafe(request.createdAt)}
+                    </p>
+                  </div>
+                  <StatusBadge status={request.status} />
+                </div>
+              </div>
+            ))}
+            {filteredRequests.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                Нет заявок для отображения
+              </p>
+            )}
+          </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="hidden sm:flex"
+                >
+                  Первая
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Назад
+                </Button>
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  Страница {currentPage} из {totalPages}
+                </span>
+                <span className="text-sm text-muted-foreground sm:hidden">
+                  {currentPage}/{totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Вперед
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="hidden sm:flex"
+                >
+                  Последняя
+                </Button>
+              </div>
+              <div className="flex items-center gap-1 overflow-x-auto">
+                {(() => {
+                  const maxVisiblePages = 7; // Максимальное количество видимых страниц
+                  const pages = [];
+                  
+                  if (totalPages <= maxVisiblePages) {
+                    // Если страниц мало, показываем все
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(
+                        <Button
+                          key={i}
+                          variant={currentPage === i ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(i)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {i}
+                        </Button>
+                      );
+                    }
+                  } else {
+                    // Если страниц много, показываем умную пагинацию
+                    const showEllipsis = totalPages > maxVisiblePages;
+                    const halfVisible = Math.floor(maxVisiblePages / 2);
+                    
+                    // Всегда показываем первую страницу
+                    pages.push(
                       <Button
-                        variant="outline"
+                        key={1}
+                        variant={currentPage === 1 ? "default" : "outline"}
                         size="sm"
-                        onClick={() => handleViewRequest(request)}
+                        onClick={() => setCurrentPage(1)}
+                        className="w-8 h-8 p-0"
                       >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Просмотр
+                        1
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    );
+                    
+                    if (currentPage > halfVisible + 2) {
+                      pages.push(
+                        <span key="ellipsis1" className="px-2 text-muted-foreground">
+                          ...
+                        </span>
+                      );
+                    }
+                    
+                    // Показываем страницы вокруг текущей
+                    const startPage = Math.max(2, currentPage - halfVisible);
+                    const endPage = Math.min(totalPages - 1, currentPage + halfVisible);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                      if (i !== 1 && i !== totalPages) {
+                        pages.push(
+                          <Button
+                            key={i}
+                            variant={currentPage === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(i)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {i}
+                          </Button>
+                        );
+                      }
+                    }
+                    
+                    if (currentPage < totalPages - halfVisible - 1) {
+                      pages.push(
+                        <span key="ellipsis2" className="px-2 text-muted-foreground">
+                          ...
+                        </span>
+                      );
+                    }
+                    
+                    // Всегда показываем последнюю страницу (если не первая)
+                    if (totalPages > 1) {
+                      pages.push(
+                        <Button
+                          key={totalPages}
+                          variant={currentPage === totalPages ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(totalPages)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {totalPages}
+                        </Button>
+                      );
+                    }
+                  }
+                  
+                  return pages;
+                })()}
+              </div>
+              
+              {/* Page input for large datasets */}
+              {totalPages > 10 && (
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-sm text-muted-foreground">Перейти к:</span>
+                  <Input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={pageInput}
+                    onChange={handlePageInputChange}
+                    onKeyDown={handlePageInputSubmit}
+                    placeholder="№"
+                    className="w-16 h-8 text-center"
+                  />
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
+
     </div>
   );
 }
+
+export { SubRegistrarDashboard };
+export default SubRegistrarDashboard;

@@ -76,6 +76,10 @@ export interface BackendRequestListOut {
   }>;
   created_at?: string;
   updated_at?: string;
+  // Split request fields
+  is_split_request?: boolean;
+  original_request_id?: string;
+  split_sequence?: number;
   // Additional fields for frontend
   paying_company?: string;
   counterparty_category?: string;
@@ -93,9 +97,17 @@ export interface BackendStatistics {
   classified: number;
   approved: number;
   in_registry: number;
-  paid_full: number;
-  paid_partial: number;
+  to_pay?: number;
+  approved_for_payment?: number;
+  paid_full?: number;
+  paid_partial?: number;
   rejected: number;
+  returned?: number;
+  cancelled?: number;
+  closed?: number;
+  distributed?: number;
+  report_published?: number;
+  export_linked?: number;
   overdue: number;
   total_amount: number;
   total_vat: number;
