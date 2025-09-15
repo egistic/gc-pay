@@ -18,7 +18,13 @@ depends_on = None
 
 def upgrade() -> None:
     # Map existing data to new statuses
-    # First convert status column to TEXT to avoid enum comparison issues
+    # First drop views that depend on the status column
+    
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_payment_request_lines CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_files CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_events CASCADE")
     
     # Convert status column to TEXT temporarily
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
@@ -67,10 +73,89 @@ def upgrade() -> None:
     
     # Convert status column back to enum type
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
+    
+    # Recreate the views
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests WHERE deleted = false
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_payment_request_lines AS
+        SELECT * FROM payment_request_lines
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_files AS
+        SELECT * FROM request_files
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_events AS
+        SELECT * FROM request_events
+    """)
 
 
 def downgrade() -> None:
-    # Note: PostgreSQL doesn't support removing enum values directly
-    # This would require recreating the enum type and updating all columns
-    # For now, we'll leave the values in place
-    pass
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_payment_request_lines CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_files CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_events CASCADE")
+    
+    # Convert status column to TEXT temporarily
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
+    
+    # Reverse the mappings
+    op.execute("""
+        DO $$
+        BEGIN
+            -- Reverse 'CLASSIFIED' to 'REGISTERED' (they are the same concept)
+            IF EXISTS (SELECT 1 FROM payment_requests WHERE status = 'CLASSIFIED' LIMIT 1) THEN
+                UPDATE payment_requests SET status = 'REGISTERED' WHERE status = 'CLASSIFIED';
+                RAISE NOTICE 'Reversed CLASSIFIED to REGISTERED';
+            END IF;
+            
+            -- Reverse 'IN-REGISTER' to 'IN_REGISTRY' (frontend uses hyphen)
+            IF EXISTS (SELECT 1 FROM payment_requests WHERE status = 'IN-REGISTER' LIMIT 1) THEN
+                UPDATE payment_requests SET status = 'IN_REGISTRY' WHERE status = 'IN-REGISTER';
+                RAISE NOTICE 'Reversed IN-REGISTER to IN_REGISTRY';
+            END IF;
+            
+            -- Reverse 'PAID-FULL' to 'PAID' (more specific)
+            IF EXISTS (SELECT 1 FROM payment_requests WHERE status = 'PAID-FULL' LIMIT 1) THEN
+                UPDATE payment_requests SET status = 'PAID' WHERE status = 'PAID-FULL';
+                RAISE NOTICE 'Reversed PAID-FULL to PAID';
+            END IF;
+            
+            -- Reverse 'CLASSIFIED' to 'UNDER_REVIEW' (similar concept)
+            IF EXISTS (SELECT 1 FROM payment_requests WHERE status = 'CLASSIFIED' LIMIT 1) THEN
+                UPDATE payment_requests SET status = 'UNDER_REVIEW' WHERE status = 'CLASSIFIED';
+                RAISE NOTICE 'Reversed CLASSIFIED to UNDER_REVIEW';
+            END IF;
+        END $$;
+    """)
+    
+    # Convert status column back to enum type
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
+    
+    # Recreate the views
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests WHERE deleted = false
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_payment_request_lines AS
+        SELECT * FROM payment_request_lines
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_files AS
+        SELECT * FROM request_files
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_events AS
+        SELECT * FROM request_events
+    """)
