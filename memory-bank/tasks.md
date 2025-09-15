@@ -82,28 +82,29 @@
 
 ## Current Task
 
-- [x] [Level 1] Fix Alembic migration enum conflict (Completed: 2025-01-27)
-  - Task: Fix "type payment_request_status already exists" error in Alembic migration
-  - Problem: Migration was trying to create enum types that already exist on server with different values (uppercase vs lowercase)
-  - Root cause: Server has existing enums with uppercase values, but migration was trying to create new enums with lowercase values
+- [x] [Level 1] Fix Alembic migration conflicts (Completed: 2025-01-27)
+  - Task: Fix "type payment_request_status already exists" and "relation exchange_rates already exists" errors in Alembic migration
+  - Problem: Migration was trying to create objects that already exist on server (enums, tables, columns, constraints)
+  - Root cause: Server has existing objects with different values/structures than what migration expects
   - Solution implemented:
-    1. ✅ Created separate cleanup script to remove existing enum types
-    2. ✅ Simplified Alembic migration to only create new enum types
-    3. ✅ Created automated migration script for easy deployment
+    1. ✅ Created comprehensive cleanup script to remove all existing migration objects
+    2. ✅ Updated migration to use conditional creation (IF NOT EXISTS)
+    3. ✅ Created safe migration script for easy deployment
   - Files modified:
-    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/ffe416ae00e8_phase_1_critical_data_integrity_enum_.py` - Simplified migration logic
-    - `/home/zhandos/gp_latest/gc-spends-backend/cleanup_enums.sql` - Created enum cleanup script
-    - `/home/zhandos/gp_latest/gc-spends-backend/run_migration.sh` - Created automated migration script
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/ffe416ae00e8_phase_1_critical_data_integrity_enum_.py` - Updated with conditional creation
+    - `/home/zhandos/gp_latest/gc-spends-backend/cleanup_migration_objects.sql` - Created comprehensive cleanup script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_migration_safe.sh` - Created safe migration script
   - Changes made:
-    - Separated enum cleanup from migration for better control
-    - Created cleanup script that drops all existing enum types with CASCADE
-    - Simplified migration to only create new enum types (assumes cleanup was run first)
+    - Created comprehensive cleanup script that removes enums, tables, columns, and constraints
+    - Updated migration to use CREATE TABLE IF NOT EXISTS for exchange_rates table
+    - Updated migration to use conditional column addition with DO $$ blocks
+    - Updated migration to use conditional constraint creation with DO $$ blocks
     - Added comprehensive mapping from server's uppercase enum values to new lowercase values
-    - Created automated script that runs cleanup, migration, and verification
+    - Created safe migration script that runs cleanup, migration, and verification
   - Expected result:
-    - Migration will run successfully on server without enum conflicts
+    - Migration will run successfully on server without any conflicts
     - Existing data will be properly mapped from uppercase to lowercase enum values
-    - All enum types will be created with consistent lowercase values
+    - All objects will be created with consistent structure and values
     - Database constraints and currency handling will be properly implemented
   - Status mapping:
     - DRAFT → draft
@@ -114,8 +115,8 @@
     - REJECTED → rejected
     - CANCELLED/CLOSED/SPLITED → cancelled
   - Backend verification:
-    - ✅ Cleanup script created for enum removal
-    - ✅ Migration simplified to only create new enums
-    - ✅ Automated script created for easy deployment
-    - ✅ All enum types handled (payment_request_status, distribution_status, document_status, sub_registrar_assignment_status, contract_type)
+    - ✅ Comprehensive cleanup script created for all migration objects
+    - ✅ Migration updated with conditional creation for all objects
+    - ✅ Safe migration script created with full verification
+    - ✅ All enum types, tables, columns, and constraints handled
   - Status: ✅ COMPLETED

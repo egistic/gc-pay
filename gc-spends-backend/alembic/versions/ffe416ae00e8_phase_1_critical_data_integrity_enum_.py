@@ -51,18 +51,35 @@ def upgrade() -> None:
         );
     """)
     
-    # Phase 1.2: Create Exchange Rates Table
-    op.create_table('exchange_rates',
-        sa.Column('date', sa.Date(), nullable=False),
-        sa.Column('currency_code', sa.String(length=3), nullable=False),
-        sa.Column('rate', sa.Numeric(precision=10, scale=6), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
-        sa.PrimaryKeyConstraint('date', 'currency_code')
-    )
+    # Phase 1.2: Create Exchange Rates Table (only if it doesn't exist)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS exchange_rates (
+            date DATE NOT NULL,
+            currency_code VARCHAR(3) NOT NULL,
+            rate NUMERIC(10,6) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (date, currency_code)
+        );
+    """)
     
-    # Phase 1.3: Add Base Currency Support to Payment Requests
-    op.add_column('payment_requests', sa.Column('amount_base_currency', sa.Numeric(precision=18, scale=2), nullable=True))
-    op.add_column('payment_requests', sa.Column('base_currency_code', sa.String(length=3), nullable=True, server_default='USD'))
+    # Phase 1.3: Add Base Currency Support to Payment Requests (only if columns don't exist)
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payment_requests' AND column_name = 'amount_base_currency') THEN
+                ALTER TABLE payment_requests ADD COLUMN amount_base_currency NUMERIC(18,2);
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payment_requests' AND column_name = 'base_currency_code') THEN
+                ALTER TABLE payment_requests ADD COLUMN base_currency_code VARCHAR(3) DEFAULT 'USD';
+            END IF;
+        END $$;
+    """)
     
     # Phase 1.4: Convert Status Columns to Enum Types
     # Map existing uppercase values to new lowercase enum values
@@ -153,20 +170,89 @@ def upgrade() -> None:
     """)
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::contract_type;")
     
-    # Phase 1.5: Add Currency and Amount Constraints
-    op.create_check_constraint('chk_amount_positive', 'payment_requests', 'amount_total >= 0')
-    op.create_check_constraint('chk_vat_positive', 'payment_requests', 'vat_total >= 0')
-    op.create_check_constraint('chk_amount_net_positive', 'payment_request_lines', 'amount_net >= 0')
-    op.create_check_constraint('chk_quantity_positive', 'payment_request_lines', 'quantity >= 0')
+    # Phase 1.5: Add Currency and Amount Constraints (only if they don't exist)
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_amount_positive' AND table_name = 'payment_requests') THEN
+                ALTER TABLE payment_requests ADD CONSTRAINT chk_amount_positive CHECK (amount_total >= 0);
+            END IF;
+        END $$;
+    """)
     
-    # Phase 1.6: Add Currency Code Constraints
-    op.create_check_constraint('chk_currency_code_format', 'payment_requests', "currency_code ~ '^[A-Z]{3}$'")
-    op.create_check_constraint('chk_base_currency_format', 'payment_requests', "base_currency_code ~ '^[A-Z]{3}$'")
-    op.create_check_constraint('chk_line_currency_format', 'payment_request_lines', "currency_code ~ '^[A-Z]{3}$'")
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_vat_positive' AND table_name = 'payment_requests') THEN
+                ALTER TABLE payment_requests ADD CONSTRAINT chk_vat_positive CHECK (vat_total >= 0);
+            END IF;
+        END $$;
+    """)
     
-    # Phase 1.7: Add Exchange Rate Constraints
-    op.create_check_constraint('chk_exchange_rate_positive', 'exchange_rates', 'rate > 0')
-    op.create_check_constraint('chk_exchange_currency_format', 'exchange_rates', "currency_code ~ '^[A-Z]{3}$'")
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_amount_net_positive' AND table_name = 'payment_request_lines') THEN
+                ALTER TABLE payment_request_lines ADD CONSTRAINT chk_amount_net_positive CHECK (amount_net >= 0);
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_quantity_positive' AND table_name = 'payment_request_lines') THEN
+                ALTER TABLE payment_request_lines ADD CONSTRAINT chk_quantity_positive CHECK (quantity >= 0);
+            END IF;
+        END $$;
+    """)
+    
+    # Phase 1.6: Add Currency Code Constraints (only if they don't exist)
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_currency_code_format' AND table_name = 'payment_requests') THEN
+                ALTER TABLE payment_requests ADD CONSTRAINT chk_currency_code_format CHECK (currency_code ~ '^[A-Z]{3}$');
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_base_currency_format' AND table_name = 'payment_requests') THEN
+                ALTER TABLE payment_requests ADD CONSTRAINT chk_base_currency_format CHECK (base_currency_code ~ '^[A-Z]{3}$');
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_line_currency_format' AND table_name = 'payment_request_lines') THEN
+                ALTER TABLE payment_request_lines ADD CONSTRAINT chk_line_currency_format CHECK (currency_code ~ '^[A-Z]{3}$');
+            END IF;
+        END $$;
+    """)
+    
+    # Phase 1.7: Add Exchange Rate Constraints (only if they don't exist)
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_exchange_rate_positive' AND table_name = 'exchange_rates') THEN
+                ALTER TABLE exchange_rates ADD CONSTRAINT chk_exchange_rate_positive CHECK (rate > 0);
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'chk_exchange_currency_format' AND table_name = 'exchange_rates') THEN
+                ALTER TABLE exchange_rates ADD CONSTRAINT chk_exchange_currency_format CHECK (currency_code ~ '^[A-Z]{3}$');
+            END IF;
+        END $$;
+    """)
 
 
 def downgrade() -> None:
