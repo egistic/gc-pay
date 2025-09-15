@@ -20,25 +20,37 @@ def upgrade() -> None:
     # Ensure all existing requests have valid statuses according to the new enum
     # This migration ensures data consistency after status unification
     
-    # First, let's check if there are any invalid statuses and fix them
+    # Convert status column to TEXT temporarily to avoid enum issues
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
+    
+    # Now perform the updates safely
     op.execute("""
-        UPDATE payment_requests 
-        SET status = 'DRAFT' 
-        WHERE status NOT IN (
-            'DRAFT', 'SUBMITTED', 'CLASSIFIED', 'ALLOCATED', 'RETURNED', 
-            'APPROVED', 'APPROVED-ON-BEHALF', 'TO-PAY', 'IN-REGISTER', 
-            'APPROVED-FOR-PAYMENT', 'PAID-FULL', 'PAID-PARTIAL', 
-            'DECLINED', 'REJECTED', 'CANCELLED', 'DISTRIBUTED', 
-            'REPORT_PUBLISHED', 'EXPORT_LINKED'
-        );
+        DO $$
+        BEGIN
+            -- First, let's check if there are any invalid statuses and fix them
+            UPDATE payment_requests 
+            SET status = 'DRAFT' 
+            WHERE status NOT IN (
+                'DRAFT', 'SUBMITTED', 'CLASSIFIED', 'ALLOCATED', 'RETURNED', 
+                'APPROVED', 'APPROVED-ON-BEHALF', 'TO-PAY', 'IN-REGISTER', 
+                'APPROVED-FOR-PAYMENT', 'PAID-FULL', 'PAID-PARTIAL', 
+                'DECLINED', 'REJECTED', 'CANCELLED', 'DISTRIBUTED', 
+                'REPORT_PUBLISHED', 'EXPORT_LINKED'
+            );
+            
+            -- Update any remaining old status values to new ones
+            -- (This is a safety measure in case some old values still exist)
+            UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'REGISTERED';
+            UPDATE payment_requests SET status = 'IN-REGISTER' WHERE status = 'IN_REGISTRY';
+            UPDATE payment_requests SET status = 'PAID-FULL' WHERE status = 'PAID';
+            UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'UNDER_REVIEW';
+            
+            RAISE NOTICE 'Updated payment request statuses successfully';
+        END $$;
     """)
     
-    # Update any remaining old status values to new ones
-    # (This is a safety measure in case some old values still exist)
-    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'REGISTERED'")
-    op.execute("UPDATE payment_requests SET status = 'IN-REGISTER' WHERE status = 'IN_REGISTRY'")
-    op.execute("UPDATE payment_requests SET status = 'PAID-FULL' WHERE status = 'PAID'")
-    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'UNDER_REVIEW'")
+    # Convert status column back to enum type
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
     
     # Log the current status distribution
     op.execute("""
@@ -61,6 +73,22 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Note: This migration only ensures data consistency
-    # No downgrade needed as it only fixes invalid data
-    pass
+    # Convert status column to TEXT temporarily to avoid enum issues
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
+    
+    # Reverse the mappings
+    op.execute("""
+        DO $$
+        BEGIN
+            -- Reverse the status mappings
+            UPDATE payment_requests SET status = 'REGISTERED' WHERE status = 'CLASSIFIED';
+            UPDATE payment_requests SET status = 'IN_REGISTRY' WHERE status = 'IN-REGISTER';
+            UPDATE payment_requests SET status = 'PAID' WHERE status = 'PAID-FULL';
+            UPDATE payment_requests SET status = 'UNDER_REVIEW' WHERE status = 'CLASSIFIED';
+            
+            RAISE NOTICE 'Reversed payment request status mappings';
+        END $$;
+    """)
+    
+    # Convert status column back to enum type
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
