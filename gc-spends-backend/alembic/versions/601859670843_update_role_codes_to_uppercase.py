@@ -152,16 +152,16 @@ def upgrade() -> None:
     """)
     
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::payment_priority")
+    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::paymentpriority")
     
     # Update payment_priority enum to use uppercase values
-    op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")
-    op.execute("CREATE TYPE payment_priority AS ENUM ('LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL')")
+    op.execute("ALTER TYPE paymentpriority RENAME TO payment_priority_old")
+    op.execute("CREATE TYPE paymentpriority AS ENUM ('LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL')")
     
     # Then alter the column type (remove default first, change type, then set new default)
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
-    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE payment_priority USING priority::text::payment_priority")
-    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'NORMAL'::payment_priority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE paymentpriority USING priority::text::paymentpriority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'NORMAL'::paymentpriority")
     op.execute("DROP TYPE payment_priority_old")
     
     # Recreate the view with uppercase values
@@ -224,9 +224,9 @@ def downgrade() -> None:
     op.execute("DROP TYPE contract_type_old")
     
     # Revert payment_priority enum to lowercase values
-    op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")
-    op.execute("CREATE TYPE payment_priority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical')")
+    op.execute("ALTER TYPE paymentpriority RENAME TO payment_priority_old")
+    op.execute("CREATE TYPE paymentpriority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical')")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
-    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE payment_priority USING priority::text::payment_priority")
-    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'normal'::payment_priority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE paymentpriority USING priority::text::paymentpriority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'normal'::paymentpriority")
     op.execute("DROP TYPE payment_priority_old")
