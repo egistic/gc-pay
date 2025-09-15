@@ -18,17 +18,17 @@ depends_on = None
 
 def upgrade() -> None:
     # Map existing data to new statuses
-    # Map 'registered' to 'classified' (they are the same concept)
-    op.execute("UPDATE payment_requests SET status = 'classified' WHERE status = 'registered'")
+    # Map 'REGISTERED' to 'CLASSIFIED' (they are the same concept)
+    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'REGISTERED'")
     
-    # Map 'in_registry' to 'in-register' (frontend uses hyphen)
-    op.execute("UPDATE payment_requests SET status = 'in-register' WHERE status = 'in_registry'")
+    # Map 'IN_REGISTRY' to 'IN-REGISTER' (frontend uses hyphen)
+    op.execute("UPDATE payment_requests SET status = 'IN-REGISTER' WHERE status = 'IN_REGISTRY'")
     
-    # Map 'paid' to 'paid-full' (more specific)
-    op.execute("UPDATE payment_requests SET status = 'paid-full' WHERE status = 'paid'")
+    # Map 'PAID' to 'PAID-FULL' (more specific)
+    op.execute("UPDATE payment_requests SET status = 'PAID-FULL' WHERE status = 'PAID'")
     
-    # Map 'under_review' to 'classified' (similar concept)
-    op.execute("UPDATE payment_requests SET status = 'classified' WHERE status = 'under_review'")
+    # Map 'UNDER_REVIEW' to 'CLASSIFIED' (similar concept)
+    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'UNDER_REVIEW'")
 
 
 def downgrade() -> None:

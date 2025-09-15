@@ -77,23 +77,23 @@ def upgrade() -> None:
     # First, create a new enum type without the duplicates
     op.execute("""
         CREATE TYPE payment_request_status_new AS ENUM (
-            'draft',
-            'submitted', 
-            'classified',
-            'returned',
-            'approved',
-            'approved-on-behalf',
-            'to-pay',
-            'in-register',
-            'approved-for-payment',
-            'paid-full',
-            'paid-partial',
-            'rejected',
-            'cancelled',
-            'closed',
-            'distributed',
-            'report_published',
-            'export_linked'
+            'DRAFT',
+            'SUBMITTED', 
+            'CLASSIFIED',
+            'RETURNED',
+            'APPROVED',
+            'APPROVED-ON-BEHALF',
+            'TO-PAY',
+            'IN-REGISTER',
+            'APPROVED-FOR-PAYMENT',
+            'PAID-FULL',
+            'PAID-PARTIAL',
+            'REJECTED',
+            'CANCELLED',
+            'CLOSED',
+            'DISTRIBUTED',
+            'REPORT_PUBLISHED',
+            'EXPORT_LINKED'
         )
     """)
     
@@ -106,18 +106,18 @@ def upgrade() -> None:
     op.execute("""
         ALTER TABLE payment_requests 
         ALTER COLUMN status TYPE payment_request_status_new 
-        USING LOWER(status::text)::payment_request_status_new
+        USING UPPER(status::text)::payment_request_status_new
     """)
     
     op.execute("""
         ALTER TABLE payment_request_lines 
         ALTER COLUMN status TYPE payment_request_status_new 
-        USING LOWER(status::text)::payment_request_status_new
+        USING UPPER(status::text)::payment_request_status_new
     """)
     
     # Restore the default values
-    op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'draft'")
-    op.execute("ALTER TABLE payment_request_lines ALTER COLUMN status SET DEFAULT 'draft'")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'")
+    op.execute("ALTER TABLE payment_request_lines ALTER COLUMN status SET DEFAULT 'DRAFT'")
     
     # Drop the old enum type
     op.execute("DROP TYPE payment_request_status")
@@ -151,25 +151,25 @@ def downgrade() -> None:
     # Recreate the old enum type with all values
     op.execute("""
         CREATE TYPE payment_request_status_old AS ENUM (
-            'draft',
-            'submitted', 
-            'classified',
-            'allocated',
-            'returned',
-            'approved',
-            'approved-on-behalf',
-            'to-pay',
-            'in-register',
-            'approved-for-payment',
-            'paid-full',
-            'paid-partial',
-            'declined',
-            'rejected',
-            'cancelled',
-            'closed',
-            'distributed',
-            'report_published',
-            'export_linked'
+            'DRAFT',
+            'SUBMITTED', 
+            'CLASSIFIED',
+            'ALLOCATED',
+            'RETURNED',
+            'APPROVED',
+            'APPROVED-ON-BEHALF',
+            'TO-PAY',
+            'IN-REGISTER',
+            'APPROVED-FOR-PAYMENT',
+            'PAID-FULL',
+            'PAID-PARTIAL',
+            'DECLINED',
+            'REJECTED',
+            'CANCELLED',
+            'CLOSED',
+            'DISTRIBUTED',
+            'REPORT_PUBLISHED',
+            'EXPORT_LINKED'
         )
     """)
     
@@ -195,12 +195,12 @@ def downgrade() -> None:
     # Reverse the status mappings
     op.execute("""
         UPDATE payment_requests 
-        SET status = 'allocated' 
-        WHERE status = 'distributed'
+        SET status = 'ALLOCATED' 
+        WHERE status = 'DISTRIBUTED'
     """)
     
     op.execute("""
         UPDATE payment_requests 
-        SET status = 'declined' 
-        WHERE status = 'rejected'
+        SET status = 'DECLINED' 
+        WHERE status = 'REJECTED'
     """)

@@ -254,3 +254,40 @@
     1. Run on server: `./run_priority_old_fix.sh` (fixes enum state)
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix enum case consistency issues (Completed: 2025-01-27)
+  - Task: Fix "invalid input value for enum payment_request_status: draft" error in migration 53a6cac1fb45
+  - Problem: Migration tried to convert to lowercase but enum already contains uppercase values
+  - Root cause: Inconsistent enum value casing across multiple migrations
+  - Solution implemented:
+    1. ✅ Fixed migration 53a6cac1fb45 to convert to uppercase instead of lowercase
+    2. ✅ Fixed migration 5cfd4f8ee69b to use uppercase status values
+    3. ✅ Fixed migration 61f1c0ca3053 to add uppercase enum values
+    4. ✅ Fixed migration 3afe2971dede to use uppercase status values
+    5. ✅ Fixed migration d0b305a829a4 to create uppercase enum values
+    6. ✅ Fixed migration 99b34946f71d to use uppercase enum values throughout
+    7. ✅ Created comprehensive server fix script for enum case consistency
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/53a6cac1fb45_convert_uppercase_status_to_lowercase.py` - Fixed to convert to uppercase
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/5cfd4f8ee69b_unify_statuses_with_frontend.py` - Fixed to use uppercase
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/61f1c0ca3053_add_missing_status_values.py` - Fixed to add uppercase values
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/3afe2971dede_update_existing_requests_statuses.py` - Fixed to use uppercase
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/d0b305a829a4_cleanup_duplicate_status_values.py` - Fixed to create uppercase enums
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/99b34946f71d_phase_1_critical_data_integrity_enum_.py` - Fixed to use uppercase throughout
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_enum_case_consistency.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_enum_case_fix.sh` - Execution script
+  - Changes made:
+    - Changed all migrations to use uppercase enum values consistently
+    - Fixed all UPDATE statements to convert to uppercase
+    - Fixed all default values to use uppercase
+    - Fixed all enum creation to use uppercase values
+    - Added CASCADE to all DROP TYPE statements
+    - Created comprehensive server fix script to handle enum case conversion
+  - Expected result:
+    - All migrations will run successfully with consistent uppercase enum values
+    - No more InvalidTextRepresentation errors
+    - All enum types will have consistent casing throughout the system
+  - Next steps:
+    1. Run on server: `./run_enum_case_fix.sh` (fixes enum case consistency)
+    2. Then run: `alembic upgrade head` (applies all migrations)
+  - Status: ✅ COMPLETED

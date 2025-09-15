@@ -18,22 +18,22 @@ depends_on = None
 
 def upgrade() -> None:
     # Add all missing status values to match frontend PaymentRequestStatus
-    # Current statuses: draft, submitted, registered, under_review, approved, rejected, paid, cancelled, in_registry
+    # Current statuses: DRAFT, SUBMITTED, REGISTERED, UNDER_REVIEW, APPROVED, REJECTED, PAID, CANCELLED, IN_REGISTRY
     
     # Add missing statuses one by one
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'classified'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'allocated'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'returned'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'approved-on-behalf'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'to-pay'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'in-register'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'approved-for-payment'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'paid-full'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'paid-partial'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'declined'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'distributed'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'report_published'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'export_linked'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'CLASSIFIED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'ALLOCATED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'RETURNED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'APPROVED-ON-BEHALF'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'TO-PAY'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'IN-REGISTER'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'APPROVED-FOR-PAYMENT'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'PAID-FULL'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'PAID-PARTIAL'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'DECLINED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'DISTRIBUTED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'REPORT_PUBLISHED'")
+    op.execute("ALTER TYPE payment_request_status ADD VALUE 'EXPORT_LINKED'")
 
 
 def downgrade() -> None:

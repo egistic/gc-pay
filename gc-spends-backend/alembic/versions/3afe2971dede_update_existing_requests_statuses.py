@@ -23,22 +23,22 @@ def upgrade() -> None:
     # First, let's check if there are any invalid statuses and fix them
     op.execute("""
         UPDATE payment_requests 
-        SET status = 'draft' 
+        SET status = 'DRAFT' 
         WHERE status NOT IN (
-            'draft', 'submitted', 'classified', 'allocated', 'returned', 
-            'approved', 'approved-on-behalf', 'to-pay', 'in-register', 
-            'approved-for-payment', 'paid-full', 'paid-partial', 
-            'declined', 'rejected', 'cancelled', 'distributed', 
-            'report_published', 'export_linked'
+            'DRAFT', 'SUBMITTED', 'CLASSIFIED', 'ALLOCATED', 'RETURNED', 
+            'APPROVED', 'APPROVED-ON-BEHALF', 'TO-PAY', 'IN-REGISTER', 
+            'APPROVED-FOR-PAYMENT', 'PAID-FULL', 'PAID-PARTIAL', 
+            'DECLINED', 'REJECTED', 'CANCELLED', 'DISTRIBUTED', 
+            'REPORT_PUBLISHED', 'EXPORT_LINKED'
         );
     """)
     
     # Update any remaining old status values to new ones
     # (This is a safety measure in case some old values still exist)
-    op.execute("UPDATE payment_requests SET status = 'classified' WHERE status = 'registered'")
-    op.execute("UPDATE payment_requests SET status = 'in-register' WHERE status = 'in_registry'")
-    op.execute("UPDATE payment_requests SET status = 'paid-full' WHERE status = 'paid'")
-    op.execute("UPDATE payment_requests SET status = 'classified' WHERE status = 'under_review'")
+    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'REGISTERED'")
+    op.execute("UPDATE payment_requests SET status = 'IN-REGISTER' WHERE status = 'IN_REGISTRY'")
+    op.execute("UPDATE payment_requests SET status = 'PAID-FULL' WHERE status = 'PAID'")
+    op.execute("UPDATE payment_requests SET status = 'CLASSIFIED' WHERE status = 'UNDER_REVIEW'")
     
     # Log the current status distribution
     op.execute("""

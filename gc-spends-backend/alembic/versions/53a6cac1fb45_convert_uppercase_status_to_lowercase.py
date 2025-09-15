@@ -1,4 +1,4 @@
-"""convert_uppercase_status_to_lowercase
+"""convert_lowercase_status_to_uppercase
 
 Revision ID: 53a6cac1fb45
 Revises: cd2f7cca1494
@@ -17,12 +17,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Convert any existing uppercase status values to lowercase
+    # Convert any existing lowercase status values to uppercase
     # Only update the main status field for now
-    op.execute("UPDATE payment_requests SET status = LOWER(status::text)::payment_request_status WHERE status::text != LOWER(status::text)")
+    op.execute("UPDATE payment_requests SET status = UPPER(status::text)::payment_request_status WHERE status::text != UPPER(status::text)")
 
 
 def downgrade() -> None:
-    # This migration converts uppercase to lowercase, reverting would require knowing original case
-    # For safety, we'll leave the values as lowercase
+    # This migration converts lowercase to uppercase, reverting would require knowing original case
+    # For safety, we'll leave the values as uppercase
     pass
