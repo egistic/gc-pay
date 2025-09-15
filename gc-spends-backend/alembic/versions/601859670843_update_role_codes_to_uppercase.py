@@ -140,13 +140,19 @@ def upgrade() -> None:
         DO $$ 
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_priority') THEN
-                CREATE TYPE payment_priority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical');
+                -- Check if paymentpriority exists (with different case)
+                IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'paymentpriority') THEN
+                    -- Rename existing enum to standard name
+                    ALTER TYPE paymentpriority RENAME TO payment_priority;
+                ELSE
+                    CREATE TYPE payment_priority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical');
+                END IF;
             END IF;
         END $$;
     """)
     
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)")
+    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::payment_priority")
     
     # Update payment_priority enum to use uppercase values
     op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")
