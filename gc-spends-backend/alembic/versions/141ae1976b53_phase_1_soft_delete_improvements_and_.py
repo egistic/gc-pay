@@ -1,7 +1,7 @@
 """Phase 1: Soft Delete Improvements and Active Views
 
 Revision ID: 141ae1976b53
-Revises: ffe416ae00e8
+Revises: 9d343828e9b2
 Create Date: 2025-09-14 10:24:55.479231
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '141ae1976b53'
-down_revision = 'ffe416ae00e8'
+down_revision = '9d343828e9b2'
 branch_labels = None
 depends_on = None
 
