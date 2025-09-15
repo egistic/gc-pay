@@ -84,42 +84,68 @@ def upgrade() -> None:
         END $$;
     """)
     
-    # Phase 1.5: Convert payment_requests status values
+    # Phase 1.5: Add status column if it doesn't exist and convert values
     op.execute("""
-        UPDATE payment_requests 
-        SET status = CASE 
-            WHEN UPPER(status) = 'DRAFT' THEN 'DRAFT'
-            WHEN UPPER(status) = 'SUBMITTED' THEN 'SUBMITTED'
-            WHEN UPPER(status) = 'CLASSIFIED' THEN 'UNDER_REVIEW'
-            WHEN UPPER(status) = 'RETURNED' THEN 'UNDER_REVIEW'
-            WHEN UPPER(status) = 'APPROVED' THEN 'APPROVED'
-            WHEN UPPER(status) = 'APPROVED_ON_BEHALF' THEN 'APPROVED'
-            WHEN UPPER(status) = 'TO_PAY' THEN 'APPROVED'
-            WHEN UPPER(status) = 'IN_REGISTER' THEN 'APPROVED'
-            WHEN UPPER(status) = 'APPROVED_FOR_PAYMENT' THEN 'APPROVED'
-            WHEN UPPER(status) = 'PAID_FULL' THEN 'PAID'
-            WHEN UPPER(status) = 'PAID_PARTIAL' THEN 'PAID'
-            WHEN UPPER(status) = 'REJECTED' THEN 'REJECTED'
-            WHEN UPPER(status) = 'CANCELLED' THEN 'CANCELLED'
-            WHEN UPPER(status) = 'CLOSED' THEN 'CANCELLED'
-            WHEN UPPER(status) = 'DISTRIBUTED' THEN 'PAID'
-            WHEN UPPER(status) = 'SPLITED' THEN 'CANCELLED'
-            WHEN UPPER(status) = 'REPORT_PUBLISHED' THEN 'PAID'
-            WHEN UPPER(status) = 'EXPORT_LINKED' THEN 'PAID'
-            ELSE 'DRAFT'
-        END;
+        DO $$
+        BEGIN
+            -- Add status column if it doesn't exist
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payment_requests' AND column_name = 'status') THEN
+                ALTER TABLE payment_requests ADD COLUMN status VARCHAR(50) DEFAULT 'DRAFT';
+                RAISE NOTICE 'Added status column to payment_requests';
+            END IF;
+            
+            -- Convert status values to uppercase
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payment_requests') THEN
+                UPDATE payment_requests 
+                SET status = CASE 
+                    WHEN UPPER(status) = 'DRAFT' THEN 'DRAFT'
+                    WHEN UPPER(status) = 'SUBMITTED' THEN 'SUBMITTED'
+                    WHEN UPPER(status) = 'CLASSIFIED' THEN 'UNDER_REVIEW'
+                    WHEN UPPER(status) = 'RETURNED' THEN 'UNDER_REVIEW'
+                    WHEN UPPER(status) = 'APPROVED' THEN 'APPROVED'
+                    WHEN UPPER(status) = 'APPROVED_ON_BEHALF' THEN 'APPROVED'
+                    WHEN UPPER(status) = 'TO_PAY' THEN 'APPROVED'
+                    WHEN UPPER(status) = 'IN_REGISTER' THEN 'APPROVED'
+                    WHEN UPPER(status) = 'APPROVED_FOR_PAYMENT' THEN 'APPROVED'
+                    WHEN UPPER(status) = 'PAID_FULL' THEN 'PAID'
+                    WHEN UPPER(status) = 'PAID_PARTIAL' THEN 'PAID'
+                    WHEN UPPER(status) = 'REJECTED' THEN 'REJECTED'
+                    WHEN UPPER(status) = 'CANCELLED' THEN 'CANCELLED'
+                    WHEN UPPER(status) = 'CLOSED' THEN 'CANCELLED'
+                    WHEN UPPER(status) = 'DISTRIBUTED' THEN 'PAID'
+                    WHEN UPPER(status) = 'SPLITED' THEN 'CANCELLED'
+                    WHEN UPPER(status) = 'REPORT_PUBLISHED' THEN 'PAID'
+                    WHEN UPPER(status) = 'EXPORT_LINKED' THEN 'PAID'
+                    ELSE 'DRAFT'
+                END;
+            END IF;
+            RAISE NOTICE 'Updated payment_requests status values';
+        END $$;
     """)
     
-    # Phase 1.6: Convert payment_requests distribution_status values
+    # Phase 1.6: Add distribution_status column if it doesn't exist and convert values
     op.execute("""
-        UPDATE payment_requests 
-        SET distribution_status = CASE 
-            WHEN UPPER(distribution_status) = 'PENDING' THEN 'PENDING'
-            WHEN UPPER(distribution_status) = 'IN_PROGRESS' THEN 'IN_PROGRESS'
-            WHEN UPPER(distribution_status) = 'COMPLETED' THEN 'COMPLETED'
-            WHEN UPPER(distribution_status) = 'FAILED' THEN 'FAILED'
-            ELSE 'PENDING'
-        END;
+        DO $$
+        BEGIN
+            -- Add distribution_status column if it doesn't exist
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payment_requests' AND column_name = 'distribution_status') THEN
+                ALTER TABLE payment_requests ADD COLUMN distribution_status VARCHAR(50) DEFAULT 'PENDING';
+                RAISE NOTICE 'Added distribution_status column to payment_requests';
+            END IF;
+            
+            -- Convert distribution_status values to uppercase
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payment_requests') THEN
+                UPDATE payment_requests 
+                SET distribution_status = CASE 
+                    WHEN UPPER(distribution_status) = 'PENDING' THEN 'PENDING'
+                    WHEN UPPER(distribution_status) = 'IN_PROGRESS' THEN 'IN_PROGRESS'
+                    WHEN UPPER(distribution_status) = 'COMPLETED' THEN 'COMPLETED'
+                    WHEN UPPER(distribution_status) = 'FAILED' THEN 'FAILED'
+                    ELSE 'PENDING'
+                END;
+            END IF;
+            RAISE NOTICE 'Updated payment_requests distribution_status values';
+        END $$;
     """)
     
     # Phase 1.7: Convert payment_requests columns to enum types
@@ -131,16 +157,29 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::distribution_status;")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'PENDING';")
     
-    # Phase 1.8: Convert sub_registrar_assignments status values
+    # Phase 1.8: Add status column to sub_registrar_assignments if it doesn't exist and convert values
     op.execute("""
-        UPDATE sub_registrar_assignments 
-        SET status = CASE 
-            WHEN UPPER(status) = 'ASSIGNED' THEN 'ASSIGNED'
-            WHEN UPPER(status) = 'IN_PROGRESS' THEN 'IN_PROGRESS'
-            WHEN UPPER(status) = 'COMPLETED' THEN 'COMPLETED'
-            WHEN UPPER(status) = 'REJECTED' THEN 'REJECTED'
-            ELSE 'ASSIGNED'
-        END;
+        DO $$
+        BEGIN
+            -- Add status column if it doesn't exist
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'sub_registrar_assignments' AND column_name = 'status') THEN
+                ALTER TABLE sub_registrar_assignments ADD COLUMN status VARCHAR(50) DEFAULT 'ASSIGNED';
+                RAISE NOTICE 'Added status column to sub_registrar_assignments';
+            END IF;
+            
+            -- Convert status values to uppercase
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'sub_registrar_assignments') THEN
+                UPDATE sub_registrar_assignments 
+                SET status = CASE 
+                    WHEN UPPER(status) = 'ASSIGNED' THEN 'ASSIGNED'
+                    WHEN UPPER(status) = 'IN_PROGRESS' THEN 'IN_PROGRESS'
+                    WHEN UPPER(status) = 'COMPLETED' THEN 'COMPLETED'
+                    WHEN UPPER(status) = 'REJECTED' THEN 'REJECTED'
+                    ELSE 'ASSIGNED'
+                END;
+            END IF;
+            RAISE NOTICE 'Updated sub_registrar_assignments status values';
+        END $$;
     """)
     
     # Phase 1.9: Convert sub_registrar_assignments column to enum type
@@ -148,16 +187,29 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::sub_registrar_assignment_status;")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'ASSIGNED';")
     
-    # Phase 1.10: Convert sub_registrar_reports document_status values
+    # Phase 1.10: Add document_status column to sub_registrar_reports if it doesn't exist and convert values
     op.execute("""
-        UPDATE sub_registrar_reports 
-        SET document_status = CASE 
-            WHEN UPPER(document_status) = 'REQUIRED' THEN 'REQUIRED'
-            WHEN UPPER(document_status) = 'UPLOADED' THEN 'UPLOADED'
-            WHEN UPPER(document_status) = 'VERIFIED' THEN 'VERIFIED'
-            WHEN UPPER(document_status) = 'REJECTED' THEN 'REJECTED'
-            ELSE 'REQUIRED'
-        END;
+        DO $$
+        BEGIN
+            -- Add document_status column if it doesn't exist
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'sub_registrar_reports' AND column_name = 'document_status') THEN
+                ALTER TABLE sub_registrar_reports ADD COLUMN document_status VARCHAR(50) DEFAULT 'REQUIRED';
+                RAISE NOTICE 'Added document_status column to sub_registrar_reports';
+            END IF;
+            
+            -- Convert document_status values to uppercase
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'sub_registrar_reports') THEN
+                UPDATE sub_registrar_reports 
+                SET document_status = CASE 
+                    WHEN UPPER(document_status) = 'REQUIRED' THEN 'REQUIRED'
+                    WHEN UPPER(document_status) = 'UPLOADED' THEN 'UPLOADED'
+                    WHEN UPPER(document_status) = 'VERIFIED' THEN 'VERIFIED'
+                    WHEN UPPER(document_status) = 'REJECTED' THEN 'REJECTED'
+                    ELSE 'REQUIRED'
+                END;
+            END IF;
+            RAISE NOTICE 'Updated sub_registrar_reports document_status values';
+        END $$;
     """)
     
     # Phase 1.11: Convert sub_registrar_reports column to enum type
@@ -165,16 +217,29 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::document_status;")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'REQUIRED';")
     
-    # Phase 1.12: Convert contracts contract_type values
+    # Phase 1.12: Add contract_type column to contracts if it doesn't exist and convert values
     op.execute("""
-        UPDATE contracts 
-        SET contract_type = CASE 
-            WHEN UPPER(contract_type) = 'GENERAL' THEN 'GENERAL'
-            WHEN UPPER(contract_type) = 'EXPORT' THEN 'EXPORT'
-            WHEN UPPER(contract_type) = 'SERVICE' THEN 'SERVICE'
-            WHEN UPPER(contract_type) = 'SUPPLY' THEN 'SUPPLY'
-            ELSE 'GENERAL'
-        END;
+        DO $$
+        BEGIN
+            -- Add contract_type column if it doesn't exist
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'contracts' AND column_name = 'contract_type') THEN
+                ALTER TABLE contracts ADD COLUMN contract_type VARCHAR(50) DEFAULT 'GENERAL';
+                RAISE NOTICE 'Added contract_type column to contracts';
+            END IF;
+            
+            -- Convert contract_type values to uppercase
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contracts') THEN
+                UPDATE contracts 
+                SET contract_type = CASE 
+                    WHEN UPPER(contract_type) = 'GENERAL' THEN 'GENERAL'
+                    WHEN UPPER(contract_type) = 'EXPORT' THEN 'EXPORT'
+                    WHEN UPPER(contract_type) = 'SERVICE' THEN 'SERVICE'
+                    WHEN UPPER(contract_type) = 'SUPPLY' THEN 'SUPPLY'
+                    ELSE 'GENERAL'
+                END;
+            END IF;
+            RAISE NOTICE 'Updated contracts contract_type values';
+        END $$;
     """)
     
     # Phase 1.13: Convert contracts column to enum type

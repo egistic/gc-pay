@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     # base
     app_env: str = "local"
     api_prefix: str = "/api/v1"
-    database_url: str = "postgresql+psycopg://kads_user:kads_password@localhost:5432/grainchain"
+    database_url: str = "postgresql+psycopg2://kads_user:kads_password@localhost:5432/grainchain"
 
     # security
     jwt_secret: str = "change_me"

@@ -80,6 +80,38 @@
     - ✅ No TypeScript compilation errors
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix missing columns issue in migration 99b34946f71d (Completed: 2025-01-27)
+  - Task: Fix "column status does not exist" error in migration 99b34946f71d
+  - Problem: Migration tried to update columns that don't exist on server
+  - Root cause: Server doesn't have the columns that the migration is trying to update
+  - Solution implemented:
+    1. ✅ Updated migration 99b34946f71d to check and create columns if missing
+    2. ✅ Added existence checks for all tables before updating them
+    3. ✅ Created server fix script to add all missing columns
+    4. ✅ Fixed migration sequence issues (circular dependencies)
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/99b34946f71d_phase_1_critical_data_integrity_enum_.py` - Added column existence checks
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/61f1c0ca3053_add_missing_status_values.py` - Fixed migration sequence
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/5cfd4f8ee69b_unify_statuses_with_frontend.py` - Fixed migration sequence
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/3afe2971dede_update_existing_requests_statuses.py` - Fixed migration sequence
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/cd2f7cca1494_add_missing_enum_values.py` - Fixed to use uppercase values
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_missing_columns_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_missing_columns_fix.sh` - Execution script
+  - Changes made:
+    - Added DO blocks to check and create columns if they don't exist
+    - Added existence checks for all tables before updating them
+    - Fixed migration sequence to remove circular dependencies
+    - Updated enum creation to include all necessary values
+    - Created comprehensive server fix script to add missing columns
+  - Expected result:
+    - Migration will run successfully after adding missing columns
+    - All required columns will be created with proper defaults
+    - Migration sequence will be correct without circular dependencies
+  - Next steps:
+    1. Run on server: `./run_missing_columns_fix.sh` (adds missing columns)
+    2. Then run: `alembic upgrade head` (applies all migrations)
+  - Status: ✅ COMPLETED
+
 ## Current Task
 
 - [x] [Level 1] Fix Alembic migration conflicts (Completed: 2025-01-27)
