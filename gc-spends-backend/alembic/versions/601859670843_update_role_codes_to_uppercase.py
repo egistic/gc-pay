@@ -17,8 +17,18 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Check if payment_request_status enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_request_status') THEN
+                CREATE TYPE payment_request_status AS ENUM ('draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET status = UPPER(status::text)::payment_request_status")
+    op.execute("UPDATE payment_requests SET status = UPPER(status::text)")
     
     # Update payment_request_status enum to use uppercase values
     op.execute("ALTER TYPE payment_request_status RENAME TO payment_request_status_old")
@@ -29,8 +39,18 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'::payment_request_status")
     op.execute("DROP TYPE payment_request_status_old")
     
+    # Check if distribution_status enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'distribution_status') THEN
+                CREATE TYPE distribution_status AS ENUM ('pending', 'in_progress', 'completed', 'failed');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET distribution_status = UPPER(distribution_status::text)::distribution_status")
+    op.execute("UPDATE payment_requests SET distribution_status = UPPER(distribution_status::text)")
     
     # Update distribution_status enum to use uppercase values
     op.execute("ALTER TYPE distribution_status RENAME TO distribution_status_old")
@@ -41,8 +61,18 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'PENDING'::distribution_status")
     op.execute("DROP TYPE distribution_status_old")
     
+    # Check if document_status enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'document_status') THEN
+                CREATE TYPE document_status AS ENUM ('required', 'uploaded', 'verified', 'rejected');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE sub_registrar_reports SET document_status = UPPER(document_status::text)::document_status")
+    op.execute("UPDATE sub_registrar_reports SET document_status = UPPER(document_status::text)")
     
     # Update document_status enum to use uppercase values
     op.execute("ALTER TYPE document_status RENAME TO document_status_old")
@@ -52,8 +82,18 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::text::document_status")
     op.execute("DROP TYPE document_status_old")
     
+    # Check if sub_registrar_assignment_status enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sub_registrar_assignment_status') THEN
+                CREATE TYPE sub_registrar_assignment_status AS ENUM ('assigned', 'in_progress', 'completed', 'rejected');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE sub_registrar_assignments SET status = UPPER(status::text)::sub_registrar_assignment_status")
+    op.execute("UPDATE sub_registrar_assignments SET status = UPPER(status::text)")
     
     # Update sub_registrar_assignment_status enum to use uppercase values
     op.execute("ALTER TYPE sub_registrar_assignment_status RENAME TO sub_registrar_assignment_status_old")
@@ -64,8 +104,18 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'ASSIGNED'::sub_registrar_assignment_status")
     op.execute("DROP TYPE sub_registrar_assignment_status_old")
     
+    # Check if contract_type enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contract_type') THEN
+                CREATE TYPE contract_type AS ENUM ('general', 'export', 'service', 'supply');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE contracts SET contract_type = UPPER(contract_type::text)::contract_type")
+    op.execute("UPDATE contracts SET contract_type = UPPER(contract_type::text)")
     
     # Update contract_type enum to use uppercase values
     op.execute("ALTER TYPE contract_type RENAME TO contract_type_old")
@@ -75,8 +125,18 @@ def upgrade() -> None:
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::text::contract_type")
     op.execute("DROP TYPE contract_type_old")
     
+    # Check if payment_priority enum exists, if not create it
+    op.execute("""
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_priority') THEN
+                CREATE TYPE payment_priority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical');
+            END IF;
+        END $$;
+    """)
+    
     # First, update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::payment_priority")
+    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)")
     
     # Update payment_priority enum to use uppercase values
     op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")

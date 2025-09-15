@@ -125,3 +125,29 @@
     - ✅ Comprehensive cleanup and creation implemented
     - ✅ Standalone SQL script created as backup
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix server enum migration issues (Completed: 2025-01-27)
+  - Task: Fix "type payment_request_status does not exist" error on server
+  - Problem: Migration `601859670843_update_role_codes_to_uppercase` assumes enum types exist but they don't on server
+  - Root cause: Server doesn't have the enum types that the migration is trying to use
+  - Solution implemented:
+    1. ✅ Updated migration file to check and create enum types if missing
+    2. ✅ Created server fix script to create all required enum types
+    3. ✅ Created execution script for easy application
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/601859670843_update_role_codes_to_uppercase.py` - Added enum existence checks
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_server_enum_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_server_fix.sh` - Execution script
+  - Changes made:
+    - Added DO blocks to check and create enum types if they don't exist
+    - Fixed UPDATE statements to work with VARCHAR columns before enum conversion
+    - Created comprehensive server fix script for all required enum types
+    - Added proper error handling and notifications
+  - Expected result:
+    - Migration will run successfully on server after creating missing enum types
+    - All enum types will be created with proper lowercase values initially
+    - Migration will then convert them to uppercase as intended
+  - Next steps:
+    1. Run on server: `./run_server_fix.sh` (creates missing enum types)
+    2. Then run: `alembic upgrade head` (applies the migration)
+  - Status: ✅ COMPLETED
