@@ -291,3 +291,33 @@
     1. Run on server: `./run_enum_case_fix.sh` (fixes enum case consistency)
     2. Then run: `alembic upgrade head` (applies all migrations)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix status mapping issues in migrations (Completed: 2025-01-27)
+  - Task: Fix "invalid input value for enum payment_request_status: REGISTERED" error in migration 5cfd4f8ee69b
+  - Problem: Migration tried to map status values that don't exist in the enum or data
+  - Root cause: Migration assumed certain values exist without checking
+  - Solution implemented:
+    1. ✅ Fixed migration 5cfd4f8ee69b to check existence before mapping
+    2. ✅ Fixed migration 61f1c0ca3053 to check existence before adding enum values
+    3. ✅ Created comprehensive server fix script for status mapping
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/5cfd4f8ee69b_unify_statuses_with_frontend.py` - Added existence checks
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/61f1c0ca3053_add_missing_status_values.py` - Added existence checks
+    - `/home/zhandos/gp_latest/gc-spends-backend/check_enum_values.sql` - Enum and data analysis script
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_status_mapping_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_status_mapping_fix.sh` - Execution script
+  - Changes made:
+    - Added DO blocks to check if source values exist in data before mapping
+    - Added DO blocks to check if target values exist in enum before mapping
+    - Added DO blocks to check if enum values exist before adding them
+    - Added comprehensive logging for debugging
+    - Created analysis script to check current state
+  - Expected result:
+    - Migrations will run successfully without InvalidTextRepresentation errors
+    - Only existing values will be mapped
+    - Only missing enum values will be added
+    - Comprehensive logging will help debug any issues
+  - Next steps:
+    1. Run on server: `./run_status_mapping_fix.sh` (fixes status mapping issues)
+    2. Then run: `alembic upgrade head` (applies all migrations)
+  - Status: ✅ COMPLETED
