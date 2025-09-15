@@ -17,6 +17,9 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Drop views that depend on columns we're about to modify
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    
     # Check if payment_request_status enum exists, if not create it
     op.execute("""
         DO $$ 
@@ -34,21 +37,11 @@ def upgrade() -> None:
     op.execute("ALTER TYPE payment_request_status RENAME TO payment_request_status_old")
     op.execute("CREATE TYPE payment_request_status AS ENUM ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'PAID', 'CANCELLED')")
     
-    # Drop views that depend on the status column
-    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
-    
     # Then alter the column type (remove default first, change type, then set new default)
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'::payment_request_status")
     op.execute("DROP TYPE payment_request_status_old")
-    
-    # Recreate the view
-    op.execute("""
-        CREATE VIEW active_payment_requests AS
-        SELECT * FROM payment_requests 
-        WHERE status IN ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED')
-    """)
     
     # Check if distribution_status enum exists, if not create it
     op.execute("""
@@ -160,6 +153,13 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE payment_priority USING priority::text::payment_priority")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'NORMAL'::payment_priority")
     op.execute("DROP TYPE payment_priority_old")
+    
+    # Recreate the view with uppercase values
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests 
+        WHERE status IN ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED')
+    """)
 
 
 def downgrade() -> None:
