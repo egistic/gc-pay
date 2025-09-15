@@ -204,3 +204,28 @@
     1. Run on server: `./run_priority_fix.sh` (fixes priority enum issue)
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix 3908df61c4ae migration priority enum issue (Completed: 2025-01-27)
+  - Task: Fix "invalid input value for enum paymentpriority: normal" error in 3908df61c4ae migration
+  - Problem: Migration 3908df61c4ae tried to create enum with lowercase values but server already has uppercase values
+  - Root cause: Inconsistent enum value casing between migrations
+  - Solution implemented:
+    1. ✅ Updated 3908df61c4ae migration to use uppercase enum values
+    2. ✅ Changed server_default from 'normal' to 'NORMAL'
+    3. ✅ Created server fix script for enum consistency
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/3908df61c4ae_phase_2_api_enhancement_idempotency_.py` - Fixed enum values
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_3908df61c4ae_priority_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_3908df61c4ae_fix.sh` - Execution script
+  - Changes made:
+    - Changed enum values from lowercase to uppercase ('low' → 'LOW', etc.)
+    - Updated server_default from 'normal' to 'NORMAL'
+    - Added server fix script to ensure enum consistency
+  - Expected result:
+    - Migration 3908df61c4ae will run successfully
+    - PaymentPriority enum will have consistent uppercase values
+    - No enum value conflicts between migrations
+  - Next steps:
+    1. Run on server: `./run_3908df61c4ae_fix.sh` (fixes enum consistency)
+    2. Then run: `alembic upgrade head` (applies the migration)
+  - Status: ✅ COMPLETED

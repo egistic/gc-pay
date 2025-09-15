@@ -19,14 +19,14 @@ depends_on = None
 def upgrade() -> None:
     # Create PaymentPriority enum type
     payment_priority_enum = postgresql.ENUM(
-        'low', 'normal', 'high', 'urgent', 'critical',
+        'LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL',
         name='paymentpriority',
         create_type=False
     )
     payment_priority_enum.create(op.get_bind())
     
     # Add priority fields to payment_requests table
-    op.add_column('payment_requests', sa.Column('priority', payment_priority_enum, server_default='normal', nullable=False))
+    op.add_column('payment_requests', sa.Column('priority', payment_priority_enum, server_default='NORMAL', nullable=False))
     op.add_column('payment_requests', sa.Column('priority_score', sa.Numeric(5, 2), nullable=True))
     
     # Create idempotency_keys table
