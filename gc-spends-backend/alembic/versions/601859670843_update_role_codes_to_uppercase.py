@@ -34,7 +34,8 @@ def upgrade() -> None:
     op.execute("ALTER TYPE payment_request_status RENAME TO payment_request_status_old")
     op.execute("CREATE TYPE payment_request_status AS ENUM ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'PAID', 'CANCELLED')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'::payment_request_status")
     op.execute("DROP TYPE payment_request_status_old")
@@ -56,7 +57,8 @@ def upgrade() -> None:
     op.execute("ALTER TYPE distribution_status RENAME TO distribution_status_old")
     op.execute("CREATE TYPE distribution_status AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::text::distribution_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'PENDING'::distribution_status")
     op.execute("DROP TYPE distribution_status_old")
@@ -99,7 +101,8 @@ def upgrade() -> None:
     op.execute("ALTER TYPE sub_registrar_assignment_status RENAME TO sub_registrar_assignment_status_old")
     op.execute("CREATE TYPE sub_registrar_assignment_status AS ENUM ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::text::sub_registrar_assignment_status")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'ASSIGNED'::sub_registrar_assignment_status")
     op.execute("DROP TYPE sub_registrar_assignment_status_old")
@@ -142,8 +145,10 @@ def upgrade() -> None:
     op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")
     op.execute("CREATE TYPE payment_priority AS ENUM ('LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE payment_priority USING priority::text::payment_priority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'NORMAL'::payment_priority")
     op.execute("DROP TYPE payment_priority_old")
 
 
