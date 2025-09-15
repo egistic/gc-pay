@@ -41,7 +41,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'::payment_request_status")
-    op.execute("DROP TYPE payment_request_status_old")
+    op.execute("DROP TYPE payment_request_status_old CASCADE")
     
     # Check if distribution_status enum exists, if not create it
     op.execute("""
@@ -64,7 +64,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::text::distribution_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'PENDING'::distribution_status")
-    op.execute("DROP TYPE distribution_status_old")
+    op.execute("DROP TYPE distribution_status_old CASCADE")
     
     # Check if document_status enum exists, if not create it
     op.execute("""
@@ -87,7 +87,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::text::document_status")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'REQUIRED'::document_status")
-    op.execute("DROP TYPE document_status_old")
+    op.execute("DROP TYPE document_status_old CASCADE")
     
     # Check if sub_registrar_assignment_status enum exists, if not create it
     op.execute("""
@@ -110,7 +110,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::text::sub_registrar_assignment_status")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'ASSIGNED'::sub_registrar_assignment_status")
-    op.execute("DROP TYPE sub_registrar_assignment_status_old")
+    op.execute("DROP TYPE sub_registrar_assignment_status_old CASCADE")
     
     # Check if contract_type enum exists, if not create it
     op.execute("""
@@ -133,7 +133,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type DROP DEFAULT")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::text::contract_type")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type SET DEFAULT 'GENERAL'::contract_type")
-    op.execute("DROP TYPE contract_type_old")
+    op.execute("DROP TYPE contract_type_old CASCADE")
     
     # Check if payment_priority enum exists, if not create it
     op.execute("""
@@ -162,7 +162,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE paymentpriority USING priority::text::paymentpriority")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'NORMAL'::paymentpriority")
-    op.execute("DROP TYPE payment_priority_old")
+    op.execute("DROP TYPE payment_priority_old CASCADE")
     
     # Recreate the view with uppercase values
     op.execute("""
@@ -182,7 +182,7 @@ def downgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'draft'::payment_request_status")
-    op.execute("DROP TYPE payment_request_status_old")
+    op.execute("DROP TYPE payment_request_status_old CASCADE")
     
     # Recreate the view with lowercase values
     op.execute("""
@@ -197,7 +197,7 @@ def downgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::text::distribution_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'pending'::distribution_status")
-    op.execute("DROP TYPE distribution_status_old")
+    op.execute("DROP TYPE distribution_status_old CASCADE")
     
     # Revert document_status enum to lowercase values
     op.execute("ALTER TYPE document_status RENAME TO document_status_old")
@@ -205,7 +205,7 @@ def downgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::text::document_status")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'required'::document_status")
-    op.execute("DROP TYPE document_status_old")
+    op.execute("DROP TYPE document_status_old CASCADE")
     
     # Revert sub_registrar_assignment_status enum to lowercase values
     op.execute("ALTER TYPE sub_registrar_assignment_status RENAME TO sub_registrar_assignment_status_old")
@@ -213,7 +213,7 @@ def downgrade() -> None:
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::text::sub_registrar_assignment_status")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'assigned'::sub_registrar_assignment_status")
-    op.execute("DROP TYPE sub_registrar_assignment_status_old")
+    op.execute("DROP TYPE sub_registrar_assignment_status_old CASCADE")
     
     # Revert contract_type enum to lowercase values
     op.execute("ALTER TYPE contract_type RENAME TO contract_type_old")
@@ -221,7 +221,7 @@ def downgrade() -> None:
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type DROP DEFAULT")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::text::contract_type")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type SET DEFAULT 'general'::contract_type")
-    op.execute("DROP TYPE contract_type_old")
+    op.execute("DROP TYPE contract_type_old CASCADE")
     
     # Revert payment_priority enum to lowercase values
     op.execute("ALTER TYPE paymentpriority RENAME TO payment_priority_old")
@@ -229,4 +229,4 @@ def downgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE paymentpriority USING priority::text::paymentpriority")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'normal'::paymentpriority")
-    op.execute("DROP TYPE payment_priority_old")
+    op.execute("DROP TYPE payment_priority_old CASCADE")
