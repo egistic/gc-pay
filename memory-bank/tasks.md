@@ -178,3 +178,29 @@
     1. Run on server: `./run_complete_fix.sh` (applies complete fix)
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix priority enum type mismatch issue (Completed: 2025-01-27)
+  - Task: Fix "invalid input value for enum paymentpriority: NORMAL" error
+  - Problem: Migration tried to update data before changing enum type to uppercase values
+  - Root cause: Wrong order of operations - data update before enum type change
+  - Solution implemented:
+    1. ✅ Changed order of operations - enum type change before data update
+    2. ✅ Fixed enum type name consistency (paymentpriority vs payment_priority)
+    3. ✅ Created server fix script for priority enum issue
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/601859670843_update_role_codes_to_uppercase.py` - Fixed operation order
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_priority_enum_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_priority_fix.sh` - Execution script
+  - Changes made:
+    - Moved enum type change before data update
+    - Fixed enum type name consistency throughout migration
+    - Added proper handling of paymentpriority vs payment_priority naming
+    - Created comprehensive server fix script
+  - Expected result:
+    - Migration will run successfully without enum value errors
+    - Priority values will be properly converted to uppercase
+    - Enum type naming will be consistent
+  - Next steps:
+    1. Run on server: `./run_priority_fix.sh` (fixes priority enum issue)
+    2. Then run: `alembic upgrade head` (applies the migration)
+  - Status: ✅ COMPLETED
