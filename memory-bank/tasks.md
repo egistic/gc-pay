@@ -229,3 +229,28 @@
     1. Run on server: `./run_3908df61c4ae_fix.sh` (fixes enum consistency)
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix payment_priority_old type mismatch issue (Completed: 2025-01-27)
+  - Task: Fix "column priority is of type payment_priority_old but expression is of type paymentpriority" error
+  - Problem: Migration tried to cast to paymentpriority but column had type payment_priority_old
+  - Root cause: Partial migration execution left enum in intermediate state
+  - Solution implemented:
+    1. ✅ Fixed UPDATE query to use correct enum type (payment_priority_old)
+    2. ✅ Created server fix script to handle enum state
+    3. ✅ Added proper enum type detection and correction
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/601859670843_update_role_codes_to_uppercase.py` - Fixed UPDATE query
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_priority_old_type_issue.sql` - Server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_priority_old_fix.sh` - Execution script
+  - Changes made:
+    - Changed UPDATE query to use payment_priority_old instead of paymentpriority
+    - Added server fix script to handle partial migration states
+    - Added proper enum type detection and correction logic
+  - Expected result:
+    - Migration will run successfully without type mismatch errors
+    - Enum types will be properly handled in all states
+    - Partial migration states will be corrected
+  - Next steps:
+    1. Run on server: `./run_priority_old_fix.sh` (fixes enum state)
+    2. Then run: `alembic upgrade head` (applies the migration)
+  - Status: ✅ COMPLETED

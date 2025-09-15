@@ -156,7 +156,7 @@ def upgrade() -> None:
     op.execute("CREATE TYPE paymentpriority AS ENUM ('LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL')")
     
     # Then update the data to uppercase using text conversion
-    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::paymentpriority")
+    op.execute("UPDATE payment_requests SET priority = UPPER(priority::text)::payment_priority_old")
     
     # Then alter the column type (remove default first, change type, then set new default)
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
