@@ -17,35 +17,65 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Phase 1.1: Create Enum Types
+    # Phase 1.1: Create Enum Types (only if they don't exist)
+    # Check if payment_request_status exists, if not create it
     op.execute("""
-        CREATE TYPE payment_request_status AS ENUM (
-            'draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled'
-        );
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_request_status') THEN
+                CREATE TYPE payment_request_status AS ENUM (
+                    'draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled'
+                );
+            END IF;
+        END $$;
     """)
     
+    # Check if distribution_status exists, if not create it
     op.execute("""
-        CREATE TYPE distribution_status AS ENUM (
-            'pending', 'in_progress', 'completed', 'failed'
-        );
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'distribution_status') THEN
+                CREATE TYPE distribution_status AS ENUM (
+                    'pending', 'in_progress', 'completed', 'failed'
+                );
+            END IF;
+        END $$;
     """)
     
+    # Check if document_status exists, if not create it
     op.execute("""
-        CREATE TYPE document_status AS ENUM (
-            'required', 'uploaded', 'verified', 'rejected'
-        );
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'document_status') THEN
+                CREATE TYPE document_status AS ENUM (
+                    'required', 'uploaded', 'verified', 'rejected'
+                );
+            END IF;
+        END $$;
     """)
     
+    # Check if sub_registrar_assignment_status exists, if not create it
     op.execute("""
-        CREATE TYPE sub_registrar_assignment_status AS ENUM (
-            'assigned', 'in_progress', 'completed', 'rejected'
-        );
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sub_registrar_assignment_status') THEN
+                CREATE TYPE sub_registrar_assignment_status AS ENUM (
+                    'assigned', 'in_progress', 'completed', 'rejected'
+                );
+            END IF;
+        END $$;
     """)
     
+    # Check if contract_type exists, if not create it
     op.execute("""
-        CREATE TYPE contract_type AS ENUM (
-            'general', 'export', 'service', 'supply'
-        );
+        DO $$ 
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contract_type') THEN
+                CREATE TYPE contract_type AS ENUM (
+                    'general', 'export', 'service', 'supply'
+                );
+            END IF;
+        END $$;
     """)
     
     # Phase 1.2: Create Exchange Rates Table
@@ -62,22 +92,40 @@ def upgrade() -> None:
     op.add_column('payment_requests', sa.Column('base_currency_code', sa.String(length=3), nullable=True, server_default='USD'))
     
     # Phase 1.4: Convert Status Columns to Enum Types
-    # First, update any invalid status values to valid ones
+    # Map existing uppercase values to new lowercase enum values
     op.execute("""
         UPDATE payment_requests 
         SET status = CASE 
-            WHEN status NOT IN ('draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled') 
-            THEN 'draft' 
-            ELSE status 
+            WHEN UPPER(status) = 'DRAFT' THEN 'draft'
+            WHEN UPPER(status) = 'SUBMITTED' THEN 'submitted'
+            WHEN UPPER(status) = 'CLASSIFIED' THEN 'under_review'
+            WHEN UPPER(status) = 'RETURNED' THEN 'under_review'
+            WHEN UPPER(status) = 'APPROVED' THEN 'approved'
+            WHEN UPPER(status) = 'APPROVED_ON_BEHALF' THEN 'approved'
+            WHEN UPPER(status) = 'TO_PAY' THEN 'approved'
+            WHEN UPPER(status) = 'IN_REGISTER' THEN 'approved'
+            WHEN UPPER(status) = 'APPROVED_FOR_PAYMENT' THEN 'approved'
+            WHEN UPPER(status) = 'PAID_FULL' THEN 'paid'
+            WHEN UPPER(status) = 'PAID_PARTIAL' THEN 'paid'
+            WHEN UPPER(status) = 'REJECTED' THEN 'rejected'
+            WHEN UPPER(status) = 'CANCELLED' THEN 'cancelled'
+            WHEN UPPER(status) = 'CLOSED' THEN 'cancelled'
+            WHEN UPPER(status) = 'DISTRIBUTED' THEN 'paid'
+            WHEN UPPER(status) = 'SPLITED' THEN 'cancelled'
+            WHEN UPPER(status) = 'REPORT_PUBLISHED' THEN 'paid'
+            WHEN UPPER(status) = 'EXPORT_LINKED' THEN 'paid'
+            ELSE 'draft'
         END;
     """)
     
     op.execute("""
         UPDATE payment_requests 
         SET distribution_status = CASE 
-            WHEN distribution_status NOT IN ('pending', 'in_progress', 'completed', 'failed') 
-            THEN 'pending' 
-            ELSE distribution_status 
+            WHEN UPPER(distribution_status) = 'PENDING' THEN 'pending'
+            WHEN UPPER(distribution_status) = 'IN_PROGRESS' THEN 'in_progress'
+            WHEN UPPER(distribution_status) = 'COMPLETED' THEN 'completed'
+            WHEN UPPER(distribution_status) = 'FAILED' THEN 'failed'
+            ELSE 'pending'
         END;
     """)
     
@@ -95,9 +143,11 @@ def upgrade() -> None:
     op.execute("""
         UPDATE sub_registrar_assignments 
         SET status = CASE 
-            WHEN status NOT IN ('assigned', 'in_progress', 'completed', 'rejected') 
-            THEN 'assigned' 
-            ELSE status 
+            WHEN UPPER(status) = 'ASSIGNED' THEN 'assigned'
+            WHEN UPPER(status) = 'IN_PROGRESS' THEN 'in_progress'
+            WHEN UPPER(status) = 'COMPLETED' THEN 'completed'
+            WHEN UPPER(status) = 'REJECTED' THEN 'rejected'
+            ELSE 'assigned'
         END;
     """)
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT;")
@@ -108,9 +158,11 @@ def upgrade() -> None:
     op.execute("""
         UPDATE sub_registrar_reports 
         SET document_status = CASE 
-            WHEN document_status NOT IN ('required', 'uploaded', 'verified', 'rejected') 
-            THEN 'required' 
-            ELSE document_status 
+            WHEN UPPER(document_status) = 'REQUIRED' THEN 'required'
+            WHEN UPPER(document_status) = 'UPLOADED' THEN 'uploaded'
+            WHEN UPPER(document_status) = 'VERIFIED' THEN 'verified'
+            WHEN UPPER(document_status) = 'REJECTED' THEN 'rejected'
+            ELSE 'required'
         END;
     """)
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::document_status;")
@@ -119,9 +171,11 @@ def upgrade() -> None:
     op.execute("""
         UPDATE contracts 
         SET contract_type = CASE 
-            WHEN contract_type NOT IN ('general', 'export', 'service', 'supply') 
-            THEN 'general' 
-            ELSE contract_type 
+            WHEN UPPER(contract_type) = 'GENERAL' THEN 'general'
+            WHEN UPPER(contract_type) = 'EXPORT' THEN 'export'
+            WHEN UPPER(contract_type) = 'SERVICE' THEN 'service'
+            WHEN UPPER(contract_type) = 'SUPPLY' THEN 'supply'
+            ELSE 'general'
         END;
     """)
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::contract_type;")
