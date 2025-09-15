@@ -34,11 +34,21 @@ def upgrade() -> None:
     op.execute("ALTER TYPE payment_request_status RENAME TO payment_request_status_old")
     op.execute("CREATE TYPE payment_request_status AS ENUM ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'PAID', 'CANCELLED')")
     
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    
     # Then alter the column type (remove default first, change type, then set new default)
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'DRAFT'::payment_request_status")
     op.execute("DROP TYPE payment_request_status_old")
+    
+    # Recreate the view
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests 
+        WHERE status IN ('DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED')
+    """)
     
     # Check if distribution_status enum exists, if not create it
     op.execute("""
@@ -153,11 +163,23 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    
     # Revert payment_request_status enum to lowercase values
     op.execute("ALTER TYPE payment_request_status RENAME TO payment_request_status_old")
     op.execute("CREATE TYPE payment_request_status AS ENUM ('draft', 'submitted', 'under_review', 'approved', 'rejected', 'paid', 'cancelled')")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::text::payment_request_status")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN status SET DEFAULT 'draft'::payment_request_status")
     op.execute("DROP TYPE payment_request_status_old")
+    
+    # Recreate the view with lowercase values
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests 
+        WHERE status IN ('draft', 'submitted', 'under_review', 'approved')
+    """)
     
     # Revert distribution_status enum to lowercase values
     op.execute("ALTER TYPE distribution_status RENAME TO distribution_status_old")
