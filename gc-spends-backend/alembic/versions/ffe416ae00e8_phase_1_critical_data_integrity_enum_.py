@@ -164,7 +164,10 @@ def upgrade() -> None:
                     ELSE 'required'
                 END;
                 
+                -- Remove default, change type, then add new default
+                ALTER TABLE sub_registrar_reports ALTER COLUMN document_status DROP DEFAULT;
                 ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::document_status;
+                ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'required';
             END IF;
         END $$;
     """)
@@ -183,7 +186,10 @@ def upgrade() -> None:
                     ELSE 'general'
                 END;
                 
+                -- Remove default, change type, then add new default
+                ALTER TABLE contracts ALTER COLUMN contract_type DROP DEFAULT;
                 ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::contract_type;
+                ALTER TABLE contracts ALTER COLUMN contract_type SET DEFAULT 'general';
             END IF;
         END $$;
     """)
