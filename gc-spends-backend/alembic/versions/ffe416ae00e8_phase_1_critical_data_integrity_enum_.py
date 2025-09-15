@@ -129,46 +129,64 @@ def upgrade() -> None:
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::distribution_status;")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'pending';")
     
-    # Convert other status columns
+    # Convert other status columns (only if column exists)
     op.execute("""
-        UPDATE sub_registrar_assignments 
-        SET status = CASE 
-            WHEN UPPER(status) = 'ASSIGNED' THEN 'assigned'
-            WHEN UPPER(status) = 'IN_PROGRESS' THEN 'in_progress'
-            WHEN UPPER(status) = 'COMPLETED' THEN 'completed'
-            WHEN UPPER(status) = 'REJECTED' THEN 'rejected'
-            ELSE 'assigned'
-        END;
+        DO $$ 
+        BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'sub_registrar_assignments' AND column_name = 'status') THEN
+                UPDATE sub_registrar_assignments 
+                SET status = CASE 
+                    WHEN UPPER(status) = 'ASSIGNED' THEN 'assigned'
+                    WHEN UPPER(status) = 'IN_PROGRESS' THEN 'in_progress'
+                    WHEN UPPER(status) = 'COMPLETED' THEN 'completed'
+                    WHEN UPPER(status) = 'REJECTED' THEN 'rejected'
+                    ELSE 'assigned'
+                END;
+                
+                ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT;
+                ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::sub_registrar_assignment_status;
+                ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'assigned';
+            END IF;
+        END $$;
     """)
-    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT;")
-    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::sub_registrar_assignment_status;")
-    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'assigned';")
     
-    # Convert document status in sub_registrar_reports
+    # Convert document status in sub_registrar_reports (only if column exists)
     op.execute("""
-        UPDATE sub_registrar_reports 
-        SET document_status = CASE 
-            WHEN UPPER(document_status) = 'REQUIRED' THEN 'required'
-            WHEN UPPER(document_status) = 'UPLOADED' THEN 'uploaded'
-            WHEN UPPER(document_status) = 'VERIFIED' THEN 'verified'
-            WHEN UPPER(document_status) = 'REJECTED' THEN 'rejected'
-            ELSE 'required'
-        END;
+        DO $$ 
+        BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'sub_registrar_reports' AND column_name = 'document_status') THEN
+                UPDATE sub_registrar_reports 
+                SET document_status = CASE 
+                    WHEN UPPER(document_status) = 'REQUIRED' THEN 'required'
+                    WHEN UPPER(document_status) = 'UPLOADED' THEN 'uploaded'
+                    WHEN UPPER(document_status) = 'VERIFIED' THEN 'verified'
+                    WHEN UPPER(document_status) = 'REJECTED' THEN 'rejected'
+                    ELSE 'required'
+                END;
+                
+                ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::document_status;
+            END IF;
+        END $$;
     """)
-    op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::document_status;")
     
-    # Convert contract types
+    # Convert contract types (only if column exists)
     op.execute("""
-        UPDATE contracts 
-        SET contract_type = CASE 
-            WHEN UPPER(contract_type) = 'GENERAL' THEN 'general'
-            WHEN UPPER(contract_type) = 'EXPORT' THEN 'export'
-            WHEN UPPER(contract_type) = 'SERVICE' THEN 'service'
-            WHEN UPPER(contract_type) = 'SUPPLY' THEN 'supply'
-            ELSE 'general'
-        END;
+        DO $$ 
+        BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'contracts' AND column_name = 'contract_type') THEN
+                UPDATE contracts 
+                SET contract_type = CASE 
+                    WHEN UPPER(contract_type) = 'GENERAL' THEN 'general'
+                    WHEN UPPER(contract_type) = 'EXPORT' THEN 'export'
+                    WHEN UPPER(contract_type) = 'SERVICE' THEN 'service'
+                    WHEN UPPER(contract_type) = 'SUPPLY' THEN 'supply'
+                    ELSE 'general'
+                END;
+                
+                ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::contract_type;
+            END IF;
+        END $$;
     """)
-    op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::contract_type;")
     
     # Phase 1.5: Add Currency and Amount Constraints (only if they don't exist)
     op.execute("""
