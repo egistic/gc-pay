@@ -83,8 +83,10 @@ def upgrade() -> None:
     op.execute("ALTER TYPE document_status RENAME TO document_status_old")
     op.execute("CREATE TYPE document_status AS ENUM ('REQUIRED', 'UPLOADED', 'VERIFIED', 'REJECTED')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::text::document_status")
+    op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'REQUIRED'::document_status")
     op.execute("DROP TYPE document_status_old")
     
     # Check if sub_registrar_assignment_status enum exists, if not create it
@@ -127,8 +129,10 @@ def upgrade() -> None:
     op.execute("ALTER TYPE contract_type RENAME TO contract_type_old")
     op.execute("CREATE TYPE contract_type AS ENUM ('GENERAL', 'EXPORT', 'SERVICE', 'SUPPLY')")
     
-    # Then alter the column type
+    # Then alter the column type (remove default first, change type, then set new default)
+    op.execute("ALTER TABLE contracts ALTER COLUMN contract_type DROP DEFAULT")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::text::contract_type")
+    op.execute("ALTER TABLE contracts ALTER COLUMN contract_type SET DEFAULT 'GENERAL'::contract_type")
     op.execute("DROP TYPE contract_type_old")
     
     # Check if payment_priority enum exists, if not create it
@@ -184,29 +188,39 @@ def downgrade() -> None:
     # Revert distribution_status enum to lowercase values
     op.execute("ALTER TYPE distribution_status RENAME TO distribution_status_old")
     op.execute("CREATE TYPE distribution_status AS ENUM ('pending', 'in_progress', 'completed', 'failed')")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status TYPE distribution_status USING distribution_status::text::distribution_status")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN distribution_status SET DEFAULT 'pending'::distribution_status")
     op.execute("DROP TYPE distribution_status_old")
     
     # Revert document_status enum to lowercase values
     op.execute("ALTER TYPE document_status RENAME TO document_status_old")
     op.execute("CREATE TYPE document_status AS ENUM ('required', 'uploaded', 'verified', 'rejected')")
+    op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status TYPE document_status USING document_status::text::document_status")
+    op.execute("ALTER TABLE sub_registrar_reports ALTER COLUMN document_status SET DEFAULT 'required'::document_status")
     op.execute("DROP TYPE document_status_old")
     
     # Revert sub_registrar_assignment_status enum to lowercase values
     op.execute("ALTER TYPE sub_registrar_assignment_status RENAME TO sub_registrar_assignment_status_old")
     op.execute("CREATE TYPE sub_registrar_assignment_status AS ENUM ('assigned', 'in_progress', 'completed', 'rejected')")
+    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status DROP DEFAULT")
     op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status TYPE sub_registrar_assignment_status USING status::text::sub_registrar_assignment_status")
+    op.execute("ALTER TABLE sub_registrar_assignments ALTER COLUMN status SET DEFAULT 'assigned'::sub_registrar_assignment_status")
     op.execute("DROP TYPE sub_registrar_assignment_status_old")
     
     # Revert contract_type enum to lowercase values
     op.execute("ALTER TYPE contract_type RENAME TO contract_type_old")
     op.execute("CREATE TYPE contract_type AS ENUM ('general', 'export', 'service', 'supply')")
+    op.execute("ALTER TABLE contracts ALTER COLUMN contract_type DROP DEFAULT")
     op.execute("ALTER TABLE contracts ALTER COLUMN contract_type TYPE contract_type USING contract_type::text::contract_type")
+    op.execute("ALTER TABLE contracts ALTER COLUMN contract_type SET DEFAULT 'general'::contract_type")
     op.execute("DROP TYPE contract_type_old")
     
     # Revert payment_priority enum to lowercase values
     op.execute("ALTER TYPE payment_priority RENAME TO payment_priority_old")
     op.execute("CREATE TYPE payment_priority AS ENUM ('low', 'normal', 'high', 'urgent', 'critical')")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority DROP DEFAULT")
     op.execute("ALTER TABLE payment_requests ALTER COLUMN priority TYPE payment_priority USING priority::text::payment_priority")
+    op.execute("ALTER TABLE payment_requests ALTER COLUMN priority SET DEFAULT 'normal'::payment_priority")
     op.execute("DROP TYPE payment_priority_old")

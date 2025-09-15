@@ -151,3 +151,30 @@
     1. Run on server: `./run_server_fix.sh` (creates missing enum types)
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix all enum migration default value issues (Completed: 2025-01-27)
+  - Task: Fix all DatatypeMismatch errors for default values in enum conversions
+  - Problem: Multiple columns had default values that couldn't be automatically cast to new enum types
+  - Root cause: PostgreSQL cannot automatically cast default values when changing column types to enums
+  - Solution implemented:
+    1. ✅ Added DROP DEFAULT for all enum columns in upgrade function
+    2. ✅ Added SET DEFAULT with appropriate enum values after type conversion
+    3. ✅ Fixed all downgrade functions with proper default handling
+    4. ✅ Created comprehensive server fix script
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/601859670843_update_role_codes_to_uppercase.py` - Fixed all default value issues
+    - `/home/zhandos/gp_latest/gc-spends-backend/fix_server_complete.sql` - Complete server fix script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_complete_fix.sh` - Execution script
+  - Changes made:
+    - Added DROP DEFAULT before all ALTER COLUMN TYPE operations
+    - Added SET DEFAULT with appropriate enum values after type conversion
+    - Fixed contract_type, distribution_status, sub_registrar_assignment_status, payment_priority in both upgrade and downgrade
+    - Created comprehensive server fix that drops views, removes defaults, and creates enums
+  - Expected result:
+    - Migration will run successfully without DatatypeMismatch errors
+    - All enum columns will have proper default values
+    - Both upgrade and downgrade functions will work correctly
+  - Next steps:
+    1. Run on server: `./run_complete_fix.sh` (applies complete fix)
+    2. Then run: `alembic upgrade head` (applies the migration)
+  - Status: ✅ COMPLETED
