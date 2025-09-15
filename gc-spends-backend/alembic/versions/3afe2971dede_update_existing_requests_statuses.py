@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '3afe2971dede'
-down_revision = '5cfd4f8ee69b'
+down_revision = '61f1c0ca3053'
 branch_labels = None
 depends_on = None
 
@@ -19,6 +19,12 @@ depends_on = None
 def upgrade() -> None:
     # Ensure all existing requests have valid statuses according to the new enum
     # This migration ensures data consistency after status unification
+    
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_payment_request_lines CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_files CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_events CASCADE")
     
     # Convert status column to TEXT temporarily to avoid enum issues
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
@@ -52,6 +58,27 @@ def upgrade() -> None:
     # Convert status column back to enum type
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
     
+    # Recreate the views
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests WHERE deleted = false
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_payment_request_lines AS
+        SELECT * FROM payment_request_lines
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_files AS
+        SELECT * FROM request_files
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_events AS
+        SELECT * FROM request_events
+    """)
+    
     # Log the current status distribution
     op.execute("""
         DO $$
@@ -73,6 +100,12 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Drop views that depend on the status column
+    op.execute("DROP VIEW IF EXISTS active_payment_requests CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_payment_request_lines CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_files CASCADE")
+    op.execute("DROP VIEW IF EXISTS active_request_events CASCADE")
+    
     # Convert status column to TEXT temporarily to avoid enum issues
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE TEXT")
     
@@ -92,3 +125,24 @@ def downgrade() -> None:
     
     # Convert status column back to enum type
     op.execute("ALTER TABLE payment_requests ALTER COLUMN status TYPE payment_request_status USING status::payment_request_status")
+    
+    # Recreate the views
+    op.execute("""
+        CREATE VIEW active_payment_requests AS
+        SELECT * FROM payment_requests WHERE deleted = false
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_payment_request_lines AS
+        SELECT * FROM payment_request_lines
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_files AS
+        SELECT * FROM request_files
+    """)
+    
+    op.execute("""
+        CREATE VIEW active_request_events AS
+        SELECT * FROM request_events
+    """)

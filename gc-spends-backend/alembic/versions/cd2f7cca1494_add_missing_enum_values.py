@@ -18,8 +18,29 @@ depends_on = None
 
 def upgrade() -> None:
     # Add missing enum values to payment_request_status
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'registered'")
-    op.execute("ALTER TYPE payment_request_status ADD VALUE 'in_registry'")
+    op.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumtypid = 'payment_request_status'::regtype AND enumlabel = 'REGISTERED') THEN
+                ALTER TYPE payment_request_status ADD VALUE 'REGISTERED';
+                RAISE NOTICE 'Added REGISTERED to payment_request_status enum';
+            ELSE
+                RAISE NOTICE 'REGISTERED already exists in payment_request_status enum';
+            END IF;
+        END $$;
+    """)
+    
+    op.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumtypid = 'payment_request_status'::regtype AND enumlabel = 'IN_REGISTRY') THEN
+                ALTER TYPE payment_request_status ADD VALUE 'IN_REGISTRY';
+                RAISE NOTICE 'Added IN_REGISTRY to payment_request_status enum';
+            ELSE
+                RAISE NOTICE 'IN_REGISTRY already exists in payment_request_status enum';
+            END IF;
+        END $$;
+    """)
 
 
 def downgrade() -> None:

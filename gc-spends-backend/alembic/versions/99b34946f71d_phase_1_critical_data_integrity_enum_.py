@@ -25,10 +25,13 @@ def upgrade() -> None:
     op.execute("DROP TYPE IF EXISTS contract_type CASCADE;")
     op.execute("DROP TABLE IF EXISTS exchange_rates CASCADE;")
     
-    # Phase 1.2: Create new enum types with uppercase values
+    # Phase 1.2: Create new enum types with all necessary uppercase values
     op.execute("""
         CREATE TYPE payment_request_status AS ENUM (
-            'DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'PAID', 'CANCELLED'
+            'DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'PAID', 'CANCELLED',
+            'CLASSIFIED', 'ALLOCATED', 'RETURNED', 'APPROVED-ON-BEHALF', 'TO-PAY', 'IN-REGISTER',
+            'APPROVED-FOR-PAYMENT', 'PAID-FULL', 'PAID-PARTIAL', 'DECLINED', 'DISTRIBUTED',
+            'REPORT_PUBLISHED', 'EXPORT_LINKED'
         );
     """)
     
