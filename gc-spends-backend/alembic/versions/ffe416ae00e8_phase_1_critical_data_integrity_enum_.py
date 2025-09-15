@@ -17,15 +17,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Phase 1.1: Drop and recreate enum types with new values
-    # Since we know the existing enums have different values, we'll drop and recreate them
-    
-    # Drop existing enum types (CASCADE will handle dependencies)
-    op.execute("DROP TYPE IF EXISTS payment_request_status CASCADE;")
-    op.execute("DROP TYPE IF EXISTS distribution_status CASCADE;")
-    op.execute("DROP TYPE IF EXISTS document_status CASCADE;")
-    op.execute("DROP TYPE IF EXISTS sub_registrar_assignment_status CASCADE;")
-    op.execute("DROP TYPE IF EXISTS contract_type CASCADE;")
+    # Phase 1.1: Create enum types with new values
+    # Note: Run cleanup_enums.sql first to remove existing enum types
     
     # Create new enum types with lowercase values
     op.execute("""

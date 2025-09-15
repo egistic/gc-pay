@@ -87,18 +87,19 @@
   - Problem: Migration was trying to create enum types that already exist on server with different values (uppercase vs lowercase)
   - Root cause: Server has existing enums with uppercase values, but migration was trying to create new enums with lowercase values
   - Solution implemented:
-    1. ✅ Updated migration to drop and recreate enum types with CASCADE
-    2. ✅ Added proper mapping from existing uppercase values to new lowercase enum values
-    3. ✅ Created standalone SQL script as backup option
+    1. ✅ Created separate cleanup script to remove existing enum types
+    2. ✅ Simplified Alembic migration to only create new enum types
+    3. ✅ Created automated migration script for easy deployment
   - Files modified:
-    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/ffe416ae00e8_phase_1_critical_data_integrity_enum_.py` - Updated migration logic
-    - `/home/zhandos/gp_latest/gc-spends-backend/fix_enum_migration.sql` - Created standalone SQL script
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/versions/ffe416ae00e8_phase_1_critical_data_integrity_enum_.py` - Simplified migration logic
+    - `/home/zhandos/gp_latest/gc-spends-backend/cleanup_enums.sql` - Created enum cleanup script
+    - `/home/zhandos/gp_latest/gc-spends-backend/run_migration.sh` - Created automated migration script
   - Changes made:
-    - Changed approach to drop existing enum types with CASCADE before creating new ones
+    - Separated enum cleanup from migration for better control
+    - Created cleanup script that drops all existing enum types with CASCADE
+    - Simplified migration to only create new enum types (assumes cleanup was run first)
     - Added comprehensive mapping from server's uppercase enum values to new lowercase values
-    - Mapped all 18 payment_request_status values from server to appropriate new values
-    - Mapped distribution_status, document_status, sub_registrar_assignment_status, and contract_type values
-    - Created standalone SQL script with same logic for direct server execution
+    - Created automated script that runs cleanup, migration, and verification
   - Expected result:
     - Migration will run successfully on server without enum conflicts
     - Existing data will be properly mapped from uppercase to lowercase enum values
@@ -113,8 +114,8 @@
     - REJECTED → rejected
     - CANCELLED/CLOSED/SPLITED → cancelled
   - Backend verification:
-    - ✅ Migration file updated with DROP CASCADE approach
-    - ✅ Comprehensive value mapping implemented
-    - ✅ Standalone SQL script created as backup
+    - ✅ Cleanup script created for enum removal
+    - ✅ Migration simplified to only create new enums
+    - ✅ Automated script created for easy deployment
     - ✅ All enum types handled (payment_request_status, distribution_status, document_status, sub_registrar_assignment_status, contract_type)
   - Status: ✅ COMPLETED
