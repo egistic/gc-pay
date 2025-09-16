@@ -1,7 +1,7 @@
 """Create ENUM types and update columns
 
 Revision ID: c144dd067aa7
-Revises: 64091dba3fd0
+Revises: 18fb4e44fc7f
 Create Date: 2025-09-16 15:18:53.788681
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = 'c144dd067aa7'
-down_revision: Union[str, None] = '64091dba3fd0'
+down_revision: Union[str, None] = '18fb4e44fc7f'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
