@@ -28,13 +28,13 @@ def upgrade() -> None:
     # Then change the column type
     op.alter_column('distributor_requests', 'status',
                existing_type=sa.VARCHAR(length=32),
-               type_=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status'),
+               type_=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
                existing_nullable=False,
                postgresql_using='CASE WHEN status = \'PENDING\' THEN \'pending\'::distribution_status ELSE \'pending\'::distribution_status END')
     
     # Set the new default value
     op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status'),
+               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
                server_default=sa.text("'pending'::distribution_status"),
                existing_nullable=False)
     
@@ -56,12 +56,12 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Revert distributor_requests.status back to VARCHAR
     op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status'),
+               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
                server_default=None,
                existing_nullable=False)
     
     op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status'),
+               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
                type_=sa.VARCHAR(length=32),
                existing_nullable=False,
                postgresql_using='status::text')

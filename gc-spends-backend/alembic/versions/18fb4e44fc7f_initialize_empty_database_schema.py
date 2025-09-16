@@ -20,58 +20,100 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create ENUM types
-    contract_type = postgresql.ENUM(
-        'general', 'export', 'service', 'supply',
-        name='contract_type',
-        create_type=True
-    )
-    contract_type.create(op.get_bind())
+    # Create ENUM types with IF NOT EXISTS check
+    connection = op.get_bind()
     
-    distribution_status = postgresql.ENUM(
-        'pending', 'in_progress', 'completed', 'failed',
-        name='distribution_status',
-        create_type=True
-    )
-    distribution_status.create(op.get_bind())
+    # Check and create contract_type
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'contract_type'")
+    if not result.fetchone():
+        contract_type = postgresql.ENUM(
+            'general', 'export', 'service', 'supply',
+            name='contract_type',
+            create_type=True
+        )
+        contract_type.create(connection)
     
-    document_status = postgresql.ENUM(
-        'required', 'uploaded', 'verified', 'rejected',
-        name='document_status',
-        create_type=True
-    )
-    document_status.create(op.get_bind())
+    # Check and create distribution_status
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'distribution_status'")
+    if not result.fetchone():
+        distribution_status = postgresql.ENUM(
+            'pending', 'in_progress', 'completed', 'failed',
+            name='distribution_status',
+            create_type=True
+        )
+        distribution_status.create(connection)
     
-    payment_priority = postgresql.ENUM(
-        'low', 'normal', 'high', 'urgent', 'critical',
-        name='payment_priority',
-        create_type=True
-    )
-    payment_priority.create(op.get_bind())
+    # Check and create document_status
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'document_status'")
+    if not result.fetchone():
+        document_status = postgresql.ENUM(
+            'required', 'uploaded', 'verified', 'rejected',
+            name='document_status',
+            create_type=True
+        )
+        document_status.create(connection)
     
-    payment_request_status = postgresql.ENUM(
+    # Check and create payment_priority
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'payment_priority'")
+    if not result.fetchone():
+        payment_priority = postgresql.ENUM(
+            'low', 'normal', 'high', 'urgent', 'critical',
+            name='payment_priority',
+            create_type=True
+        )
+        payment_priority.create(connection)
+    
+    # Check and create payment_request_status
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'payment_request_status'")
+    if not result.fetchone():
+        payment_request_status = postgresql.ENUM(
+            'draft', 'submitted', 'classified', 'returned', 'approved',
+            'approved-on-behalf', 'to-pay', 'in-register', 'approved-for-payment',
+            'paid-full', 'paid-partial', 'rejected', 'cancelled', 'closed',
+            'distributed', 'report_published', 'export_linked', 'splited',
+            name='payment_request_status',
+            create_type=True
+        )
+        payment_request_status.create(connection)
+    
+    # Check and create role_code
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'role_code'")
+    if not result.fetchone():
+        role_code = postgresql.ENUM(
+            'admin', 'executor', 'registrar', 'sub_registrar', 'distributor', 'treasurer',
+            name='role_code',
+            create_type=True
+        )
+        role_code.create(connection)
+    
+    # Check and create sub_registrar_assignment_status
+    result = connection.execute("SELECT 1 FROM pg_type WHERE typname = 'sub_registrar_assignment_status'")
+    if not result.fetchone():
+        sub_registrar_assignment_status = postgresql.ENUM(
+            'assigned', 'in_progress', 'completed', 'rejected',
+            name='sub_registrar_assignment_status',
+            create_type=True
+        )
+        sub_registrar_assignment_status.create(connection)
+
+    # Повторные ссылки на уже существующие типы (запретить автосоздание)
+    contract_type_t = postgresql.ENUM('general', 'export', 'service', 'supply',
+                                      name='contract_type', create_type=False)
+    distribution_status_t = postgresql.ENUM('pending', 'in_progress', 'completed', 'failed',
+                                            name='distribution_status', create_type=False)
+    document_status_t = postgresql.ENUM('required', 'uploaded', 'verified', 'rejected',
+                                        name='document_status', create_type=False)
+    payment_priority_t = postgresql.ENUM('low', 'normal', 'high', 'urgent', 'critical',
+                                         name='payment_priority', create_type=False)
+    payment_request_status_t = postgresql.ENUM(
         'draft', 'submitted', 'classified', 'returned', 'approved',
         'approved-on-behalf', 'to-pay', 'in-register', 'approved-for-payment',
         'paid-full', 'paid-partial', 'rejected', 'cancelled', 'closed',
         'distributed', 'report_published', 'export_linked', 'splited',
-        name='payment_request_status',
-        create_type=True
+        name='payment_request_status', create_type=False
     )
-    payment_request_status.create(op.get_bind())
-    
-    role_code = postgresql.ENUM(
-        'admin', 'executor', 'registrar', 'sub_registrar', 'distributor', 'treasurer',
-        name='role_code',
-        create_type=True
-    )
-    role_code.create(op.get_bind())
-    
-    sub_registrar_assignment_status = postgresql.ENUM(
-        'assigned', 'in_progress', 'completed', 'rejected',
-        name='sub_registrar_assignment_status',
-        create_type=True
-    )
-    sub_registrar_assignment_status.create(op.get_bind())
+    sub_registrar_assignment_status_t = postgresql.ENUM('assigned', 'in_progress', 'completed', 'rejected',
+                                                        name='sub_registrar_assignment_status', create_type=False)
 
     # Create tables
     op.create_table('users',
@@ -249,7 +291,7 @@ def upgrade() -> None:
         sa.Column('created_by_user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('counterparty_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('title', sa.String(length=255), nullable=False),
-        sa.Column('status', postgresql.ENUM('draft', 'submitted', 'classified', 'returned', 'approved', 'approved-on-behalf', 'to-pay', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'rejected', 'cancelled', 'closed', 'distributed', 'report_published', 'export_linked', 'splited', name='payment_request_status'), server_default=sa.text("'draft'"), nullable=False),
+        sa.Column('status', payment_request_status_t, server_default=sa.text("'draft'"), nullable=False),
         sa.Column('currency_code', sa.String(length=3), nullable=False),
         sa.Column('amount_total', sa.Numeric(precision=18, scale=2), nullable=False),
         sa.Column('vat_total', sa.Numeric(precision=18, scale=2), nullable=False),
@@ -268,8 +310,8 @@ def upgrade() -> None:
         sa.Column('price_rate', sa.String(length=128), nullable=True),
         sa.Column('period', sa.String(length=128), nullable=True),
         sa.Column('responsible_registrar_id', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('distribution_status', postgresql.ENUM('pending', 'in_progress', 'completed', 'failed', name='distribution_status'), server_default=sa.text("'pending'"), nullable=False),
-        sa.Column('priority', postgresql.ENUM('low', 'normal', 'high', 'urgent', 'critical', name='payment_priority'), server_default=sa.text("'normal'"), nullable=False),
+        sa.Column('distribution_status', distribution_status_t, server_default=sa.text("'pending'"), nullable=False),
+        sa.Column('priority', payment_priority_t, server_default=sa.text("'normal'"), nullable=False),
         sa.Column('priority_score', sa.Numeric(precision=5, scale=2), nullable=True),
         sa.Column('original_request_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('split_sequence', sa.Integer(), nullable=True),
@@ -297,7 +339,7 @@ def upgrade() -> None:
         sa.Column('amount_net', sa.Numeric(precision=18, scale=2), nullable=False),
         sa.Column('vat_rate_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('currency_code', sa.String(length=3), nullable=False),
-        sa.Column('status', postgresql.ENUM('draft', 'submitted', 'classified', 'returned', 'approved', 'approved-on-behalf', 'to-pay', 'in-register', 'approved-for-payment', 'paid-full', 'paid-partial', 'rejected', 'cancelled', 'closed', 'distributed', 'report_published', 'export_linked', 'splited', name='payment_request_status'), server_default=sa.text("'draft'"), nullable=False),
+        sa.Column('status', payment_request_status_t, server_default=sa.text("'draft'"), nullable=False),
         sa.Column('note', sa.String(length=1000), nullable=True),
         sa.ForeignKeyConstraint(['article_id'], ['expense_articles.id'], ),
         sa.ForeignKeyConstraint(['currency_code'], ['currencies.code'], ),
@@ -377,7 +419,7 @@ def upgrade() -> None:
         sa.Column('counterparty_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('contract_number', sa.String(length=128), nullable=False),
         sa.Column('contract_date', sa.Date(), nullable=False),
-        sa.Column('contract_type', postgresql.ENUM('general', 'export', 'service', 'supply', name='contract_type'), nullable=False),
+        sa.Column('contract_type', contract_type_t, nullable=False),
         sa.Column('validity_period', sa.String(length=128), nullable=True),
         sa.Column('rates', sa.String(length=1000), nullable=True),
         sa.Column('contract_info', sa.String(length=2000), nullable=True),
@@ -413,7 +455,7 @@ def upgrade() -> None:
         sa.Column('request_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('sub_registrar_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('assigned_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-        sa.Column('status', postgresql.ENUM('assigned', 'in_progress', 'completed', 'rejected', name='sub_registrar_assignment_status'), server_default=sa.text("'assigned'"), nullable=False),
+        sa.Column('status', sub_registrar_assignment_status_t, server_default=sa.text("'assigned'"), nullable=False),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['request_id'], ['payment_requests.id'], ),
         sa.ForeignKeyConstraint(['sub_registrar_id'], ['users.id'], ),
@@ -449,7 +491,7 @@ def upgrade() -> None:
         sa.Column('expense_article_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('amount', sa.Numeric(precision=18, scale=2), nullable=False),
         sa.Column('distributor_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('status', postgresql.ENUM('pending', 'in_progress', 'completed', 'failed', name='distribution_status'), server_default=sa.text("'pending'"), nullable=False),
+        sa.Column('status', distribution_status_t, server_default=sa.text("'pending'"), nullable=False),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.ForeignKeyConstraint(['distributor_id'], ['users.id'], ),
         sa.ForeignKeyConstraint(['expense_article_id'], ['expense_articles.id'], ),
@@ -461,7 +503,7 @@ def upgrade() -> None:
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('request_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('sub_registrar_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('document_status', postgresql.ENUM('required', 'uploaded', 'verified', 'rejected', name='document_status'), nullable=False),
+        sa.Column('document_status', document_status_t, nullable=False),
         sa.Column('report_data', sa.JSON(), nullable=True),
         sa.Column('status', sa.String(length=32), server_default=sa.text("'DRAFT'"), nullable=False),
         sa.Column('published_at', sa.DateTime(), nullable=True),
@@ -513,7 +555,7 @@ def upgrade() -> None:
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('name', sa.String(length=255), nullable=False),
         sa.Column('description', sa.String(length=1000), nullable=True),
-        sa.Column('priority', postgresql.ENUM('low', 'normal', 'high', 'urgent', 'critical', name='payment_priority'), nullable=False),
+        sa.Column('priority', payment_priority_t, nullable=False),
         sa.Column('conditions', sa.JSON(), nullable=False),
         sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
