@@ -1,4 +1,4 @@
-"""Fix distributor_requests status column
+"""Fix database constraints and indexes
 
 Revision ID: 6c7ca75a1298
 Revises: c144dd067aa7
@@ -19,20 +19,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # First, update existing data to lowercase (status is still VARCHAR at this point)
-    op.execute("UPDATE distributor_requests SET status = LOWER(status)")
-    
-    # Then change the column type
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.VARCHAR(length=32),
-               type_=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
-               existing_nullable=False)
-    
-    # Set the new default value
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
-               server_default=sa.text("'pending'::distribution_status"),
-               existing_nullable=False)
+    # Column status already has the correct ENUM type from base migration
+    # No need to change the column type or default value
     
     # Update exchange_rates.created_at to NOT NULL
     op.alter_column('exchange_rates', 'created_at',
@@ -51,21 +39,8 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Revert distributor_requests.status back to VARCHAR
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
-               server_default=None,
-               existing_nullable=False)
-    
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
-               type_=sa.VARCHAR(length=32),
-               existing_nullable=False,
-               postgresql_using='UPPER(status::text)')
-    
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.VARCHAR(length=32),
-               server_default=sa.text("'PENDING'::character varying"),
-               existing_nullable=False)
+    # distributor_requests.status already has correct ENUM type from base migration
+    # No need to revert it
     
     # Revert exchange_rates.created_at to nullable
     op.alter_column('exchange_rates', 'created_at',
