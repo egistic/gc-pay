@@ -19,18 +19,14 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # First, drop the default value
-    op.alter_column('distributor_requests', 'status',
-               existing_type=sa.VARCHAR(length=32),
-               server_default=None,
-               existing_nullable=False)
+    # First, update existing data to lowercase
+    op.execute("UPDATE distributor_requests SET status = LOWER(status)")
     
     # Then change the column type
     op.alter_column('distributor_requests', 'status',
                existing_type=sa.VARCHAR(length=32),
                type_=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
-               existing_nullable=False,
-               postgresql_using='CASE WHEN status = \'PENDING\' THEN \'pending\'::distribution_status ELSE \'pending\'::distribution_status END')
+               existing_nullable=False)
     
     # Set the new default value
     op.alter_column('distributor_requests', 'status',
@@ -64,7 +60,7 @@ def downgrade() -> None:
                existing_type=sa.Enum('pending', 'in_progress', 'completed', 'failed', name='distribution_status', create_type=False),
                type_=sa.VARCHAR(length=32),
                existing_nullable=False,
-               postgresql_using='status::text')
+               postgresql_using='UPPER(status::text)')
     
     op.alter_column('distributor_requests', 'status',
                existing_type=sa.VARCHAR(length=32),
