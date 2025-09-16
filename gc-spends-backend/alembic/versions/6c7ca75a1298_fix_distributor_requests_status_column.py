@@ -29,8 +29,11 @@ def upgrade() -> None:
                existing_server_default=sa.text('CURRENT_TIMESTAMP'))
     
     # Fix idempotency_keys.key unique constraint
-    op.drop_constraint('idempotency_keys_key_key', 'idempotency_keys', type_='unique')
-    op.drop_index('ix_idempotency_keys_key', table_name='idempotency_keys')
+    # Safely drop constraint and index if they exist
+    op.execute("ALTER TABLE idempotency_keys DROP CONSTRAINT IF EXISTS idempotency_keys_key_key")
+    op.execute("DROP INDEX IF EXISTS ix_idempotency_keys_key")
+    
+    # Create the unique index
     op.create_index(op.f('ix_idempotency_keys_key'), 'idempotency_keys', ['key'], unique=True)
     
     # Remove uk_split_group_sequence index
@@ -49,7 +52,7 @@ def downgrade() -> None:
                existing_server_default=sa.text('CURRENT_TIMESTAMP'))
     
     # Revert idempotency_keys changes
-    op.drop_index(op.f('ix_idempotency_keys_key'), table_name='idempotency_keys')
+    op.execute("DROP INDEX IF EXISTS " + op.f('ix_idempotency_keys_key'))
     op.create_index('ix_idempotency_keys_key', 'idempotency_keys', ['key'], unique=False)
     op.create_unique_constraint('idempotency_keys_key_key', 'idempotency_keys', ['key'])
     
