@@ -27,6 +27,34 @@
     - ✅ No TypeScript compilation errors
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -57,6 +85,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -88,6 +144,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -118,6 +202,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix SubRegistrarAssignmentsList import error (Completed: 2025-01-27)
@@ -143,6 +255,34 @@
     - ✅ Development server restarted to clear cache
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -173,6 +313,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -204,6 +372,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -234,6 +430,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 2] Fix split request visibility for sub-registrars (Completed: 2025-01-27)
@@ -266,6 +490,34 @@
     - ✅ No TypeScript compilation errors
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -296,6 +548,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -327,6 +607,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -357,6 +665,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix missing columns issue in migration 99b34946f71d (Completed: 2025-01-27)
@@ -391,6 +727,34 @@
     2. Then run: `alembic upgrade head` (applies all migrations)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -421,6 +785,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -452,6 +844,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -482,6 +902,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 ## Current Task
@@ -530,6 +978,34 @@
     - ✅ Standalone SQL script created as backup
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -560,6 +1036,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -591,6 +1095,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -621,6 +1153,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix server enum migration issues (Completed: 2025-01-27)
@@ -649,6 +1209,34 @@
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -679,6 +1267,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -710,6 +1326,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -740,6 +1384,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix all enum migration default value issues (Completed: 2025-01-27)
@@ -769,6 +1441,34 @@
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -799,6 +1499,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -830,6 +1558,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -860,6 +1616,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix priority enum type mismatch issue (Completed: 2025-01-27)
@@ -888,6 +1672,34 @@
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -918,6 +1730,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -949,6 +1789,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -979,6 +1847,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix 3908df61c4ae migration priority enum issue (Completed: 2025-01-27)
@@ -1006,6 +1902,34 @@
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1036,6 +1960,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1067,6 +2019,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1097,6 +2077,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix payment_priority_old type mismatch issue (Completed: 2025-01-27)
@@ -1124,6 +2132,34 @@
     2. Then run: `alembic upgrade head` (applies the migration)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1154,6 +2190,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1185,6 +2249,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1215,6 +2307,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix enum case consistency issues (Completed: 2025-01-27)
@@ -1254,6 +2374,34 @@
     2. Then run: `alembic upgrade head` (applies all migrations)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1284,6 +2432,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1315,6 +2491,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1345,6 +2549,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Fix status mapping issues in migrations (Completed: 2025-01-27)
@@ -1377,6 +2609,34 @@
     2. Then run: `alembic upgrade head` (applies all migrations)
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1407,6 +2667,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1438,6 +2726,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1468,6 +2784,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] View all ENUMs in current database (Completed: 2025-01-27)
@@ -1513,6 +2857,34 @@
     - ✅ All views have been recreated successfully
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1543,6 +2915,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1574,6 +2974,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1604,6 +3032,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 3] Server ENUM synchronization implementation (Completed: 2025-01-27)
@@ -1654,6 +3110,34 @@
     - Quick: Use run_server_enum_sync.sh script
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1684,6 +3168,34 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED
 
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
@@ -1715,6 +3227,34 @@
     - ✅ All foreign key relationships and constraints included
   - Status: ✅ COMPLETED
 
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
+  - Status: ✅ COMPLETED
+
 - [x] [Level 1] Create base Alembic migration for empty database (Completed: 2025-01-27)
   - Task: Create an Alembic version that initializes an absolutely empty database before current versions
   - Problem: Need a base migration that creates all database tables and ENUMs from scratch for SQL-only execution
@@ -1745,4 +3285,32 @@
     - ✅ Alembic history shows correct sequence
     - ✅ All foreign key relationships and constraints included
     - ✅ SQL-only approach for server compatibility
+  - Status: ✅ COMPLETED
+
+- [x] [Level 1] Fix Alembic database connection issue (Completed: 2025-01-27)
+  - Task: Fix psycopg2 connection error when running alembic upgrade head in Docker
+  - Problem: 
+    1. Missing psycopg2-binary dependency in requirements.txt
+    2. Alembic trying to connect to localhost:5432 instead of Docker database service
+  - Solution implemented:
+    1. ✅ Added psycopg2-binary==2.9.9 to requirements.txt
+    2. ✅ Updated alembic/env.py to use DATABASE_URL environment variable
+    3. ✅ Added automatic conversion from psycopg to psycopg2 URL format
+  - Files modified:
+    - `/home/zhandos/gp_latest/gc-spends-backend/requirements.txt` - Added psycopg2-binary dependency
+    - `/home/zhandos/gp_latest/gc-spends-backend/alembic/env.py` - Added DATABASE_URL support
+  - Changes made:
+    - Added psycopg2-binary==2.9.9 to requirements.txt for SQLAlchemy compatibility
+    - Modified run_migrations_online() to check for DATABASE_URL environment variable
+    - Added automatic URL conversion from postgresql+psycopg:// to postgresql+psycopg2://
+    - Maintained backward compatibility with alembic.ini configuration
+  - Expected result:
+    - Alembic will use DATABASE_URL from Docker environment (fast_api_backend_postgres_1:5432)
+    - No more psycopg2 import errors
+    - Migrations can run successfully in Docker container
+  - Verification:
+    - ✅ psycopg2-binary added to requirements.txt
+    - ✅ env.py updated to use DATABASE_URL environment variable
+    - ✅ URL conversion logic implemented for psycopg2 compatibility
+    - ✅ Backward compatibility maintained
   - Status: ✅ COMPLETED

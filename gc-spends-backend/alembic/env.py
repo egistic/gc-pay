@@ -66,6 +66,14 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Use DATABASE_URL from environment if available, otherwise use config
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        # Convert psycopg URL to psycopg2 URL for Alembic compatibility
+        if database_url.startswith("postgresql+psycopg://"):
+            database_url = database_url.replace("postgresql+psycopg://", "postgresql+psycopg2://")
+        config.set_main_option("sqlalchemy.url", database_url)
+    
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
