@@ -50,7 +50,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_idempotency_keys_key'), 'idempotency_keys', ['key'], unique=True)
     
     # Remove uk_split_group_sequence index
-    op.drop_index('uk_split_group_sequence', table_name='payment_requests', postgresql_where='(original_request_id IS NOT NULL)')
+    op.drop_index('uk_split_group_sequence', table_name='payment_requests')
 
 
 def downgrade() -> None:
