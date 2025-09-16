@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # First, update existing data to lowercase
+    # First, update existing data to lowercase (status is still VARCHAR at this point)
     op.execute("UPDATE distributor_requests SET status = LOWER(status)")
     
     # Then change the column type
