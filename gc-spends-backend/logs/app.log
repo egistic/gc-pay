@@ -7862,3 +7862,1069 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-09-15 22:11:40,345 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.004s
 2025-09-15 22:11:40,725 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
 2025-09-15 22:11:40,735 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 09:40:02,984 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 09:40:03,164 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/zhandos/gp_latest/gc-spends-backend/.venv/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-16 09:40:03,434 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.450s
+2025-09-16 09:40:03,439 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/auth/me
+2025-09-16 09:40:03,439 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/auth/me - 200 - 0.001s
+2025-09-16 09:40:03,443 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:40:03,457 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.014s
+2025-09-16 09:40:03,466 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 09:40:03,467 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:40:03,468 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.002s
+2025-09-16 09:40:03,473 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:40:03,483 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.016s
+2025-09-16 09:40:03,510 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:40:03,516 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/statistics
+2025-09-16 09:40:03,516 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 09:40:03,517 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/statistics - 200 - 0.001s
+2025-09-16 09:40:03,526 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.053s
+2025-09-16 09:40:03,526 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:40:03,526 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:40:03,563 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.036s
+2025-09-16 09:40:03,564 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.037s
+2025-09-16 09:40:03,569 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 09:40:03,570 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/expense-articles/statistics - 200 - 0.001s
+2025-09-16 09:40:03,571 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 09:40:03,578 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.007s
+2025-09-16 09:40:13,932 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/users/search
+2025-09-16 09:40:13,932 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/roles
+2025-09-16 09:40:13,933 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions
+2025-09-16 09:40:13,933 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/departments
+2025-09-16 09:40:13,933 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/users/search
+2025-09-16 09:40:13,933 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/users/search - 200 - 0.001s
+2025-09-16 09:40:13,934 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/roles - 200 - 0.001s
+2025-09-16 09:40:13,934 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions - 200 - 0.001s
+2025-09-16 09:40:13,934 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/departments - 200 - 0.001s
+2025-09-16 09:40:13,934 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/users/search - 200 - 0.001s
+2025-09-16 09:40:13,940 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 09:40:13,941 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:40:13,947 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:40:13,948 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/departments
+2025-09-16 09:40:13,953 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.012s
+2025-09-16 09:40:13,954 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.013s
+2025-09-16 09:40:13,968 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/departments - 200 - 0.020s
+2025-09-16 09:40:14,012 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.065s
+2025-09-16 09:40:14,013 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:40:14,050 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.037s
+2025-09-16 09:40:33,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:40:33,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:41:01,456 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:41:01,464 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.008s
+2025-09-16 09:41:03,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:41:03,525 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 09:41:05,236 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 09:41:05,238 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/statistics
+2025-09-16 09:41:05,239 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/statistics - 200 - 0.001s
+2025-09-16 09:41:05,243 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.007s
+2025-09-16 09:41:05,246 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage
+2025-09-16 09:41:05,246 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage - 200 - 0.000s
+2025-09-16 09:41:05,249 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage
+2025-09-16 09:41:05,252 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/statistics
+2025-09-16 09:41:05,270 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/statistics - 200 - 0.019s
+2025-09-16 09:41:05,271 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage - 200 - 0.022s
+2025-09-16 09:41:05,277 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage
+2025-09-16 09:41:05,277 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage - 200 - 0.000s
+2025-09-16 09:41:05,280 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage
+2025-09-16 09:41:05,287 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage - 200 - 0.007s
+2025-09-16 09:41:05,293 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage
+2025-09-16 09:41:05,294 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage - 200 - 0.000s
+2025-09-16 09:41:05,296 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage
+2025-09-16 09:41:05,309 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage - 200 - 0.013s
+2025-09-16 09:41:05,317 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage
+2025-09-16 09:41:05,318 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage - 200 - 0.001s
+2025-09-16 09:41:05,323 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage
+2025-09-16 09:41:05,331 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage - 200 - 0.008s
+2025-09-16 09:41:05,340 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage
+2025-09-16 09:41:05,341 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage - 200 - 0.000s
+2025-09-16 09:41:05,344 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage
+2025-09-16 09:41:05,357 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage - 200 - 0.013s
+2025-09-16 09:41:05,361 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage
+2025-09-16 09:41:05,361 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage - 200 - 0.000s
+2025-09-16 09:41:05,366 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage
+2025-09-16 09:41:05,373 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage - 200 - 0.007s
+2025-09-16 09:41:24,381 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:41:24,386 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.005s
+2025-09-16 09:41:29,275 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,275 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/departments
+2025-09-16 09:41:29,276 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/users/search
+2025-09-16 09:41:29,277 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/users/search - 200 - 0.001s
+2025-09-16 09:41:29,282 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/departments - 200 - 0.007s
+2025-09-16 09:41:29,284 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.009s
+2025-09-16 09:41:29,288 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,290 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:41:29,293 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users
+2025-09-16 09:41:29,294 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users - 200 - 0.001s
+2025-09-16 09:41:29,299 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 422 - 0.009s
+2025-09-16 09:41:29,299 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users
+2025-09-16 09:41:29,300 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users
+2025-09-16 09:41:29,300 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users
+2025-09-16 09:41:29,301 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users - 200 - 0.002s
+2025-09-16 09:41:29,304 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users - 200 - 0.005s
+2025-09-16 09:41:29,305 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users - 200 - 0.005s
+2025-09-16 09:41:29,311 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users
+2025-09-16 09:41:29,312 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users - 200 - 0.001s
+2025-09-16 09:41:29,314 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users
+2025-09-16 09:41:29,316 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.028s
+2025-09-16 09:41:29,317 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users - 200 - 0.003s
+2025-09-16 09:41:29,326 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users
+2025-09-16 09:41:29,326 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users
+2025-09-16 09:41:29,327 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users
+2025-09-16 09:41:29,327 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users
+2025-09-16 09:41:29,327 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users
+2025-09-16 09:41:29,328 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users - 200 - 0.002s
+2025-09-16 09:41:29,328 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users
+2025-09-16 09:41:29,328 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users - 200 - 0.002s
+2025-09-16 09:41:29,328 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users - 200 - 0.002s
+2025-09-16 09:41:29,329 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users - 200 - 0.002s
+2025-09-16 09:41:29,329 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users - 200 - 0.002s
+2025-09-16 09:41:29,329 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users - 200 - 0.001s
+2025-09-16 09:41:29,346 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users
+2025-09-16 09:41:29,348 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users
+2025-09-16 09:41:29,349 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users - 200 - 0.003s
+2025-09-16 09:41:29,350 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users
+2025-09-16 09:41:29,350 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users
+2025-09-16 09:41:29,350 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users
+2025-09-16 09:41:29,350 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users
+2025-09-16 09:41:29,351 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users - 200 - 0.003s
+2025-09-16 09:41:29,351 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users - 200 - 0.002s
+2025-09-16 09:41:29,351 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users - 200 - 0.002s
+2025-09-16 09:41:29,351 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users - 200 - 0.001s
+2025-09-16 09:41:29,352 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users - 200 - 0.001s
+2025-09-16 09:41:29,366 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users
+2025-09-16 09:41:29,369 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users
+2025-09-16 09:41:29,369 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,369 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users
+2025-09-16 09:41:29,370 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users
+2025-09-16 09:41:29,371 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users
+2025-09-16 09:41:29,390 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users - 200 - 0.021s
+2025-09-16 09:41:29,391 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.022s
+2025-09-16 09:41:29,392 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users - 200 - 0.026s
+2025-09-16 09:41:29,396 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users - 200 - 0.027s
+2025-09-16 09:41:29,397 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users
+2025-09-16 09:41:29,403 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users
+2025-09-16 09:41:29,404 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users
+2025-09-16 09:41:29,412 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users
+2025-09-16 09:41:29,420 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users - 200 - 0.049s
+2025-09-16 09:41:29,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users - 200 - 0.029s
+2025-09-16 09:41:29,427 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users
+2025-09-16 09:41:29,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users - 200 - 0.057s
+2025-09-16 09:41:29,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users - 200 - 0.027s
+2025-09-16 09:41:29,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users - 200 - 0.026s
+2025-09-16 09:41:29,440 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users
+2025-09-16 09:41:29,444 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users - 200 - 0.032s
+2025-09-16 09:41:29,445 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users
+2025-09-16 09:41:29,446 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users
+2025-09-16 09:41:29,450 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users
+2025-09-16 09:41:29,459 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users - 200 - 0.031s
+2025-09-16 09:41:29,460 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users
+2025-09-16 09:41:29,467 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users
+2025-09-16 09:41:29,474 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users - 200 - 0.028s
+2025-09-16 09:41:29,477 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users - 200 - 0.037s
+2025-09-16 09:41:29,477 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users - 200 - 0.032s
+2025-09-16 09:41:29,488 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users - 200 - 0.038s
+2025-09-16 09:41:29,490 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users
+2025-09-16 09:41:29,491 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users - 200 - 0.031s
+2025-09-16 09:41:29,492 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users
+2025-09-16 09:41:29,493 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,500 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users
+2025-09-16 09:41:29,501 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users
+2025-09-16 09:41:29,503 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users - 200 - 0.036s
+2025-09-16 09:41:29,511 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.019s
+2025-09-16 09:41:29,512 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users - 200 - 0.022s
+2025-09-16 09:41:29,517 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users - 200 - 0.025s
+2025-09-16 09:41:29,520 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,522 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users
+2025-09-16 09:41:29,525 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/c7b61f23-6c57-4649-bb9e-0d9deef0c173/users - 200 - 0.025s
+2025-09-16 09:41:29,526 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/a35b385b-6a1b-407e-9434-e2294802c47f/users - 200 - 0.025s
+2025-09-16 09:41:29,537 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.017s
+2025-09-16 09:41:29,541 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/d2131bce-8b7f-47de-afd4-7395baed6665/users - 200 - 0.018s
+2025-09-16 09:41:29,542 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,551 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.009s
+2025-09-16 09:41:29,556 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:41:29,562 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.005s
+2025-09-16 09:41:29,602 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users
+2025-09-16 09:41:29,604 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users
+2025-09-16 09:41:29,605 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users
+2025-09-16 09:41:29,605 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users
+2025-09-16 09:41:29,606 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users
+2025-09-16 09:41:29,606 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users
+2025-09-16 09:41:29,620 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/6656692b-7bbd-4802-89d9-bf6f4e44861b/users - 200 - 0.017s
+2025-09-16 09:41:29,627 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/521c849f-49a4-44d1-98f4-6934749b4e30/users - 200 - 0.022s
+2025-09-16 09:41:29,628 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/a1ba93b7-1a98-4759-994a-84f4046d1858/users - 200 - 0.026s
+2025-09-16 09:41:29,628 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/f96ea74b-3e31-4257-8400-04c6a149b62f/users - 200 - 0.023s
+2025-09-16 09:41:29,629 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/ff872de2-7461-4ed2-a1a8-69d0e5e2b644/users - 200 - 0.024s
+2025-09-16 09:41:29,641 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/ca118130-79cd-48a6-a0a1-3388ff0626ae/users - 200 - 0.036s
+2025-09-16 09:41:29,643 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users
+2025-09-16 09:41:29,649 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users
+2025-09-16 09:41:29,653 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users
+2025-09-16 09:41:29,654 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users
+2025-09-16 09:41:29,661 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users
+2025-09-16 09:41:29,663 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/55411b2f-628e-4b12-bbdc-56cdb9644662/users - 200 - 0.020s
+2025-09-16 09:41:29,675 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/f7b90660-7472-4b2d-8ad8-6ca340c41512/users - 200 - 0.022s
+2025-09-16 09:41:29,678 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/6a766cc2-3a2a-4b5f-a34e-47117bc8ca41/users - 200 - 0.029s
+2025-09-16 09:41:29,681 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users
+2025-09-16 09:41:29,686 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/88a2bc62-60e2-4a4e-bb61-9af2db554676/users - 200 - 0.032s
+2025-09-16 09:41:29,689 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/61884945-524d-4169-a18c-359beda3516a/users - 200 - 0.028s
+2025-09-16 09:41:29,695 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/0cbaefa5-40fb-40fb-8689-cc119659a008/users - 200 - 0.014s
+2025-09-16 09:41:29,703 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users
+2025-09-16 09:41:29,705 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users
+2025-09-16 09:41:29,712 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/8276b184-5b65-47a6-962d-a1d041622653/users - 200 - 0.008s
+2025-09-16 09:41:29,713 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/7764f115-5911-4071-8996-ad5d11a47a01/users - 200 - 0.010s
+2025-09-16 09:41:29,728 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users
+2025-09-16 09:41:29,735 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/3e613a85-2786-4791-aab0-eb93615fd665/users - 200 - 0.008s
+2025-09-16 09:41:33,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:41:33,551 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.039s
+2025-09-16 09:41:59,573 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:41:59,580 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.007s
+2025-09-16 09:42:03,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:42:03,519 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 09:42:04,809 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:42:04,809 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 09:42:04,810 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/expense-articles
+2025-09-16 09:42:04,810 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/expense-articles - 200 - 0.001s
+2025-09-16 09:42:04,812 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 422 - 0.003s
+2025-09-16 09:42:04,814 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles
+2025-09-16 09:42:04,815 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.006s
+2025-09-16 09:42:04,821 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles - 200 - 0.006s
+2025-09-16 09:42:33,513 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:42:33,534 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 09:43:03,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:43:03,529 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 09:43:33,513 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:43:33,549 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.036s
+2025-09-16 09:44:03,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:44:03,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:44:06,268 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:44:06,273 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.005s
+2025-09-16 09:44:33,510 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:44:33,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:44:40,944 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:44:40,945 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 09:44:40,945 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:44:40,946 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/departments
+2025-09-16 09:44:40,952 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/departments - 200 - 0.006s
+2025-09-16 09:44:40,955 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.010s
+2025-09-16 09:44:40,956 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.011s
+2025-09-16 09:44:41,006 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.062s
+2025-09-16 09:44:41,010 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 09:44:41,048 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.038s
+2025-09-16 09:45:03,510 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:45:03,519 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:45:33,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:45:33,548 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.036s
+2025-09-16 09:45:38,285 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 09:45:38,292 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.008s
+2025-09-16 09:45:38,301 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 09:45:38,307 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.006s
+2025-09-16 09:46:03,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:46:03,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:46:33,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:46:33,549 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.036s
+2025-09-16 09:47:03,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:47:03,527 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.015s
+2025-09-16 09:47:33,512 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:47:33,528 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 09:48:03,509 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:48:03,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 09:48:22,705 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 09:48:22,724 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 401 - 0.019s
+2025-09-16 09:48:53,764 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 09:48:54,005 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.241s
+2025-09-16 09:48:54,011 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:48:54,019 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.008s
+2025-09-16 09:48:54,029 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 09:48:54,030 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:48:54,030 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.001s
+2025-09-16 09:48:54,035 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:48:54,044 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:48:54,047 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.003s
+2025-09-16 09:48:54,050 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties
+2025-09-16 09:48:54,050 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties/statistics
+2025-09-16 09:48:54,051 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:48:54,052 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties - 200 - 0.002s
+2025-09-16 09:48:54,052 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties/statistics - 200 - 0.001s
+2025-09-16 09:48:54,052 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.022s
+2025-09-16 09:48:54,052 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.001s
+2025-09-16 09:48:54,060 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.025s
+2025-09-16 09:48:54,067 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties
+2025-09-16 09:48:54,068 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties/statistics
+2025-09-16 09:48:54,069 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:48:54,069 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties/statistics
+2025-09-16 09:48:54,069 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties
+2025-09-16 09:48:54,071 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:48:54,072 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties - 200 - 0.005s
+2025-09-16 09:48:54,072 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties/statistics - 200 - 0.004s
+2025-09-16 09:48:54,098 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties/statistics - 200 - 0.029s
+2025-09-16 09:48:54,103 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:48:54,108 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties/statistics
+2025-09-16 09:48:54,136 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties/statistics - 200 - 0.028s
+2025-09-16 09:48:54,137 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.066s
+2025-09-16 09:48:54,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.074s
+2025-09-16 09:48:54,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties - 200 - 0.074s
+2025-09-16 09:48:54,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.040s
+2025-09-16 09:48:54,151 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties
+2025-09-16 09:48:54,152 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:48:54,291 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.139s
+2025-09-16 09:48:54,299 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties - 200 - 0.148s
+2025-09-16 09:49:36,509 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/currencies
+2025-09-16 09:49:36,509 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/vat-rates
+2025-09-16 09:49:36,510 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/currencies - 200 - 0.001s
+2025-09-16 09:49:36,510 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/vat-rates - 200 - 0.001s
+2025-09-16 09:49:36,514 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates
+2025-09-16 09:49:36,515 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/currencies
+2025-09-16 09:49:36,527 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/currencies - 200 - 0.012s
+2025-09-16 09:49:36,527 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates - 200 - 0.014s
+2025-09-16 09:50:35,578 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 09:50:35,578 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates
+2025-09-16 09:50:35,586 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.009s
+2025-09-16 09:50:35,586 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates - 200 - 0.008s
+2025-09-16 09:50:35,595 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/create
+2025-09-16 09:50:35,596 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/create - 200 - 0.001s
+2025-09-16 09:50:35,601 - app.core.monitoring - INFO - Request started: POST /api/v1/requests/create
+2025-09-16 09:50:35,670 - app.core.monitoring - INFO - Request completed: POST /api/v1/requests/create - 201 - 0.069s
+2025-09-16 09:50:35,678 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/1ddc2c96-6605-44b6-bcfd-c0c1a446002c/submit
+2025-09-16 09:50:35,679 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/1ddc2c96-6605-44b6-bcfd-c0c1a446002c/submit - 200 - 0.001s
+2025-09-16 09:50:35,684 - app.core.monitoring - INFO - Request started: POST /api/v1/requests/1ddc2c96-6605-44b6-bcfd-c0c1a446002c/submit
+2025-09-16 09:50:35,710 - app.core.monitoring - INFO - Request completed: POST /api/v1/requests/1ddc2c96-6605-44b6-bcfd-c0c1a446002c/submit - 200 - 0.026s
+2025-09-16 09:50:35,734 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:50:35,749 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.015s
+2025-09-16 09:50:57,960 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 09:50:58,212 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.251s
+2025-09-16 09:50:58,216 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:50:58,220 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.004s
+2025-09-16 09:50:58,227 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 09:50:58,227 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.000s
+2025-09-16 09:50:58,228 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:50:58,231 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:50:58,237 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:50:58,240 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.003s
+2025-09-16 09:50:58,240 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.012s
+2025-09-16 09:50:58,246 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:50:58,253 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.021s
+2025-09-16 09:50:58,257 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:50:58,261 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 09:50:58,269 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.012s
+2025-09-16 09:51:06,366 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/distribution/sub-registrars
+2025-09-16 09:51:06,367 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles
+2025-09-16 09:51:06,367 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 09:51:06,368 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/distribution/sub-registrars - 200 - 0.002s
+2025-09-16 09:51:06,373 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/distribution/contract-status/3e009757-98a0-40e9-848c-8e887e192bde
+2025-09-16 09:51:06,373 - app.core.monitoring - INFO - Request started: GET /api/v1/distribution/sub-registrars
+2025-09-16 09:51:06,374 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/distribution/contract-status/3e009757-98a0-40e9-848c-8e887e192bde - 200 - 0.002s
+2025-09-16 09:51:06,375 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.008s
+2025-09-16 09:51:06,383 - app.core.monitoring - INFO - Request started: GET /api/v1/distribution/contract-status/3e009757-98a0-40e9-848c-8e887e192bde
+2025-09-16 09:51:06,388 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles - 200 - 0.021s
+2025-09-16 09:51:06,408 - app.core.monitoring - INFO - Request completed: GET /api/v1/distribution/contract-status/3e009757-98a0-40e9-848c-8e887e192bde - 200 - 0.025s
+2025-09-16 09:51:06,409 - app.core.monitoring - INFO - Request completed: GET /api/v1/distribution/sub-registrars - 200 - 0.036s
+2025-09-16 09:51:06,412 - app.core.monitoring - INFO - Request started: GET /api/v1/distribution/sub-registrars
+2025-09-16 09:51:06,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/distribution/sub-registrars - 200 - 0.014s
+2025-09-16 09:51:28,237 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:51:28,244 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 09:51:58,241 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:51:58,266 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.026s
+2025-09-16 09:52:27,445 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/distribution/split-request
+2025-09-16 09:52:27,445 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/distribution/split-request - 200 - 0.000s
+2025-09-16 09:52:27,447 - app.core.monitoring - INFO - Request started: POST /api/v1/distribution/split-request
+2025-09-16 09:52:27,491 - app.core.monitoring - INFO - Request completed: POST /api/v1/distribution/split-request - 200 - 0.044s
+2025-09-16 09:52:28,237 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:52:28,244 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 09:52:32,197 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:52:32,202 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.004s
+2025-09-16 09:52:32,255 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:52:32,256 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:52:32,274 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.020s
+2025-09-16 09:52:32,279 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.023s
+2025-09-16 09:52:32,298 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:52:32,303 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties
+2025-09-16 09:52:32,304 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties/statistics
+2025-09-16 09:52:32,305 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:52:32,322 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties/statistics - 200 - 0.018s
+2025-09-16 09:52:32,323 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.025s
+2025-09-16 09:52:32,349 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.044s
+2025-09-16 09:52:32,349 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties - 200 - 0.047s
+2025-09-16 09:52:42,505 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles
+2025-09-16 09:52:42,506 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 09:52:42,506 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates
+2025-09-16 09:52:42,506 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/vat-rates/statistics
+2025-09-16 09:52:42,508 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/users
+2025-09-16 09:52:42,508 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 09:52:42,509 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/vat-rates/statistics - 200 - 0.002s
+2025-09-16 09:52:42,509 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/users - 200 - 0.001s
+2025-09-16 09:52:42,509 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.001s
+2025-09-16 09:52:42,518 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.012s
+2025-09-16 09:52:42,522 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates - 200 - 0.016s
+2025-09-16 09:52:42,525 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates/statistics
+2025-09-16 09:52:42,526 - app.core.monitoring - INFO - Request started: GET /api/v1/users
+2025-09-16 09:52:42,526 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 09:52:42,537 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles - 200 - 0.032s
+2025-09-16 09:52:42,546 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates/statistics - 200 - 0.021s
+2025-09-16 09:52:42,557 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.031s
+2025-09-16 09:52:42,564 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 09:52:42,566 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.003s
+2025-09-16 09:52:42,570 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 09:52:42,583 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.013s
+2025-09-16 09:52:42,612 - app.core.monitoring - INFO - Request completed: GET /api/v1/users - 200 - 0.086s
+2025-09-16 09:52:52,689 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:52:52,696 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.006s
+2025-09-16 09:52:54,382 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:52:54,382 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.000s
+2025-09-16 09:52:54,385 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:52:54,390 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.005s
+2025-09-16 09:52:54,396 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:52:54,396 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.000s
+2025-09-16 09:52:54,400 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:52:54,407 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.006s
+2025-09-16 09:53:01,997 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:53:02,003 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.006s
+2025-09-16 09:53:02,297 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:53:02,302 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 09:53:22,020 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 09:53:22,269 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.249s
+2025-09-16 09:53:22,273 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:53:22,280 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.007s
+2025-09-16 09:53:22,286 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 09:53:22,287 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 09:53:22,287 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.001s
+2025-09-16 09:53:22,294 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:53:22,297 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:53:22,299 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.002s
+2025-09-16 09:53:22,299 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 09:53:22,301 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.002s
+2025-09-16 09:53:22,305 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.018s
+2025-09-16 09:53:22,311 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:53:22,321 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.027s
+2025-09-16 09:53:22,328 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 09:53:22,332 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.022s
+2025-09-16 09:53:22,336 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:53:22,339 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.011s
+2025-09-16 09:53:22,348 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 09:53:35,235 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:53:35,240 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.005s
+2025-09-16 09:53:35,243 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:53:35,247 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.004s
+2025-09-16 09:53:35,254 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:53:35,254 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.000s
+2025-09-16 09:53:35,259 - app.core.monitoring - INFO - Request started: GET /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 09:53:35,278 - app.core.monitoring - INFO - Request completed: GET /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd - 404 - 0.020s
+2025-09-16 09:53:52,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:53:52,298 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 09:54:22,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:54:22,298 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 09:54:52,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:54:52,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 09:55:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:55:22,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 09:55:52,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:55:52,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 09:56:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:56:22,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 09:56:52,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:56:52,299 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 09:57:22,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:57:22,298 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 09:57:52,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:57:52,299 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 09:58:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:58:22,319 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.023s
+2025-09-16 09:58:52,297 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:58:52,318 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 09:59:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:59:22,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 09:59:52,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 09:59:52,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:00:22,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:00:22,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:01:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:01:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:02:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:02:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:03:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:03:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:04:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:04:36,429 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 10:05:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:05:36,422 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.004s
+2025-09-16 10:06:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:06:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 10:07:27,353 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:07:27,365 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 10:07:52,293 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:07:52,298 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:08:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:08:22,318 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:08:52,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:08:52,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:09:22,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:09:22,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:10:36,420 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:10:36,434 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.014s
+2025-09-16 10:11:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:11:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 10:12:36,420 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:12:36,431 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.011s
+2025-09-16 10:13:36,420 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:13:36,433 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.014s
+2025-09-16 10:14:36,429 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:14:36,710 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.281s
+2025-09-16 10:15:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:15:36,434 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.015s
+2025-09-16 10:16:36,432 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:16:36,568 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.136s
+2025-09-16 10:17:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:17:36,424 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 10:18:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:18:36,424 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 10:19:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:19:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:20:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:20:36,422 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.004s
+2025-09-16 10:21:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:21:36,441 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 10:22:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:22:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:23:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:23:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:24:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:24:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:25:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:25:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 10:26:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:26:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:27:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:27:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 10:28:36,420 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:28:36,425 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:29:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:29:36,443 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:30:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:30:36,425 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:31:36,423 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:31:36,444 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:32:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:32:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:33:36,420 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:33:36,433 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 10:34:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:34:36,443 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:35:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:35:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:36:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:36:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 10:37:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:37:36,443 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:38:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:38:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 10:39:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:39:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:40:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:40:36,432 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.011s
+2025-09-16 10:41:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:41:36,422 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:42:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:42:36,434 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.013s
+2025-09-16 10:43:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:43:36,433 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 10:44:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:44:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 10:45:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:45:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:46:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:46:36,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 10:47:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:47:36,423 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 10:48:02,524 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:48:02,530 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 10:48:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:48:22,316 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 10:48:52,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:48:52,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:49:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:49:22,316 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 10:49:52,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:49:52,317 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 10:50:22,296 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:50:22,316 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 10:50:50,333 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 10:50:50,360 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/zhandos/gp_latest/gc-spends-backend/.venv/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-16 10:50:50,614 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.281s
+2025-09-16 10:50:50,617 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/auth/me
+2025-09-16 10:50:50,617 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/auth/me - 200 - 0.000s
+2025-09-16 10:50:50,621 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 10:50:50,632 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.011s
+2025-09-16 10:50:50,637 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 10:50:50,638 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 10:50:50,638 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.001s
+2025-09-16 10:50:50,643 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 10:50:50,647 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.009s
+2025-09-16 10:50:50,656 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 10:50:50,657 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/statistics
+2025-09-16 10:50:50,657 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.001s
+2025-09-16 10:50:50,658 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/statistics - 200 - 0.001s
+2025-09-16 10:50:50,678 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 10:50:50,680 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:50:50,695 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.052s
+2025-09-16 10:50:50,710 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.032s
+2025-09-16 10:50:50,710 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.030s
+2025-09-16 10:50:50,714 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 10:50:50,714 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/expense-articles/statistics - 200 - 0.000s
+2025-09-16 10:50:50,716 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 10:50:50,722 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.006s
+2025-09-16 10:50:57,987 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/users/search
+2025-09-16 10:50:57,988 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/roles
+2025-09-16 10:50:57,988 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/positions/departments
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/users/search
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/users/search - 200 - 0.002s
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/roles - 200 - 0.001s
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions - 200 - 0.001s
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/positions/departments - 200 - 0.001s
+2025-09-16 10:50:57,989 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/users/search - 200 - 0.001s
+2025-09-16 10:50:57,997 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 10:50:57,997 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 10:50:57,998 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/departments
+2025-09-16 10:50:57,998 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 10:50:58,009 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.013s
+2025-09-16 10:50:58,029 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/departments - 200 - 0.031s
+2025-09-16 10:50:58,031 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.034s
+2025-09-16 10:50:58,072 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.074s
+2025-09-16 10:50:58,075 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 10:50:58,114 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.039s
+2025-09-16 10:51:19,828 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 10:51:19,835 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.007s
+2025-09-16 10:51:20,653 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:51:20,664 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 10:51:22,611 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 10:51:22,615 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/statistics
+2025-09-16 10:51:22,615 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/statistics - 200 - 0.001s
+2025-09-16 10:51:22,620 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/statistics
+2025-09-16 10:51:22,621 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.010s
+2025-09-16 10:51:22,631 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage
+2025-09-16 10:51:22,632 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage - 200 - 0.001s
+2025-09-16 10:51:22,634 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/statistics - 200 - 0.014s
+2025-09-16 10:51:22,638 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage
+2025-09-16 10:51:22,653 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/6e5f6667-098c-4e51-b88d-1c6121f4e02b/usage - 200 - 0.015s
+2025-09-16 10:51:22,660 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage
+2025-09-16 10:51:22,660 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage - 200 - 0.000s
+2025-09-16 10:51:22,664 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage
+2025-09-16 10:51:22,676 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/f421496b-ff59-4dfa-8872-5ca0ad621512/usage - 200 - 0.012s
+2025-09-16 10:51:22,681 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage
+2025-09-16 10:51:22,682 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage - 200 - 0.000s
+2025-09-16 10:51:22,687 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage
+2025-09-16 10:51:22,698 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/08a2b3cc-4c66-4136-93c5-f9ab70df94e5/usage - 200 - 0.011s
+2025-09-16 10:51:22,704 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage
+2025-09-16 10:51:22,706 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage - 200 - 0.001s
+2025-09-16 10:51:22,712 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage
+2025-09-16 10:51:22,724 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/f679f66b-c729-4d0b-99dc-535f09309f6d/usage - 200 - 0.012s
+2025-09-16 10:51:22,731 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage
+2025-09-16 10:51:22,731 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage - 200 - 0.000s
+2025-09-16 10:51:22,737 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage
+2025-09-16 10:51:22,746 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/065035f5-4178-4f19-ba4c-edc88f5c3219/usage - 200 - 0.010s
+2025-09-16 10:51:22,753 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage
+2025-09-16 10:51:22,754 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage - 200 - 0.001s
+2025-09-16 10:51:22,758 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage
+2025-09-16 10:51:22,765 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/roles/d50bec9b-811a-4f44-b637-ca4734a557e3/usage - 200 - 0.007s
+2025-09-16 10:51:27,067 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 10:51:27,072 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.005s
+2025-09-16 10:51:33,073 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 10:51:33,074 - app.core.monitoring - INFO - Request started: GET /api/v1/roles
+2025-09-16 10:51:33,074 - app.core.monitoring - INFO - Request started: GET /api/v1/positions
+2025-09-16 10:51:33,074 - app.core.monitoring - INFO - Request started: GET /api/v1/positions/departments
+2025-09-16 10:51:33,083 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions/departments - 200 - 0.009s
+2025-09-16 10:51:33,084 - app.core.monitoring - INFO - Request completed: GET /api/v1/positions - 200 - 0.010s
+2025-09-16 10:51:33,084 - app.core.monitoring - INFO - Request completed: GET /api/v1/roles - 200 - 0.010s
+2025-09-16 10:51:33,133 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.059s
+2025-09-16 10:51:33,137 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/users/search
+2025-09-16 10:51:33,174 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/users/search - 200 - 0.037s
+2025-09-16 10:51:50,657 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:51:50,697 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.040s
+2025-09-16 10:52:20,657 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:52:20,693 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.037s
+2025-09-16 10:52:50,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:52:50,662 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 10:53:20,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:53:20,662 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 10:53:50,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:53:50,667 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.013s
+2025-09-16 10:54:20,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:54:20,664 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 10:54:50,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:54:50,664 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 10:55:20,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:55:20,663 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 10:55:50,656 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:55:50,669 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.013s
+2025-09-16 10:56:20,657 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:56:20,693 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.036s
+2025-09-16 10:56:50,654 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:56:50,662 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 10:57:20,658 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:57:20,676 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.018s
+2025-09-16 10:57:51,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:57:51,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 10:58:21,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:58:21,439 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.018s
+2025-09-16 10:59:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 10:59:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:00:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:00:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:01:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:01:36,438 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 11:02:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:02:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:03:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:03:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:04:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:04:36,441 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:05:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:05:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:06:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:06:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:07:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:07:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:08:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:08:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:09:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:09:36,458 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.036s
+2025-09-16 11:10:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:10:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:11:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:11:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:12:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:12:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:13:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:13:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:14:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:14:36,438 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 11:15:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:15:36,442 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 11:16:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:16:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:17:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:17:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:18:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:18:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:19:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:19:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:20:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:20:36,426 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:21:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:21:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:22:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:22:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:23:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:23:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:24:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:24:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:25:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:25:36,427 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:26:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:26:36,439 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 11:27:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:27:36,455 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.035s
+2025-09-16 11:28:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:28:36,456 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.035s
+2025-09-16 11:29:36,419 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:29:36,428 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.010s
+2025-09-16 11:30:36,418 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:30:36,475 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.057s
+2025-09-16 11:31:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:31:36,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:32:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:32:36,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 11:33:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:33:36,440 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:34:36,421 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:34:36,430 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:35:36,422 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:35:36,432 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.011s
+2025-09-16 11:36:11,724 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:36:11,742 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 11:36:20,655 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:36:20,675 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:36:24,664 - app.core.monitoring - INFO - Request started: GET /api/v1/admin/statistics
+2025-09-16 11:36:24,669 - app.core.monitoring - INFO - Request completed: GET /api/v1/admin/statistics - 200 - 0.005s
+2025-09-16 11:36:24,677 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles/statistics
+2025-09-16 11:36:24,683 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles/statistics - 200 - 0.007s
+2025-09-16 11:36:38,878 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 11:36:39,132 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.253s
+2025-09-16 11:36:39,135 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 11:36:39,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.008s
+2025-09-16 11:36:39,149 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 11:36:39,149 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.001s
+2025-09-16 11:36:39,150 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 11:36:39,153 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 11:36:39,161 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 11:36:39,164 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties
+2025-09-16 11:36:39,164 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.003s
+2025-09-16 11:36:39,164 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/counterparties/statistics
+2025-09-16 11:36:39,165 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties - 200 - 0.001s
+2025-09-16 11:36:39,167 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/counterparties/statistics - 200 - 0.002s
+2025-09-16 11:36:39,169 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.019s
+2025-09-16 11:36:39,182 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:36:39,183 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties
+2025-09-16 11:36:39,183 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/counterparties/statistics
+2025-09-16 11:36:39,189 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.036s
+2025-09-16 11:36:39,209 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties/statistics - 200 - 0.026s
+2025-09-16 11:36:39,211 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 11:36:39,233 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/counterparties - 200 - 0.050s
+2025-09-16 11:36:39,233 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.051s
+2025-09-16 11:36:39,239 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.028s
+2025-09-16 11:36:42,929 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/expense-articles
+2025-09-16 11:36:42,930 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/vat-rates
+2025-09-16 11:36:42,931 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/expense-articles - 200 - 0.002s
+2025-09-16 11:36:42,931 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/dictionaries/vat-rates/statistics
+2025-09-16 11:36:42,931 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/users
+2025-09-16 11:36:42,932 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 11:36:42,932 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/vat-rates - 200 - 0.001s
+2025-09-16 11:36:42,932 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/dictionaries/vat-rates/statistics - 200 - 0.001s
+2025-09-16 11:36:42,932 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/users - 200 - 0.001s
+2025-09-16 11:36:42,932 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.001s
+2025-09-16 11:36:42,938 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/expense-articles
+2025-09-16 11:36:42,942 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates
+2025-09-16 11:36:42,945 - app.core.monitoring - INFO - Request started: GET /api/v1/users
+2025-09-16 11:36:42,946 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 11:36:42,946 - app.core.monitoring - INFO - Request started: GET /api/v1/dictionaries/vat-rates/statistics
+2025-09-16 11:36:42,966 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates/statistics - 200 - 0.020s
+2025-09-16 11:36:42,970 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/expense-articles - 200 - 0.032s
+2025-09-16 11:36:42,980 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.034s
+2025-09-16 11:36:42,989 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 11:36:42,991 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.002s
+2025-09-16 11:36:42,994 - app.core.monitoring - INFO - Request completed: GET /api/v1/dictionaries/vat-rates - 200 - 0.052s
+2025-09-16 11:36:42,994 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9
+2025-09-16 11:36:43,010 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/cde2e039-2747-4013-9694-454580624fa9 - 200 - 0.016s
+2025-09-16 11:36:43,031 - app.core.monitoring - INFO - Request completed: GET /api/v1/users - 200 - 0.086s
+2025-09-16 11:37:09,161 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:37:09,183 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.023s
+2025-09-16 11:37:39,157 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:37:39,164 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 11:37:41,540 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 11:37:41,565 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.025s
+2025-09-16 11:37:43,090 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:37:43,091 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.001s
+2025-09-16 11:37:43,101 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:37:43,124 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.023s
+2025-09-16 11:37:43,135 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:37:43,135 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.001s
+2025-09-16 11:37:43,141 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:37:43,147 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.006s
+2025-09-16 11:38:09,157 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:38:09,162 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 11:38:39,160 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:38:39,181 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 11:39:03,883 - app.core.monitoring - INFO - Request started: POST /api/v1/auth/login
+2025-09-16 11:39:04,106 - app.core.monitoring - INFO - Request completed: POST /api/v1/auth/login - 200 - 0.224s
+2025-09-16 11:39:04,111 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 11:39:04,117 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.006s
+2025-09-16 11:39:04,122 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/list
+2025-09-16 11:39:04,123 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/list - 200 - 0.001s
+2025-09-16 11:39:04,124 - app.core.monitoring - INFO - Request started: GET /api/v1/auth/me
+2025-09-16 11:39:04,130 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 11:39:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 11:39:04,134 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/requests/statistics
+2025-09-16 11:39:04,135 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 11:39:04,136 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/requests/statistics - 200 - 0.001s
+2025-09-16 11:39:04,138 - app.core.monitoring - INFO - Request completed: GET /api/v1/auth/me - 200 - 0.015s
+2025-09-16 11:39:04,144 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:39:04,148 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.017s
+2025-09-16 11:39:04,152 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/list
+2025-09-16 11:39:04,159 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.015s
+2025-09-16 11:39:04,163 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:39:04,166 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/list - 200 - 0.015s
+2025-09-16 11:39:04,176 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.013s
+2025-09-16 11:39:05,568 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:39:05,574 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.006s
+2025-09-16 11:39:05,580 - app.core.monitoring - INFO - Request started: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:39:05,585 - app.core.monitoring - INFO - Request completed: GET /api/v1/registrar-assignments/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.005s
+2025-09-16 11:39:05,591 - app.core.monitoring - INFO - Request started: OPTIONS /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:39:05,591 - app.core.monitoring - INFO - Request completed: OPTIONS /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd - 200 - 0.000s
+2025-09-16 11:39:05,596 - app.core.monitoring - INFO - Request started: GET /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd
+2025-09-16 11:39:05,604 - app.core.monitoring - INFO - Request completed: GET /api/v1/sub-registrar-assignment-data/a02b8aca-02a1-4c15-a023-7b662a9249fd - 404 - 0.008s
+2025-09-16 11:39:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:39:34,138 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 11:40:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:40:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:40:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:40:34,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 11:41:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:41:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:41:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:41:34,148 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 11:42:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:42:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:42:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:42:34,134 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 11:43:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:43:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:43:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:43:34,134 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 11:44:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:44:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:44:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:44:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:45:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:45:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:45:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:45:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:46:04,128 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:46:04,133 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.004s
+2025-09-16 11:46:34,128 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:46:34,133 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 11:47:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:47:04,145 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.013s
+2025-09-16 11:47:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:47:34,146 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.014s
+2025-09-16 11:48:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:48:04,146 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.015s
+2025-09-16 11:48:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:48:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 11:49:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:49:04,147 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.015s
+2025-09-16 11:49:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:49:34,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:50:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:50:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:50:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:50:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:51:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:51:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:51:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:51:34,153 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.022s
+2025-09-16 11:52:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:52:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:52:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:52:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:53:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:53:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:53:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:53:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 11:54:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:54:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:54:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:54:34,149 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 11:55:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:55:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:55:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:55:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:56:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:56:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 11:56:34,128 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:56:34,132 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.004s
+2025-09-16 11:57:04,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:57:04,136 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 11:57:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:57:34,147 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 11:58:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:58:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:58:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:58:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 11:59:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:59:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 11:59:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 11:59:34,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:00:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:00:04,140 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 12:00:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:00:34,153 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 12:01:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:01:04,138 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 12:01:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:01:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:02:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:02:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:02:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:02:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 12:03:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:03:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:03:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:03:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 12:04:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:04:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:04:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:04:34,154 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.022s
+2025-09-16 12:05:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:05:04,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 12:05:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:05:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:06:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:06:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:06:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:06:34,148 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.017s
+2025-09-16 12:07:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:07:04,148 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 12:07:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:07:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:08:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:08:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:08:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:08:34,134 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 12:09:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:09:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:09:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:09:34,139 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 12:10:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:10:04,140 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.008s
+2025-09-16 12:10:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:10:34,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 12:11:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:11:04,140 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 12:11:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:11:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:12:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:12:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:12:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:12:34,143 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.011s
+2025-09-16 12:13:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:13:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:13:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:13:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 12:14:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:14:04,140 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 12:14:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:14:34,147 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 12:15:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:15:04,145 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.014s
+2025-09-16 12:15:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:15:34,140 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.009s
+2025-09-16 12:16:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:16:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:16:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:16:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:17:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:17:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:17:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:17:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:18:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:18:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.021s
+2025-09-16 12:18:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:18:34,134 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.006s
+2025-09-16 12:19:04,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:19:04,150 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:19:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:19:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:20:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:20:04,144 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.012s
+2025-09-16 12:20:34,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:20:34,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:21:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:21:04,152 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.020s
+2025-09-16 12:21:34,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:21:34,135 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.007s
+2025-09-16 12:22:04,129 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:22:04,134 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s
+2025-09-16 12:22:34,131 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:22:34,147 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.016s
+2025-09-16 12:23:04,132 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:23:04,151 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.019s
+2025-09-16 12:23:34,128 - app.core.monitoring - INFO - Request started: GET /api/v1/requests/statistics
+2025-09-16 12:23:34,133 - app.core.monitoring - INFO - Request completed: GET /api/v1/requests/statistics - 200 - 0.005s

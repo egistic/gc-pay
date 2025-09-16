@@ -174,7 +174,7 @@ class PaymentRequest(Base):
     created_by_user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     counterparty_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("counterparties.id"))
     title: Mapped[str] = mapped_column(String(255))
-    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
+    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, name="payment_request_status", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
     currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"))
     amount_total: Mapped[float] = mapped_column(Numeric(18, 2), default=0)
     vat_total: Mapped[float] = mapped_column(Numeric(18, 2), default=0)
@@ -195,9 +195,9 @@ class PaymentRequest(Base):
     price_rate: Mapped[str | None] = mapped_column(String(128), nullable=True)
     period: Mapped[str | None] = mapped_column(String(128), nullable=True)
     responsible_registrar_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
-    distribution_status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
+    distribution_status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, name="distribution_status", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
     # Phase 2: Priority management
-    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'normal'"))
+    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, name="payment_priority", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'normal'"))
     priority_score: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)  # Calculated priority score
     # Split request fields
     original_request_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("payment_requests.id"), nullable=True)  # Reference to original request if this is a split
@@ -223,7 +223,7 @@ class PaymentRequestLine(Base):
     amount_net: Mapped[float] = mapped_column(Numeric(18, 2))
     vat_rate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("vat_rates.id"))
     currency_code: Mapped[str] = mapped_column(ForeignKey("currencies.code"))
-    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
+    status: Mapped[PaymentRequestStatus] = mapped_column(SQLEnum(PaymentRequestStatus, name="payment_request_status", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'draft'"))
     note: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
 class LineRequiredDoc(Base):
@@ -281,7 +281,7 @@ class Contract(Base):
     counterparty_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("counterparties.id"))
     contract_number: Mapped[str] = mapped_column(String(128))
     contract_date: Mapped[date] = mapped_column(SA_Date)
-    contract_type: Mapped[ContractType] = mapped_column(SQLEnum(ContractType, values_callable=lambda obj: [e.value for e in obj]))  # general, export, service, supply
+    contract_type: Mapped[ContractType] = mapped_column(SQLEnum(ContractType, name="contract_type", values_callable=lambda obj: [e.value for e in obj]))  # general, export, service, supply
     validity_period: Mapped[str | None] = mapped_column(String(128), nullable=True)  # Срок действия
     rates: Mapped[str | None] = mapped_column(String(1000), nullable=True)  # Тарифы
     contract_info: Mapped[str | None] = mapped_column(String(2000), nullable=True)  # Информация по договору
@@ -319,7 +319,7 @@ class SubRegistrarAssignment(Base):
     request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
     sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     assigned_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    status: Mapped[SubRegistrarAssignmentStatus] = mapped_column(SQLEnum(SubRegistrarAssignmentStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'assigned'"))
+    status: Mapped[SubRegistrarAssignmentStatus] = mapped_column(SQLEnum(SubRegistrarAssignmentStatus, name="sub_registrar_assignment_status", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'assigned'"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 class SubRegistrarAssignmentData(Base):
@@ -364,7 +364,7 @@ class DistributorRequest(Base):
     expense_article_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("expense_articles.id"))
     amount: Mapped[float] = mapped_column(Numeric(18, 2))
     distributor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
+    status: Mapped[DistributionStatus] = mapped_column(SQLEnum(DistributionStatus, name="distribution_status", values_callable=lambda obj: [e.value for e in obj]), server_default=text("'pending'"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 class SubRegistrarReport(Base):
@@ -372,7 +372,7 @@ class SubRegistrarReport(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     request_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("payment_requests.id"))
     sub_registrar_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    document_status: Mapped[DocumentStatus] = mapped_column(SQLEnum(DocumentStatus, values_callable=lambda obj: [e.value for e in obj]))  # required, uploaded, verified, rejected
+    document_status: Mapped[DocumentStatus] = mapped_column(SQLEnum(DocumentStatus, name="document_status", values_callable=lambda obj: [e.value for e in obj]))  # required, uploaded, verified, rejected
     report_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(32), server_default=text("'DRAFT'"))
     published_at: Mapped[datetime | None] = mapped_column(SA_DateTime, nullable=True)
@@ -418,7 +418,7 @@ class PaymentPriorityRule(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, values_callable=lambda obj: [e.value for e in obj]))
+    priority: Mapped[PaymentPriority] = mapped_column(SQLEnum(PaymentPriority, name="payment_priority", values_callable=lambda obj: [e.value for e in obj]))
     conditions: Mapped[dict] = mapped_column(JSON)  # JSON conditions for priority calculation
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
     created_at: Mapped[datetime] = mapped_column(SA_DateTime, server_default=text("CURRENT_TIMESTAMP"))
